@@ -1,0 +1,785 @@
+[
+  {
+    "id": "SIGHT001",
+    "vehicle_id": "V011",
+    "location_id": "LOC009",
+    "sighting_timestamp": "2026-01-01T14:00:00",
+    "camera_id": "CAM_LOC009_4",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_SIGHT001.jpg"
+  },
+  {
+    "id": "SIGHT002",
+    "vehicle_id": "V003",
+    "location_id": "LOC007",
+    "sighting_timestamp": "2026-01-01T18:00:00",
+    "camera_id": "CAM_LOC007_4",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT002.jpg"
+  },
+  {
+    "id": "SIGHT003",
+    "vehicle_id": "V014",
+    "location_id": "LOC024",
+    "sighting_timestamp": "2026-01-01T22:00:00",
+    "camera_id": "CAM_LOC024_4",
+    "confidence": 0.96,
+    "image_url": "/data/processed/cctv_SIGHT003.jpg"
+  },
+  {
+    "id": "SIGHT004",
+    "vehicle_id": "V012",
+    "location_id": "LOC002",
+    "sighting_timestamp": "2026-01-02T02:00:00",
+    "camera_id": "CAM_LOC002_5",
+    "confidence": 0.97,
+    "image_url": "/data/processed/cctv_SIGHT004.jpg"
+  },
+  {
+    "id": "SIGHT005",
+    "vehicle_id": "V003",
+    "location_id": "LOC010",
+    "sighting_timestamp": "2026-01-02T06:00:00",
+    "camera_id": "CAM_LOC010_5",
+    "confidence": 0.92,
+    "image_url": "/data/processed/cctv_SIGHT005.jpg"
+  },
+  {
+    "id": "SIGHT006",
+    "vehicle_id": "V017",
+    "location_id": "LOC019",
+    "sighting_timestamp": "2026-01-02T10:00:00",
+    "camera_id": "CAM_LOC019_1",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT006.jpg"
+  },
+  {
+    "id": "SIGHT007",
+    "vehicle_id": "V007",
+    "location_id": "LOC002",
+    "sighting_timestamp": "2026-01-02T14:00:00",
+    "camera_id": "CAM_LOC002_2",
+    "confidence": 0.88,
+    "image_url": "/data/processed/cctv_SIGHT007.jpg"
+  },
+  {
+    "id": "SIGHT008",
+    "vehicle_id": "V002",
+    "location_id": "LOC012",
+    "sighting_timestamp": "2026-01-02T18:00:00",
+    "camera_id": "CAM_LOC012_2",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT008.jpg"
+  },
+  {
+    "id": "SIGHT009",
+    "vehicle_id": "V015",
+    "location_id": "LOC017",
+    "sighting_timestamp": "2026-01-02T22:00:00",
+    "camera_id": "CAM_LOC017_4",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_SIGHT009.jpg"
+  },
+  {
+    "id": "SIGHT010",
+    "vehicle_id": "V004",
+    "location_id": "LOC022",
+    "sighting_timestamp": "2026-01-03T02:00:00",
+    "camera_id": "CAM_LOC022_1",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT010.jpg"
+  },
+  {
+    "id": "SIGHT011",
+    "vehicle_id": "V016",
+    "location_id": "LOC020",
+    "sighting_timestamp": "2026-01-03T06:00:00",
+    "camera_id": "CAM_LOC020_4",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT011.jpg"
+  },
+  {
+    "id": "SIGHT012",
+    "vehicle_id": "V016",
+    "location_id": "LOC019",
+    "sighting_timestamp": "2026-01-03T10:00:00",
+    "camera_id": "CAM_LOC019_5",
+    "confidence": 0.92,
+    "image_url": "/data/processed/cctv_SIGHT012.jpg"
+  },
+  {
+    "id": "SIGHT013",
+    "vehicle_id": "V006",
+    "location_id": "LOC009",
+    "sighting_timestamp": "2026-01-03T14:00:00",
+    "camera_id": "CAM_LOC009_1",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT013.jpg"
+  },
+  {
+    "id": "SIGHT014",
+    "vehicle_id": "V013",
+    "location_id": "LOC002",
+    "sighting_timestamp": "2026-01-03T18:00:00",
+    "camera_id": "CAM_LOC002_2",
+    "confidence": 0.97,
+    "image_url": "/data/processed/cctv_SIGHT014.jpg"
+  },
+  {
+    "id": "SIGHT015",
+    "vehicle_id": "V007",
+    "location_id": "LOC008",
+    "sighting_timestamp": "2026-01-03T22:00:00",
+    "camera_id": "CAM_LOC008_2",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_SIGHT015.jpg"
+  },
+  {
+    "id": "SIGHT016",
+    "vehicle_id": "V009",
+    "location_id": "LOC021",
+    "sighting_timestamp": "2026-01-04T02:00:00",
+    "camera_id": "CAM_LOC021_4",
+    "confidence": 0.94,
+    "image_url": "/data/processed/cctv_SIGHT016.jpg"
+  },
+  {
+    "id": "SIGHT017",
+    "vehicle_id": "V001",
+    "location_id": "LOC016",
+    "sighting_timestamp": "2026-01-04T06:00:00",
+    "camera_id": "CAM_LOC016_2",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_SIGHT017.jpg"
+  },
+  {
+    "id": "SIGHT018",
+    "vehicle_id": "V020",
+    "location_id": "LOC001",
+    "sighting_timestamp": "2026-01-04T10:00:00",
+    "camera_id": "CAM_LOC001_2",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT018.jpg"
+  },
+  {
+    "id": "SIGHT019",
+    "vehicle_id": "V011",
+    "location_id": "LOC023",
+    "sighting_timestamp": "2026-01-04T14:00:00",
+    "camera_id": "CAM_LOC023_3",
+    "confidence": 0.93,
+    "image_url": "/data/processed/cctv_SIGHT019.jpg"
+  },
+  {
+    "id": "SIGHT020",
+    "vehicle_id": "V013",
+    "location_id": "LOC012",
+    "sighting_timestamp": "2026-01-04T18:00:00",
+    "camera_id": "CAM_LOC012_4",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT020.jpg"
+  },
+  {
+    "id": "SIGHT021",
+    "vehicle_id": "V015",
+    "location_id": "LOC010",
+    "sighting_timestamp": "2026-01-04T22:00:00",
+    "camera_id": "CAM_LOC010_5",
+    "confidence": 0.97,
+    "image_url": "/data/processed/cctv_SIGHT021.jpg"
+  },
+  {
+    "id": "SIGHT022",
+    "vehicle_id": "V013",
+    "location_id": "LOC019",
+    "sighting_timestamp": "2026-01-05T02:00:00",
+    "camera_id": "CAM_LOC019_1",
+    "confidence": 0.88,
+    "image_url": "/data/processed/cctv_SIGHT022.jpg"
+  },
+  {
+    "id": "SIGHT023",
+    "vehicle_id": "V012",
+    "location_id": "LOC018",
+    "sighting_timestamp": "2026-01-05T06:00:00",
+    "camera_id": "CAM_LOC018_5",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_SIGHT023.jpg"
+  },
+  {
+    "id": "SIGHT024",
+    "vehicle_id": "V011",
+    "location_id": "LOC022",
+    "sighting_timestamp": "2026-01-05T10:00:00",
+    "camera_id": "CAM_LOC022_1",
+    "confidence": 0.93,
+    "image_url": "/data/processed/cctv_SIGHT024.jpg"
+  },
+  {
+    "id": "SIGHT025",
+    "vehicle_id": "V011",
+    "location_id": "LOC009",
+    "sighting_timestamp": "2026-01-05T14:00:00",
+    "camera_id": "CAM_LOC009_3",
+    "confidence": 0.97,
+    "image_url": "/data/processed/cctv_SIGHT025.jpg"
+  },
+  {
+    "id": "SIGHT026",
+    "vehicle_id": "V009",
+    "location_id": "LOC021",
+    "sighting_timestamp": "2026-01-05T18:00:00",
+    "camera_id": "CAM_LOC021_3",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT026.jpg"
+  },
+  {
+    "id": "SIGHT027",
+    "vehicle_id": "V017",
+    "location_id": "LOC025",
+    "sighting_timestamp": "2026-01-05T22:00:00",
+    "camera_id": "CAM_LOC025_2",
+    "confidence": 0.98,
+    "image_url": "/data/processed/cctv_SIGHT027.jpg"
+  },
+  {
+    "id": "SIGHT028",
+    "vehicle_id": "V020",
+    "location_id": "LOC013",
+    "sighting_timestamp": "2026-01-06T02:00:00",
+    "camera_id": "CAM_LOC013_3",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_SIGHT028.jpg"
+  },
+  {
+    "id": "SIGHT029",
+    "vehicle_id": "V001",
+    "location_id": "LOC021",
+    "sighting_timestamp": "2026-01-06T06:00:00",
+    "camera_id": "CAM_LOC021_4",
+    "confidence": 0.99,
+    "image_url": "/data/processed/cctv_SIGHT029.jpg"
+  },
+  {
+    "id": "SIGHT030",
+    "vehicle_id": "V009",
+    "location_id": "LOC014",
+    "sighting_timestamp": "2026-01-06T10:00:00",
+    "camera_id": "CAM_LOC014_4",
+    "confidence": 0.92,
+    "image_url": "/data/processed/cctv_SIGHT030.jpg"
+  },
+  {
+    "id": "SIGHT031",
+    "vehicle_id": "V002",
+    "location_id": "LOC019",
+    "sighting_timestamp": "2026-01-06T14:00:00",
+    "camera_id": "CAM_LOC019_5",
+    "confidence": 0.97,
+    "image_url": "/data/processed/cctv_SIGHT031.jpg"
+  },
+  {
+    "id": "SIGHT032",
+    "vehicle_id": "V011",
+    "location_id": "LOC024",
+    "sighting_timestamp": "2026-01-06T18:00:00",
+    "camera_id": "CAM_LOC024_2",
+    "confidence": 0.96,
+    "image_url": "/data/processed/cctv_SIGHT032.jpg"
+  },
+  {
+    "id": "SIGHT033",
+    "vehicle_id": "V016",
+    "location_id": "LOC022",
+    "sighting_timestamp": "2026-01-06T22:00:00",
+    "camera_id": "CAM_LOC022_3",
+    "confidence": 0.94,
+    "image_url": "/data/processed/cctv_SIGHT033.jpg"
+  },
+  {
+    "id": "SIGHT034",
+    "vehicle_id": "V006",
+    "location_id": "LOC022",
+    "sighting_timestamp": "2026-01-07T02:00:00",
+    "camera_id": "CAM_LOC022_5",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT034.jpg"
+  },
+  {
+    "id": "SIGHT035",
+    "vehicle_id": "V004",
+    "location_id": "LOC016",
+    "sighting_timestamp": "2026-01-07T06:00:00",
+    "camera_id": "CAM_LOC016_2",
+    "confidence": 0.96,
+    "image_url": "/data/processed/cctv_SIGHT035.jpg"
+  },
+  {
+    "id": "SIGHT036",
+    "vehicle_id": "V018",
+    "location_id": "LOC025",
+    "sighting_timestamp": "2026-01-07T10:00:00",
+    "camera_id": "CAM_LOC025_2",
+    "confidence": 0.98,
+    "image_url": "/data/processed/cctv_SIGHT036.jpg"
+  },
+  {
+    "id": "SIGHT037",
+    "vehicle_id": "V011",
+    "location_id": "LOC021",
+    "sighting_timestamp": "2026-01-07T14:00:00",
+    "camera_id": "CAM_LOC021_1",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT037.jpg"
+  },
+  {
+    "id": "SIGHT038",
+    "vehicle_id": "V008",
+    "location_id": "LOC024",
+    "sighting_timestamp": "2026-01-07T18:00:00",
+    "camera_id": "CAM_LOC024_3",
+    "confidence": 0.93,
+    "image_url": "/data/processed/cctv_SIGHT038.jpg"
+  },
+  {
+    "id": "SIGHT039",
+    "vehicle_id": "V011",
+    "location_id": "LOC012",
+    "sighting_timestamp": "2026-01-07T22:00:00",
+    "camera_id": "CAM_LOC012_3",
+    "confidence": 0.94,
+    "image_url": "/data/processed/cctv_SIGHT039.jpg"
+  },
+  {
+    "id": "SIGHT040",
+    "vehicle_id": "V015",
+    "location_id": "LOC004",
+    "sighting_timestamp": "2026-01-08T02:00:00",
+    "camera_id": "CAM_LOC004_4",
+    "confidence": 0.89,
+    "image_url": "/data/processed/cctv_SIGHT040.jpg"
+  },
+  {
+    "id": "SIGHT041",
+    "vehicle_id": "V019",
+    "location_id": "LOC019",
+    "sighting_timestamp": "2026-01-08T06:00:00",
+    "camera_id": "CAM_LOC019_5",
+    "confidence": 0.89,
+    "image_url": "/data/processed/cctv_SIGHT041.jpg"
+  },
+  {
+    "id": "SIGHT042",
+    "vehicle_id": "V007",
+    "location_id": "LOC017",
+    "sighting_timestamp": "2026-01-08T10:00:00",
+    "camera_id": "CAM_LOC017_1",
+    "confidence": 0.98,
+    "image_url": "/data/processed/cctv_SIGHT042.jpg"
+  },
+  {
+    "id": "SIGHT043",
+    "vehicle_id": "V013",
+    "location_id": "LOC017",
+    "sighting_timestamp": "2026-01-08T14:00:00",
+    "camera_id": "CAM_LOC017_3",
+    "confidence": 0.93,
+    "image_url": "/data/processed/cctv_SIGHT043.jpg"
+  },
+  {
+    "id": "SIGHT044",
+    "vehicle_id": "V005",
+    "location_id": "LOC005",
+    "sighting_timestamp": "2026-01-08T18:00:00",
+    "camera_id": "CAM_LOC005_2",
+    "confidence": 0.92,
+    "image_url": "/data/processed/cctv_SIGHT044.jpg"
+  },
+  {
+    "id": "SIGHT045",
+    "vehicle_id": "V019",
+    "location_id": "LOC015",
+    "sighting_timestamp": "2026-01-08T22:00:00",
+    "camera_id": "CAM_LOC015_2",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT045.jpg"
+  },
+  {
+    "id": "SIGHT046",
+    "vehicle_id": "V006",
+    "location_id": "LOC025",
+    "sighting_timestamp": "2026-01-09T02:00:00",
+    "camera_id": "CAM_LOC025_1",
+    "confidence": 0.93,
+    "image_url": "/data/processed/cctv_SIGHT046.jpg"
+  },
+  {
+    "id": "SIGHT047",
+    "vehicle_id": "V006",
+    "location_id": "LOC011",
+    "sighting_timestamp": "2026-01-09T06:00:00",
+    "camera_id": "CAM_LOC011_1",
+    "confidence": 0.88,
+    "image_url": "/data/processed/cctv_SIGHT047.jpg"
+  },
+  {
+    "id": "SIGHT048",
+    "vehicle_id": "V009",
+    "location_id": "LOC007",
+    "sighting_timestamp": "2026-01-09T10:00:00",
+    "camera_id": "CAM_LOC007_2",
+    "confidence": 0.94,
+    "image_url": "/data/processed/cctv_SIGHT048.jpg"
+  },
+  {
+    "id": "SIGHT049",
+    "vehicle_id": "V006",
+    "location_id": "LOC016",
+    "sighting_timestamp": "2026-01-09T14:00:00",
+    "camera_id": "CAM_LOC016_1",
+    "confidence": 0.89,
+    "image_url": "/data/processed/cctv_SIGHT049.jpg"
+  },
+  {
+    "id": "SIGHT050",
+    "vehicle_id": "V014",
+    "location_id": "LOC021",
+    "sighting_timestamp": "2026-01-09T18:00:00",
+    "camera_id": "CAM_LOC021_4",
+    "confidence": 0.92,
+    "image_url": "/data/processed/cctv_SIGHT050.jpg"
+  },
+  {
+    "id": "SIGHT051",
+    "vehicle_id": "V016",
+    "location_id": "LOC013",
+    "sighting_timestamp": "2026-01-09T22:00:00",
+    "camera_id": "CAM_LOC013_1",
+    "confidence": 0.88,
+    "image_url": "/data/processed/cctv_SIGHT051.jpg"
+  },
+  {
+    "id": "SIGHT052",
+    "vehicle_id": "V007",
+    "location_id": "LOC024",
+    "sighting_timestamp": "2026-01-10T02:00:00",
+    "camera_id": "CAM_LOC024_3",
+    "confidence": 0.98,
+    "image_url": "/data/processed/cctv_SIGHT052.jpg"
+  },
+  {
+    "id": "SIGHT053",
+    "vehicle_id": "V011",
+    "location_id": "LOC025",
+    "sighting_timestamp": "2026-01-10T06:00:00",
+    "camera_id": "CAM_LOC025_5",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT053.jpg"
+  },
+  {
+    "id": "SIGHT054",
+    "vehicle_id": "V001",
+    "location_id": "LOC021",
+    "sighting_timestamp": "2026-01-10T10:00:00",
+    "camera_id": "CAM_LOC021_2",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT054.jpg"
+  },
+  {
+    "id": "SIGHT055",
+    "vehicle_id": "V012",
+    "location_id": "LOC010",
+    "sighting_timestamp": "2026-01-10T14:00:00",
+    "camera_id": "CAM_LOC010_2",
+    "confidence": 0.89,
+    "image_url": "/data/processed/cctv_SIGHT055.jpg"
+  },
+  {
+    "id": "SIGHT056",
+    "vehicle_id": "V017",
+    "location_id": "LOC019",
+    "sighting_timestamp": "2026-01-10T18:00:00",
+    "camera_id": "CAM_LOC019_3",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT056.jpg"
+  },
+  {
+    "id": "SIGHT057",
+    "vehicle_id": "V002",
+    "location_id": "LOC010",
+    "sighting_timestamp": "2026-01-10T22:00:00",
+    "camera_id": "CAM_LOC010_3",
+    "confidence": 0.93,
+    "image_url": "/data/processed/cctv_SIGHT057.jpg"
+  },
+  {
+    "id": "SIGHT058",
+    "vehicle_id": "V017",
+    "location_id": "LOC020",
+    "sighting_timestamp": "2026-01-11T02:00:00",
+    "camera_id": "CAM_LOC020_5",
+    "confidence": 0.92,
+    "image_url": "/data/processed/cctv_SIGHT058.jpg"
+  },
+  {
+    "id": "SIGHT059",
+    "vehicle_id": "V005",
+    "location_id": "LOC011",
+    "sighting_timestamp": "2026-01-11T06:00:00",
+    "camera_id": "CAM_LOC011_4",
+    "confidence": 0.92,
+    "image_url": "/data/processed/cctv_SIGHT059.jpg"
+  },
+  {
+    "id": "SIGHT060",
+    "vehicle_id": "V007",
+    "location_id": "LOC006",
+    "sighting_timestamp": "2026-01-11T10:00:00",
+    "camera_id": "CAM_LOC006_4",
+    "confidence": 0.88,
+    "image_url": "/data/processed/cctv_SIGHT060.jpg"
+  },
+  {
+    "id": "SIGHT061",
+    "vehicle_id": "V008",
+    "location_id": "LOC024",
+    "sighting_timestamp": "2026-01-11T14:00:00",
+    "camera_id": "CAM_LOC024_2",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT061.jpg"
+  },
+  {
+    "id": "SIGHT062",
+    "vehicle_id": "V001",
+    "location_id": "LOC019",
+    "sighting_timestamp": "2026-01-11T18:00:00",
+    "camera_id": "CAM_LOC019_5",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT062.jpg"
+  },
+  {
+    "id": "SIGHT063",
+    "vehicle_id": "V012",
+    "location_id": "LOC023",
+    "sighting_timestamp": "2026-01-11T22:00:00",
+    "camera_id": "CAM_LOC023_1",
+    "confidence": 0.92,
+    "image_url": "/data/processed/cctv_SIGHT063.jpg"
+  },
+  {
+    "id": "SIGHT064",
+    "vehicle_id": "V009",
+    "location_id": "LOC025",
+    "sighting_timestamp": "2026-01-12T02:00:00",
+    "camera_id": "CAM_LOC025_5",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_SIGHT064.jpg"
+  },
+  {
+    "id": "SIGHT065",
+    "vehicle_id": "V020",
+    "location_id": "LOC002",
+    "sighting_timestamp": "2026-01-12T06:00:00",
+    "camera_id": "CAM_LOC002_1",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_SIGHT065.jpg"
+  },
+  {
+    "id": "SIGHT066",
+    "vehicle_id": "V001",
+    "location_id": "LOC002",
+    "sighting_timestamp": "2026-01-12T10:00:00",
+    "camera_id": "CAM_LOC002_1",
+    "confidence": 0.93,
+    "image_url": "/data/processed/cctv_SIGHT066.jpg"
+  },
+  {
+    "id": "SIGHT067",
+    "vehicle_id": "V013",
+    "location_id": "LOC004",
+    "sighting_timestamp": "2026-01-12T14:00:00",
+    "camera_id": "CAM_LOC004_5",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT067.jpg"
+  },
+  {
+    "id": "SIGHT068",
+    "vehicle_id": "V005",
+    "location_id": "LOC007",
+    "sighting_timestamp": "2026-01-12T18:00:00",
+    "camera_id": "CAM_LOC007_1",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT068.jpg"
+  },
+  {
+    "id": "SIGHT069",
+    "vehicle_id": "V004",
+    "location_id": "LOC022",
+    "sighting_timestamp": "2026-01-12T22:00:00",
+    "camera_id": "CAM_LOC022_5",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT069.jpg"
+  },
+  {
+    "id": "SIGHT070",
+    "vehicle_id": "V020",
+    "location_id": "LOC023",
+    "sighting_timestamp": "2026-01-13T02:00:00",
+    "camera_id": "CAM_LOC023_2",
+    "confidence": 0.93,
+    "image_url": "/data/processed/cctv_SIGHT070.jpg"
+  },
+  {
+    "id": "SIGHT071",
+    "vehicle_id": "V004",
+    "location_id": "LOC017",
+    "sighting_timestamp": "2026-01-13T06:00:00",
+    "camera_id": "CAM_LOC017_5",
+    "confidence": 0.89,
+    "image_url": "/data/processed/cctv_SIGHT071.jpg"
+  },
+  {
+    "id": "SIGHT072",
+    "vehicle_id": "V004",
+    "location_id": "LOC004",
+    "sighting_timestamp": "2026-01-13T10:00:00",
+    "camera_id": "CAM_LOC004_4",
+    "confidence": 0.9,
+    "image_url": "/data/processed/cctv_SIGHT072.jpg"
+  },
+  {
+    "id": "SIGHT073",
+    "vehicle_id": "V007",
+    "location_id": "LOC025",
+    "sighting_timestamp": "2026-01-13T14:00:00",
+    "camera_id": "CAM_LOC025_3",
+    "confidence": 0.97,
+    "image_url": "/data/processed/cctv_SIGHT073.jpg"
+  },
+  {
+    "id": "SIGHT074",
+    "vehicle_id": "V007",
+    "location_id": "LOC012",
+    "sighting_timestamp": "2026-01-13T18:00:00",
+    "camera_id": "CAM_LOC012_4",
+    "confidence": 0.91,
+    "image_url": "/data/processed/cctv_SIGHT074.jpg"
+  },
+  {
+    "id": "SIGHT075",
+    "vehicle_id": "V002",
+    "location_id": "LOC018",
+    "sighting_timestamp": "2026-01-13T22:00:00",
+    "camera_id": "CAM_LOC018_4",
+    "confidence": 0.98,
+    "image_url": "/data/processed/cctv_SIGHT075.jpg"
+  },
+  {
+    "id": "SIGHT076",
+    "vehicle_id": "V016",
+    "location_id": "LOC011",
+    "sighting_timestamp": "2026-01-14T02:00:00",
+    "camera_id": "CAM_LOC011_2",
+    "confidence": 0.88,
+    "image_url": "/data/processed/cctv_SIGHT076.jpg"
+  },
+  {
+    "id": "SIGHT077",
+    "vehicle_id": "V003",
+    "location_id": "LOC004",
+    "sighting_timestamp": "2026-01-14T06:00:00",
+    "camera_id": "CAM_LOC004_5",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_SIGHT077.jpg"
+  },
+  {
+    "id": "SIGHT078",
+    "vehicle_id": "V005",
+    "location_id": "LOC003",
+    "sighting_timestamp": "2026-01-14T10:00:00",
+    "camera_id": "CAM_LOC003_5",
+    "confidence": 0.89,
+    "image_url": "/data/processed/cctv_SIGHT078.jpg"
+  },
+  {
+    "id": "SIGHT079",
+    "vehicle_id": "V004",
+    "location_id": "LOC009",
+    "sighting_timestamp": "2026-01-14T14:00:00",
+    "camera_id": "CAM_LOC009_2",
+    "confidence": 0.93,
+    "image_url": "/data/processed/cctv_SIGHT079.jpg"
+  },
+  {
+    "id": "SIGHT080",
+    "vehicle_id": "V011",
+    "location_id": "LOC009",
+    "sighting_timestamp": "2026-01-14T18:00:00",
+    "camera_id": "CAM_LOC009_4",
+    "confidence": 0.89,
+    "image_url": "/data/processed/cctv_SIGHT080.jpg"
+  },
+  {
+    "id": "SIGHT_CONV_001",
+    "vehicle_id": "V002",
+    "location_id": "LOC005",
+    "sighting_timestamp": "2026-01-15T14:10:00",
+    "camera_id": "CAM_LOC005_1",
+    "confidence": 0.98,
+    "image_url": "/data/processed/conv1.jpg"
+  },
+  {
+    "id": "SIGHT_CONV_002",
+    "vehicle_id": "V003",
+    "location_id": "LOC005",
+    "sighting_timestamp": "2026-01-15T14:25:00",
+    "camera_id": "CAM_LOC005_2",
+    "confidence": 0.96,
+    "image_url": "/data/processed/conv2.jpg"
+  },
+  {
+    "id": "SIGHT_CROSS_001",
+    "vehicle_id": "V004",
+    "location_id": "LOC002",
+    "sighting_timestamp": "2026-01-18T10:00:00",
+    "camera_id": "CAM_LOC002_1",
+    "confidence": 0.97,
+    "image_url": "/data/processed/cctv_cross1.jpg"
+  },
+  {
+    "id": "SIGHT_BEFORE_001",
+    "vehicle_id": "V010",
+    "location_id": "LOC001",
+    "sighting_timestamp": "2026-01-07T09:00:00",
+    "camera_id": "CAM_LOC001_1",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_before1.jpg"
+  },
+  {
+    "id": "SIGHT_AFTER_001",
+    "vehicle_id": "V010",
+    "location_id": "LOC005",
+    "sighting_timestamp": "2026-01-16T16:00:00",
+    "camera_id": "CAM_LOC005_1",
+    "confidence": 0.96,
+    "image_url": "/data/processed/cctv_after1.jpg"
+  },
+  {
+    "id": "SIGHT_AFTER_002",
+    "vehicle_id": "V010",
+    "location_id": "LOC010",
+    "sighting_timestamp": "2026-01-17T11:20:00",
+    "camera_id": "CAM_LOC010_1",
+    "confidence": 0.94,
+    "image_url": "/data/processed/cctv_after2.jpg"
+  },
+  {
+    "id": "SIGHT_AFTER_003",
+    "vehicle_id": "V010",
+    "location_id": "LOC015",
+    "sighting_timestamp": "2026-01-18T18:45:00",
+    "camera_id": "CAM_LOC015_1",
+    "confidence": 0.95,
+    "image_url": "/data/processed/cctv_after3.jpg"
+  }
+]

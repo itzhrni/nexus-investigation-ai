@@ -1,0 +1,125 @@
+{
+  "description": "Ground truth of planted hidden criminal network patterns for testing evaluation.",
+  "generated_at": "2026-09-13T21:59:42.883143",
+  "hidden_patterns": [
+    {
+      "pattern_id": "PATTERN_001_SIM_SWITCH",
+      "pattern_type": "SIM_DEVICE_SWITCH",
+      "focal_person": "P001",
+      "initial_identifiers": {
+        "phone": "PH001",
+        "sim": "SIM001",
+        "device": "DEV001"
+      },
+      "switched_identifiers": {
+        "phone": "PH002",
+        "sim": "SIM001",
+        "device": "DEV002"
+      },
+      "transition_date": "2026-01-10",
+      "planted_evidence": "SIM001 reused across DEV001 (before 2026-01-10) and DEV002 (after 2026-01-10) in consecutive CDR logs."
+    },
+    {
+      "pattern_id": "PATTERN_002_FINANCIAL_LOOP",
+      "pattern_type": "CIRCULAR_TRANSACTIONS",
+      "participating_accounts": [
+        "ACC001",
+        "ACC005",
+        "ACC012"
+      ],
+      "participating_persons": [
+        "P001",
+        "P005",
+        "P012"
+      ],
+      "planted_evidence": "Sequential high-value transactions forming a financial loop within 48 hours."
+    },
+    {
+      "pattern_id": "PATTERN_003_LOCATION_CONVERGENCE",
+      "pattern_type": "SPATIAL_TEMPORAL_CONVERGENCE",
+      "location_id": "LOC005",
+      "participating_vehicles": [
+        "V002",
+        "V003"
+      ],
+      "participating_persons": [
+        "P002",
+        "P003"
+      ],
+      "time_window": "2026-01-15T14:10:00 to 2026-01-15T14:25:00",
+      "planted_evidence": "Multiple suspect vehicles appearing at the same location within a 15-minute window."
+    },
+    {
+      "pattern_id": "PATTERN_CROSS_STATE_JURISDICTION",
+      "pattern_type": "CROSS_JURISDICTION_ACTIVITY",
+      "focal_person": "P004",
+      "associated_states": [
+        "Delhi",
+        "Maharashtra"
+      ],
+      "jurisdiction_ids": [
+        "JUR_DEL_001",
+        "JUR_MAH_002"
+      ],
+      "police_stations": [
+        "Connaught Place PS",
+        "Bandra West PS"
+      ],
+      "planted_evidence": "Subject P004 linked to FIR001 in Delhi (JUR_DEL_001) and vehicle sighting SIGHT_CROSS_001 of V004 at LOC002 in Bandra West PS, Mumbai (JUR_MAH_002)."
+    },
+    {
+      "pattern_id": "PATTERN_IDENTITY_CONTINUITY",
+      "pattern_type": "IDENTIFIER_TRANSITION",
+      "focal_person": "P005",
+      "initial_identifiers": {
+        "phone": "PH005",
+        "sim": "SIM005",
+        "device": "DEV005"
+      },
+      "new_identifiers": {
+        "phone": "PH015",
+        "sim": "SIM015",
+        "device": "DEV015"
+      },
+      "transition_date": "2026-01-11",
+      "supporting_signals": {
+        "common_contacts": [
+          "PH001"
+        ],
+        "shared_locations": [
+          "LOC003"
+        ],
+        "temporal_proximity": "Calls to PH001 made within 48h of transition date."
+      },
+      "planted_evidence": "Sudden drop in PH005 calls followed by PH015 calling identical contact network (PH001) from same cell tower."
+    },
+    {
+      "pattern_id": "PATTERN_TEMPORAL_CHANGE",
+      "pattern_type": "TEMPORAL_BEFORE_AFTER_CHANGE",
+      "anchor_event_id": "EVT010",
+      "anchor_timestamp": "2026-01-15T12:00:00",
+      "focal_entity": "P010",
+      "baseline_before": {
+        "call_frequency": 2,
+        "locations": [
+          "LOC001"
+        ],
+        "total_transaction_amount": 10000.0
+      },
+      "baseline_after": {
+        "call_frequency": 25,
+        "new_locations": [
+          "LOC005",
+          "LOC010",
+          "LOC015"
+        ],
+        "total_transaction_amount": 450000.0,
+        "new_connections": [
+          "P012",
+          "P015"
+        ]
+      },
+      "planted_evidence": "Immediate post-event escalation in communication burst (25 calls), high-value transaction (\u20b94.5 Lakhs total), and 3 new interstate location sightings."
+    }
+  ]
+}

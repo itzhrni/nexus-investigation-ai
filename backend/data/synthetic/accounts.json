@@ -1,0 +1,322 @@
+[
+  {
+    "id": "ACC001",
+    "account_number": "949102978448",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Current",
+    "holder_person_id": "P001"
+  },
+  {
+    "id": "ACC002",
+    "account_number": "961424120992",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Savings",
+    "holder_person_id": "P002"
+  },
+  {
+    "id": "ACC003",
+    "account_number": "570439558680",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Current",
+    "holder_person_id": "P003"
+  },
+  {
+    "id": "ACC004",
+    "account_number": "810842688886",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Current",
+    "holder_person_id": "P004"
+  },
+  {
+    "id": "ACC005",
+    "account_number": "563210400205",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Current",
+    "holder_person_id": "P005"
+  },
+  {
+    "id": "ACC006",
+    "account_number": "797340287725",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Current",
+    "holder_person_id": "P006"
+  },
+  {
+    "id": "ACC007",
+    "account_number": "295143931370",
+    "bank_name": "ICICI Bank",
+    "ifsc": "ICIC0000456",
+    "account_type": "Current",
+    "holder_person_id": "P007"
+  },
+  {
+    "id": "ACC008",
+    "account_number": "578737987515",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Current",
+    "holder_person_id": "P008"
+  },
+  {
+    "id": "ACC009",
+    "account_number": "369946052512",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Savings",
+    "holder_person_id": "P009"
+  },
+  {
+    "id": "ACC010",
+    "account_number": "597707816158",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Savings",
+    "holder_person_id": "P010"
+  },
+  {
+    "id": "ACC011",
+    "account_number": "772462383766",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Current",
+    "holder_person_id": "P011"
+  },
+  {
+    "id": "ACC012",
+    "account_number": "641289144833",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Current",
+    "holder_person_id": "P012"
+  },
+  {
+    "id": "ACC013",
+    "account_number": "334022245021",
+    "bank_name": "ICICI Bank",
+    "ifsc": "ICIC0000456",
+    "account_type": "Current",
+    "holder_person_id": "P013"
+  },
+  {
+    "id": "ACC014",
+    "account_number": "406404422214",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Current",
+    "holder_person_id": "P014"
+  },
+  {
+    "id": "ACC015",
+    "account_number": "191014894322",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Savings",
+    "holder_person_id": "P015"
+  },
+  {
+    "id": "ACC016",
+    "account_number": "711983781912",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Savings",
+    "holder_person_id": "P016"
+  },
+  {
+    "id": "ACC017",
+    "account_number": "884458179683",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Current",
+    "holder_person_id": "P017"
+  },
+  {
+    "id": "ACC018",
+    "account_number": "120585489939",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Savings",
+    "holder_person_id": "P018"
+  },
+  {
+    "id": "ACC019",
+    "account_number": "543333380796",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Savings",
+    "holder_person_id": "P019"
+  },
+  {
+    "id": "ACC020",
+    "account_number": "738506846386",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Current",
+    "holder_person_id": "P020"
+  },
+  {
+    "id": "ACC021",
+    "account_number": "682197733190",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Current",
+    "holder_person_id": "P021"
+  },
+  {
+    "id": "ACC022",
+    "account_number": "920324285791",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Current",
+    "holder_person_id": "P022"
+  },
+  {
+    "id": "ACC023",
+    "account_number": "601234945339",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Current",
+    "holder_person_id": "P023"
+  },
+  {
+    "id": "ACC024",
+    "account_number": "354482841033",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Savings",
+    "holder_person_id": "P024"
+  },
+  {
+    "id": "ACC025",
+    "account_number": "230204286982",
+    "bank_name": "ICICI Bank",
+    "ifsc": "ICIC0000456",
+    "account_type": "Savings",
+    "holder_person_id": "P025"
+  },
+  {
+    "id": "ACC026",
+    "account_number": "912678183898",
+    "bank_name": "ICICI Bank",
+    "ifsc": "ICIC0000456",
+    "account_type": "Current",
+    "holder_person_id": "P026"
+  },
+  {
+    "id": "ACC027",
+    "account_number": "747357163267",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Current",
+    "holder_person_id": "P027"
+  },
+  {
+    "id": "ACC028",
+    "account_number": "314029509095",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Current",
+    "holder_person_id": "P028"
+  },
+  {
+    "id": "ACC029",
+    "account_number": "294823500706",
+    "bank_name": "ICICI Bank",
+    "ifsc": "ICIC0000456",
+    "account_type": "Current",
+    "holder_person_id": "P029"
+  },
+  {
+    "id": "ACC030",
+    "account_number": "687156468494",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Savings",
+    "holder_person_id": "P030"
+  },
+  {
+    "id": "ACC031",
+    "account_number": "705824576198",
+    "bank_name": "State Bank of India",
+    "ifsc": "SBIN0000789",
+    "account_type": "Current",
+    "holder_person_id": "P031"
+  },
+  {
+    "id": "ACC032",
+    "account_number": "640104129762",
+    "bank_name": "ICICI Bank",
+    "ifsc": "ICIC0000456",
+    "account_type": "Savings",
+    "holder_person_id": "P032"
+  },
+  {
+    "id": "ACC033",
+    "account_number": "411703232379",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Current",
+    "holder_person_id": "P033"
+  },
+  {
+    "id": "ACC034",
+    "account_number": "475553953855",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Savings",
+    "holder_person_id": "P034"
+  },
+  {
+    "id": "ACC035",
+    "account_number": "627687082060",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Savings",
+    "holder_person_id": "P035"
+  },
+  {
+    "id": "ACC036",
+    "account_number": "638591937347",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Savings",
+    "holder_person_id": "P036"
+  },
+  {
+    "id": "ACC037",
+    "account_number": "263860419795",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Current",
+    "holder_person_id": "P037"
+  },
+  {
+    "id": "ACC038",
+    "account_number": "374851785492",
+    "bank_name": "HDFC Bank",
+    "ifsc": "HDFC0000123",
+    "account_type": "Savings",
+    "holder_person_id": "P038"
+  },
+  {
+    "id": "ACC039",
+    "account_number": "755439143467",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Savings",
+    "holder_person_id": "P039"
+  },
+  {
+    "id": "ACC040",
+    "account_number": "428318986734",
+    "bank_name": "Axis Bank",
+    "ifsc": "UTIB0000321",
+    "account_type": "Current",
+    "holder_person_id": "P040"
+  }
+]

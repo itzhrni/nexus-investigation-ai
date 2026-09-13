@@ -1,0 +1,322 @@
+[
+  {
+    "id": "SIM001",
+    "iccid": "89918762576466950860",
+    "imsi": "404456305160342",
+    "operator": "Airtel",
+    "registered_to_person_id": "P001",
+    "status": "active"
+  },
+  {
+    "id": "SIM002",
+    "iccid": "89919018995748565387",
+    "imsi": "404453446737272",
+    "operator": "Airtel",
+    "registered_to_person_id": "P002",
+    "status": "active"
+  },
+  {
+    "id": "SIM003",
+    "iccid": "89911738440682391909",
+    "imsi": "404457540301973",
+    "operator": "Vi",
+    "registered_to_person_id": "P003",
+    "status": "active"
+  },
+  {
+    "id": "SIM004",
+    "iccid": "89917032355458962616",
+    "imsi": "404458370987661",
+    "operator": "Jio",
+    "registered_to_person_id": "P004",
+    "status": "active"
+  },
+  {
+    "id": "SIM005",
+    "iccid": "89914564922780733457",
+    "imsi": "404458067372072",
+    "operator": "BSNL",
+    "registered_to_person_id": "P005",
+    "status": "active"
+  },
+  {
+    "id": "SIM006",
+    "iccid": "89919367851781029130",
+    "imsi": "404451311570307",
+    "operator": "BSNL",
+    "registered_to_person_id": "P006",
+    "status": "active"
+  },
+  {
+    "id": "SIM007",
+    "iccid": "89919993277638626029",
+    "imsi": "404451429416213",
+    "operator": "Jio",
+    "registered_to_person_id": "P007",
+    "status": "active"
+  },
+  {
+    "id": "SIM008",
+    "iccid": "89913388712658938060",
+    "imsi": "404456344160868",
+    "operator": "Vi",
+    "registered_to_person_id": "P008",
+    "status": "active"
+  },
+  {
+    "id": "SIM009",
+    "iccid": "89914946813629536440",
+    "imsi": "404458316648259",
+    "operator": "Airtel",
+    "registered_to_person_id": "P009",
+    "status": "active"
+  },
+  {
+    "id": "SIM010",
+    "iccid": "89918359820172170545",
+    "imsi": "404457676965974",
+    "operator": "Airtel",
+    "registered_to_person_id": "P010",
+    "status": "active"
+  },
+  {
+    "id": "SIM011",
+    "iccid": "89918909465481131886",
+    "imsi": "404455871743247",
+    "operator": "Airtel",
+    "registered_to_person_id": "P011",
+    "status": "active"
+  },
+  {
+    "id": "SIM012",
+    "iccid": "89911964095130220119",
+    "imsi": "404455962610986",
+    "operator": "Vi",
+    "registered_to_person_id": "P012",
+    "status": "active"
+  },
+  {
+    "id": "SIM013",
+    "iccid": "89912897184141648043",
+    "imsi": "404458377088167",
+    "operator": "Jio",
+    "registered_to_person_id": "P013",
+    "status": "active"
+  },
+  {
+    "id": "SIM014",
+    "iccid": "89916712708888416210",
+    "imsi": "404458958199946",
+    "operator": "BSNL",
+    "registered_to_person_id": "P014",
+    "status": "active"
+  },
+  {
+    "id": "SIM015",
+    "iccid": "89919154546245827441",
+    "imsi": "404451218179599",
+    "operator": "BSNL",
+    "registered_to_person_id": "P015",
+    "status": "active"
+  },
+  {
+    "id": "SIM016",
+    "iccid": "89913492115385853980",
+    "imsi": "404451189351213",
+    "operator": "Vi",
+    "registered_to_person_id": "P016",
+    "status": "active"
+  },
+  {
+    "id": "SIM017",
+    "iccid": "89912178318999654861",
+    "imsi": "404452125089309",
+    "operator": "BSNL",
+    "registered_to_person_id": "P017",
+    "status": "active"
+  },
+  {
+    "id": "SIM018",
+    "iccid": "89917356085816094105",
+    "imsi": "404451041531046",
+    "operator": "Airtel",
+    "registered_to_person_id": "P018",
+    "status": "active"
+  },
+  {
+    "id": "SIM019",
+    "iccid": "89918954317850893219",
+    "imsi": "404453373077218",
+    "operator": "BSNL",
+    "registered_to_person_id": "P019",
+    "status": "active"
+  },
+  {
+    "id": "SIM020",
+    "iccid": "89911376759373546754",
+    "imsi": "404456618926823",
+    "operator": "Airtel",
+    "registered_to_person_id": "P020",
+    "status": "active"
+  },
+  {
+    "id": "SIM021",
+    "iccid": "89914222861420424384",
+    "imsi": "404455736462531",
+    "operator": "BSNL",
+    "registered_to_person_id": "P021",
+    "status": "active"
+  },
+  {
+    "id": "SIM022",
+    "iccid": "89916590423809384964",
+    "imsi": "404454218981849",
+    "operator": "Jio",
+    "registered_to_person_id": "P022",
+    "status": "active"
+  },
+  {
+    "id": "SIM023",
+    "iccid": "89912463685618257044",
+    "imsi": "404454482238042",
+    "operator": "BSNL",
+    "registered_to_person_id": "P023",
+    "status": "active"
+  },
+  {
+    "id": "SIM024",
+    "iccid": "89912615534874977850",
+    "imsi": "404459292791081",
+    "operator": "Jio",
+    "registered_to_person_id": "P024",
+    "status": "active"
+  },
+  {
+    "id": "SIM025",
+    "iccid": "89912433927517298955",
+    "imsi": "404455759234471",
+    "operator": "Airtel",
+    "registered_to_person_id": "P025",
+    "status": "active"
+  },
+  {
+    "id": "SIM026",
+    "iccid": "89915239600265249911",
+    "imsi": "404451955345537",
+    "operator": "BSNL",
+    "registered_to_person_id": "P026",
+    "status": "active"
+  },
+  {
+    "id": "SIM027",
+    "iccid": "89913748913715197667",
+    "imsi": "404454742303947",
+    "operator": "Jio",
+    "registered_to_person_id": "P027",
+    "status": "active"
+  },
+  {
+    "id": "SIM028",
+    "iccid": "89916945046588120923",
+    "imsi": "404456124453431",
+    "operator": "Vi",
+    "registered_to_person_id": "P028",
+    "status": "active"
+  },
+  {
+    "id": "SIM029",
+    "iccid": "89918785398219737002",
+    "imsi": "404458616379926",
+    "operator": "Vi",
+    "registered_to_person_id": "P029",
+    "status": "active"
+  },
+  {
+    "id": "SIM030",
+    "iccid": "89915588320612427189",
+    "imsi": "404457597996327",
+    "operator": "Airtel",
+    "registered_to_person_id": "P030",
+    "status": "active"
+  },
+  {
+    "id": "SIM031",
+    "iccid": "89918899656533510502",
+    "imsi": "404459462806178",
+    "operator": "Jio",
+    "registered_to_person_id": "P031",
+    "status": "active"
+  },
+  {
+    "id": "SIM032",
+    "iccid": "89919669737577973597",
+    "imsi": "404459519284858",
+    "operator": "Airtel",
+    "registered_to_person_id": "P032",
+    "status": "active"
+  },
+  {
+    "id": "SIM033",
+    "iccid": "89916373434049611004",
+    "imsi": "404457161404428",
+    "operator": "Vi",
+    "registered_to_person_id": "P033",
+    "status": "active"
+  },
+  {
+    "id": "SIM034",
+    "iccid": "89916460245337309809",
+    "imsi": "404455791662169",
+    "operator": "Jio",
+    "registered_to_person_id": "P034",
+    "status": "active"
+  },
+  {
+    "id": "SIM035",
+    "iccid": "89911399798124773004",
+    "imsi": "404458339176912",
+    "operator": "Airtel",
+    "registered_to_person_id": "P035",
+    "status": "active"
+  },
+  {
+    "id": "SIM036",
+    "iccid": "89919336838697254900",
+    "imsi": "404456141226746",
+    "operator": "BSNL",
+    "registered_to_person_id": "P036",
+    "status": "active"
+  },
+  {
+    "id": "SIM037",
+    "iccid": "89919546701751733674",
+    "imsi": "404454642197907",
+    "operator": "Vi",
+    "registered_to_person_id": "P037",
+    "status": "active"
+  },
+  {
+    "id": "SIM038",
+    "iccid": "89913785786685736926",
+    "imsi": "404458159250505",
+    "operator": "Vi",
+    "registered_to_person_id": "P038",
+    "status": "active"
+  },
+  {
+    "id": "SIM039",
+    "iccid": "89917279896750077494",
+    "imsi": "404451546696950",
+    "operator": "BSNL",
+    "registered_to_person_id": "P039",
+    "status": "active"
+  },
+  {
+    "id": "SIM040",
+    "iccid": "89919470043435782305",
+    "imsi": "404457739255769",
+    "operator": "BSNL",
+    "registered_to_person_id": "P040",
+    "status": "active"
+  }
+]

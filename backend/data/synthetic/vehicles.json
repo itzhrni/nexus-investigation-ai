@@ -1,0 +1,182 @@
+[
+  {
+    "id": "V001",
+    "registration_number": "DL07CB1475",
+    "vehicle_type": "SUV",
+    "make": "Tata",
+    "model": "Harrier",
+    "color": "Black",
+    "owner_person_id": "P001"
+  },
+  {
+    "id": "V002",
+    "registration_number": "DL06CX7624",
+    "vehicle_type": "SUV",
+    "make": "Mahindra",
+    "model": "Thar",
+    "color": "Red",
+    "owner_person_id": "P002"
+  },
+  {
+    "id": "V003",
+    "registration_number": "DL08CA9751",
+    "vehicle_type": "Sedan",
+    "make": "Maruti",
+    "model": "Swift",
+    "color": "Silver",
+    "owner_person_id": "P003"
+  },
+  {
+    "id": "V004",
+    "registration_number": "DL07CX1444",
+    "vehicle_type": "SUV",
+    "make": "Hyundai",
+    "model": "Creta",
+    "color": "White",
+    "owner_person_id": "P004"
+  },
+  {
+    "id": "V005",
+    "registration_number": "DL11CB3223",
+    "vehicle_type": "SUV",
+    "make": "Hyundai",
+    "model": "Creta",
+    "color": "White",
+    "owner_person_id": "P005"
+  },
+  {
+    "id": "V006",
+    "registration_number": "DL03CA5262",
+    "vehicle_type": "SUV",
+    "make": "Mahindra",
+    "model": "Thar",
+    "color": "Red",
+    "owner_person_id": "P006"
+  },
+  {
+    "id": "V007",
+    "registration_number": "DL06CA8449",
+    "vehicle_type": "SUV",
+    "make": "Mahindra",
+    "model": "Thar",
+    "color": "Red",
+    "owner_person_id": "P007"
+  },
+  {
+    "id": "V008",
+    "registration_number": "DL06CB5558",
+    "vehicle_type": "SUV",
+    "make": "Tata",
+    "model": "Harrier",
+    "color": "Black",
+    "owner_person_id": "P008"
+  },
+  {
+    "id": "V009",
+    "registration_number": "DL05CA8705",
+    "vehicle_type": "SUV",
+    "make": "Mahindra",
+    "model": "Thar",
+    "color": "Red",
+    "owner_person_id": "P009"
+  },
+  {
+    "id": "V010",
+    "registration_number": "DL12CX1853",
+    "vehicle_type": "SUV",
+    "make": "Hyundai",
+    "model": "Creta",
+    "color": "White",
+    "owner_person_id": "P010"
+  },
+  {
+    "id": "V011",
+    "registration_number": "DL04CX2124",
+    "vehicle_type": "SUV",
+    "make": "Tata",
+    "model": "Harrier",
+    "color": "Black",
+    "owner_person_id": "P011"
+  },
+  {
+    "id": "V012",
+    "registration_number": "DL01CA4266",
+    "vehicle_type": "SUV",
+    "make": "Hyundai",
+    "model": "Creta",
+    "color": "White",
+    "owner_person_id": "P012"
+  },
+  {
+    "id": "V013",
+    "registration_number": "DL10CA4908",
+    "vehicle_type": "SUV",
+    "make": "Hyundai",
+    "model": "Creta",
+    "color": "White",
+    "owner_person_id": "P013"
+  },
+  {
+    "id": "V014",
+    "registration_number": "DL08CX2874",
+    "vehicle_type": "Sedan",
+    "make": "Maruti",
+    "model": "Swift",
+    "color": "Silver",
+    "owner_person_id": "P014"
+  },
+  {
+    "id": "V015",
+    "registration_number": "DL04CB5198",
+    "vehicle_type": "Sedan",
+    "make": "Honda",
+    "model": "City",
+    "color": "Grey",
+    "owner_person_id": "P015"
+  },
+  {
+    "id": "V016",
+    "registration_number": "DL03CX2876",
+    "vehicle_type": "SUV",
+    "make": "Tata",
+    "model": "Harrier",
+    "color": "Black",
+    "owner_person_id": "P016"
+  },
+  {
+    "id": "V017",
+    "registration_number": "DL05CA1420",
+    "vehicle_type": "Sedan",
+    "make": "Maruti",
+    "model": "Swift",
+    "color": "Silver",
+    "owner_person_id": "P017"
+  },
+  {
+    "id": "V018",
+    "registration_number": "DL10CX7149",
+    "vehicle_type": "SUV",
+    "make": "Tata",
+    "model": "Harrier",
+    "color": "Black",
+    "owner_person_id": "P018"
+  },
+  {
+    "id": "V019",
+    "registration_number": "DL12CA2245",
+    "vehicle_type": "SUV",
+    "make": "Mahindra",
+    "model": "Thar",
+    "color": "Red",
+    "owner_person_id": "P019"
+  },
+  {
+    "id": "V020",
+    "registration_number": "DL12CX4978",
+    "vehicle_type": "Sedan",
+    "make": "Honda",
+    "model": "City",
+    "color": "Grey",
+    "owner_person_id": "P020"
+  }
+]

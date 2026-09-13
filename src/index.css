@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-nexus-bg: #07090c;
+  --color-nexus-raised: #0e1218;
+  --color-nexus-panel: #121821;
+  --color-nexus-line: #1e2a3a;
+  --color-nexus-cyan: #3dd6f5;
+  --color-nexus-text: #e8eef6;
+  --color-nexus-muted: #8b9cb3;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #07090c;
+  color: #e8eef6;
+  font-family: var(--font-sans);
+  overflow: hidden;
+}
+
+::selection {
+  background: color-mix(in srgb, #3dd6f5 30%, transparent);
+}

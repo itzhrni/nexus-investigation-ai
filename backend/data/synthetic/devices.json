@@ -1,0 +1,322 @@
+[
+  {
+    "id": "DEV001",
+    "imei": "8610059415397200",
+    "brand": "Realme",
+    "model": "GT Neo 3",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV002",
+    "imei": "8639580672052588",
+    "brand": "OnePlus",
+    "model": "11R",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV003",
+    "imei": "8691624933301659",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 12",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV004",
+    "imei": "8655353371617706",
+    "brand": "Realme",
+    "model": "GT Neo 3",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV005",
+    "imei": "8672227383640932",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 12",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV006",
+    "imei": "8676595663400078",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV007",
+    "imei": "8621934248890712",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV008",
+    "imei": "8697151899863415",
+    "brand": "OnePlus",
+    "model": "11R",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV009",
+    "imei": "8641616587507301",
+    "brand": "OnePlus",
+    "model": "11R",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV010",
+    "imei": "8613436606717259",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV011",
+    "imei": "8696030235633923",
+    "brand": "Samsung",
+    "model": "Galaxy S23",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV012",
+    "imei": "8668327611877220",
+    "brand": "Samsung",
+    "model": "Galaxy S23",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV013",
+    "imei": "8664042269336999",
+    "brand": "Realme",
+    "model": "GT Neo 3",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV014",
+    "imei": "8644335685060195",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 12",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV015",
+    "imei": "8640796741501331",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV016",
+    "imei": "8682897173866028",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV017",
+    "imei": "8688447793347748",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 12",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV018",
+    "imei": "8674240347077494",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV019",
+    "imei": "8675394319139695",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV020",
+    "imei": "8688662274024708",
+    "brand": "Realme",
+    "model": "GT Neo 3",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV021",
+    "imei": "8696223369305588",
+    "brand": "Realme",
+    "model": "GT Neo 3",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV022",
+    "imei": "8687107147809209",
+    "brand": "Realme",
+    "model": "GT Neo 3",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV023",
+    "imei": "8632402107928121",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 12",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV024",
+    "imei": "8646479090279833",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 12",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV025",
+    "imei": "8699742653866253",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV026",
+    "imei": "8678202024658835",
+    "brand": "OnePlus",
+    "model": "11R",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV027",
+    "imei": "8671904543024303",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV028",
+    "imei": "8650212548477019",
+    "brand": "Samsung",
+    "model": "Galaxy S23",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV029",
+    "imei": "8657267282099993",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV030",
+    "imei": "8686020461692957",
+    "brand": "OnePlus",
+    "model": "11R",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV031",
+    "imei": "8631226322688903",
+    "brand": "Samsung",
+    "model": "Galaxy S23",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV032",
+    "imei": "8619037530111404",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  },
+  {
+    "id": "DEV033",
+    "imei": "8656567786049210",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 12",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV034",
+    "imei": "8668516635570362",
+    "brand": "Realme",
+    "model": "GT Neo 3",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV035",
+    "imei": "8664814177134239",
+    "brand": "Samsung",
+    "model": "Galaxy S23",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV036",
+    "imei": "8663534944948575",
+    "brand": "Realme",
+    "model": "GT Neo 3",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV037",
+    "imei": "8652023470816636",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 12",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV038",
+    "imei": "8685747842914957",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 12",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV039",
+    "imei": "8694902053947651",
+    "brand": "Realme",
+    "model": "GT Neo 3",
+    "os": "Android",
+    "status": "active"
+  },
+  {
+    "id": "DEV040",
+    "imei": "8640882911787897",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "os": "iOS",
+    "status": "active"
+  }
+]

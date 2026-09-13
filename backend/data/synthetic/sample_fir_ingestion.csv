@@ -1,0 +1,4 @@
+record_id,date,time,person_name,phone,vehicle,location,district,state,police_station,description
+REC_001,2026-01-10,14:30:00,Aarav Sharma,+919810012345,DL01CA1234,"Connaught Place, New Delhi",New Delhi,Delhi,Connaught Place PS,Suspicious gathering near bank entrance
+REC_002,2026-01-12,18:15:00,Vikram Patel,+919820054321,MH02CB5678,"Bandra West, Mumbai",Mumbai Suburban,Maharashtra,Bandra West PS,Vehicle spotted with altered registration plate
+REC_003,2026-01-16,09:00:00,Deepak Kumar,+919830098765,KA03CX9999,"Indiranagar, Bengaluru",Bengaluru Urban,Karnataka,Indiranagar PS,Reported SIM swap transaction at local kiosk

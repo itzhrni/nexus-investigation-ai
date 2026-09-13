@@ -1,0 +1,107 @@
+[
+  {
+    "id": "ORG001",
+    "name": "Global Trading Corp 1",
+    "org_type": "Private Limited",
+    "registration_no": "U91927DL2022PTC4241",
+    "address": "Connaught Place, New Delhi"
+  },
+  {
+    "id": "ORG002",
+    "name": "Nexus Tech Ventures 2",
+    "org_type": "Private Limited",
+    "registration_no": "U65723DL2022PTC2880",
+    "address": "Bandra West, Mumbai"
+  },
+  {
+    "id": "ORG003",
+    "name": "Global Trading Corp 3",
+    "org_type": "Private Limited",
+    "registration_no": "U81376DL2022PTC4683",
+    "address": "Indiranagar, Bengaluru"
+  },
+  {
+    "id": "ORG004",
+    "name": "Nexus Tech Ventures 4",
+    "org_type": "Private Limited",
+    "registration_no": "U94886DL2022PTC3441",
+    "address": "Park Street, Kolkata"
+  },
+  {
+    "id": "ORG005",
+    "name": "Global Trading Corp 5",
+    "org_type": "Private Limited",
+    "registration_no": "U44816DL2022PTC3330",
+    "address": "Cyber City, Gurugram"
+  },
+  {
+    "id": "ORG006",
+    "name": "Nexus Tech Ventures 6",
+    "org_type": "Private Limited",
+    "registration_no": "U19359DL2022PTC1977",
+    "address": "Gachibowli, Hyderabad"
+  },
+  {
+    "id": "ORG007",
+    "name": "Global Trading Corp 7",
+    "org_type": "Private Limited",
+    "registration_no": "U31747DL2022PTC6039",
+    "address": "Anna Nagar, Chennai"
+  },
+  {
+    "id": "ORG008",
+    "name": "Nexus Tech Ventures 8",
+    "org_type": "Private Limited",
+    "registration_no": "U87993DL2022PTC5728",
+    "address": "FC Road, Pune"
+  },
+  {
+    "id": "ORG009",
+    "name": "Global Trading Corp 9",
+    "org_type": "Private Limited",
+    "registration_no": "U67560DL2022PTC3037",
+    "address": "SG Highway, Ahmedabad"
+  },
+  {
+    "id": "ORG010",
+    "name": "Nexus Tech Ventures 10",
+    "org_type": "Private Limited",
+    "registration_no": "U71433DL2022PTC5982",
+    "address": "Hazratganj, Lucknow"
+  },
+  {
+    "id": "ORG011",
+    "name": "Global Trading Corp 11",
+    "org_type": "Private Limited",
+    "registration_no": "U62757DL2022PTC5460",
+    "address": "MI Road, Jaipur"
+  },
+  {
+    "id": "ORG012",
+    "name": "Nexus Tech Ventures 12",
+    "org_type": "Private Limited",
+    "registration_no": "U75597DL2022PTC9847",
+    "address": "Sector 17, Chandigarh"
+  },
+  {
+    "id": "ORG013",
+    "name": "Global Trading Corp 13",
+    "org_type": "Private Limited",
+    "registration_no": "U74722DL2022PTC8172",
+    "address": "Bani Park, Jaipur"
+  },
+  {
+    "id": "ORG014",
+    "name": "Nexus Tech Ventures 14",
+    "org_type": "Private Limited",
+    "registration_no": "U20543DL2022PTC1653",
+    "address": "MG Road, Kochi"
+  },
+  {
+    "id": "ORG015",
+    "name": "Global Trading Corp 15",
+    "org_type": "Private Limited",
+    "registration_no": "U66626DL2022PTC6280",
+    "address": "Salt Lake, Kolkata"
+  }
+]
