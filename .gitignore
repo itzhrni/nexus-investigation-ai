@@ -1,13 +1,13 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
+*.py[codz]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
-env/
-venv/
-ENV/
-.venv/
 build/
 develop-eggs/
 dist/
@@ -20,15 +20,26 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Environment variables
+# Virtual environments
+env/
+venv/
+ENV/
+.venv/
+env.bak/
+venv.bak/
+
+# Environment variables & secrets
 .env
+.envrc
 !.env.example
 
-# IDEs
+# IDEs & Editors
 .vscode/
 .idea/
 *.swp
@@ -39,9 +50,27 @@ data/processed/*
 !data/processed/.gitkeep
 data/synthetic/*
 !data/synthetic/.gitkeep
+backend/data/processed/*
+!backend/data/processed/.gitkeep
+backend/data/synthetic/*
+!backend/data/synthetic/.gitkeep
 
-# Database / OS
+# Unit test / coverage reports
+.pytest_cache/
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+
+# Databases & OS generated files
 *.db
 *.sqlite3
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log

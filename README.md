@@ -1,5 +1,7 @@
 # NEXUS — AI-Powered Criminal Network Analysis System (SIH26189)
 
+> Connect the clues. Reveal the network.
+
 NEXUS is an AI-powered investigation-support system that converts structured and unstructured crime and intelligence data into an interactive, evidence-backed knowledge graph.
 
 ## System Architecture
