@@ -14,13 +14,18 @@ class Settings(BaseSettings):
     PORT: int = 8000
     SECRET_KEY: str = "nexus-super-secret-key-change-in-production"
 
-    # PostgreSQL Configuration
+    # PostgreSQL / Supabase Database Configuration
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "nexus_db"
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/nexus_db"
+
+    # Supabase Client Credentials
+    SUPABASE_URL: str = ""
+    SUPABASE_ANON_KEY: str = ""
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
 
     # Neo4j Configuration
     NEO4J_URI: str = "bolt://localhost:7687"
