@@ -25,17 +25,13 @@ logger = logging.getLogger("nexus.main")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Initializing NEXUS Backend Application...")
-    # Initialize Neo4j driver
-    neo4j_client.connect()
+    logger.info("Initializing NEXUS Backend Application (PostgreSQL Graph Architecture)...")
     yield
-    # Cleanup Neo4j driver
-    neo4j_client.close()
     logger.info("NEXUS Backend Application Shutdown Complete.")
 
 app = FastAPI(
     title=settings.APP_NAME,
-    description="AI-Powered Criminal Network Analysis System Backend (SIH26189)",
+    description="AI-Powered Criminal Network Analysis System Backend (SIH26189 - PostgreSQL Graph Architecture)",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",
@@ -62,14 +58,14 @@ app.include_router(routes_vision.router, prefix="/api")
 @app.get("/", tags=["Health"])
 def root():
     return {
-        "message": "NEXUS AI Criminal Network Analysis Backend is running",
+        "message": "NEXUS AI Criminal Network Analysis Backend is running (PostgreSQL Graph Architecture)",
         "docs": "/docs",
         "health": "/health"
     }
 
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
 def health_check():
-    """Health check endpoint to verify backend status and DB connections."""
+    """Health check endpoint to verify backend status and PostgreSQL graph connection."""
     postgres_status = check_postgres_connection()
     neo4j_status = neo4j_client.check_connection()
 
@@ -79,6 +75,10 @@ def health_check():
         environment=settings.APP_ENV,
         services={
             "postgresql": postgres_status,
+            "graph_layer": {
+                "status": "online" if postgres_status.get("status") == "online" else "offline",
+                "engine": "postgresql_recursive_cte"
+            },
             "neo4j": neo4j_status
         }
     )

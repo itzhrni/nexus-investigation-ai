@@ -1,5 +1,5 @@
 -- NEXUS AI Criminal Network Analysis System
--- Supabase PostgreSQL Schema Initialization DDL
+-- Supabase PostgreSQL Schema Initialization DDL (Enriched Version)
 
 -- Enable UUID extension if needed
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -16,20 +16,30 @@ CREATE TABLE IF NOT EXISTS entities (
 CREATE INDEX IF NOT EXISTS idx_entities_type ON entities(entity_type);
 CREATE INDEX IF NOT EXISTS idx_entities_identifier ON entities(primary_identifier);
 
--- 2. Persons Table
+-- 2. Persons Table (Enriched for Bharat-aware Entity Resolution)
 CREATE TABLE IF NOT EXISTS persons (
     id VARCHAR(64) PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
+    canonical_name VARCHAR(128),
+    name_variants JSONB,
     aliases JSONB,
     gender VARCHAR(16),
     dob VARCHAR(32),
     nationality VARCHAR(64),
+    language VARCHAR(32),
     address TEXT,
+    state VARCHAR(64),
+    district VARCHAR(64),
+    phonetic_key VARCHAR(64),
     notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_persons_name ON persons(name);
+CREATE INDEX IF NOT EXISTS idx_persons_canonical ON persons(canonical_name);
+CREATE INDEX IF NOT EXISTS idx_persons_state ON persons(state);
+CREATE INDEX IF NOT EXISTS idx_persons_district ON persons(district);
+CREATE INDEX IF NOT EXISTS idx_persons_phonetic ON persons(phonetic_key);
 
 -- 3. Phones Table
 CREATE TABLE IF NOT EXISTS phones (
@@ -108,24 +118,34 @@ CREATE TABLE IF NOT EXISTS organizations (
 
 CREATE INDEX IF NOT EXISTS idx_orgs_name ON organizations(name);
 
--- 9. Locations Table
+-- 9. Locations Table (Enriched for Jurisdiction Metadata)
 CREATE TABLE IF NOT EXISTS locations (
     id VARCHAR(64) PRIMARY KEY,
     name VARCHAR(128) NOT NULL,
     location_type VARCHAR(64),
     address TEXT,
+    state VARCHAR(64),
+    district VARCHAR(64),
+    police_station VARCHAR(128),
+    jurisdiction_id VARCHAR(64),
     latitude DOUBLE PRECISION NOT NULL,
     longitude DOUBLE PRECISION NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_locations_name ON locations(name);
+CREATE INDEX IF NOT EXISTS idx_locations_state ON locations(state);
+CREATE INDEX IF NOT EXISTS idx_locations_district ON locations(district);
+CREATE INDEX IF NOT EXISTS idx_locations_ps ON locations(police_station);
 
--- 10. FIRs Table
+-- 10. FIRs Table (Enriched for Jurisdiction Metadata)
 CREATE TABLE IF NOT EXISTS firs (
     id VARCHAR(64) PRIMARY KEY,
     fir_number VARCHAR(64) NOT NULL UNIQUE,
     police_station VARCHAR(128) NOT NULL,
+    district VARCHAR(64),
+    state VARCHAR(64),
+    jurisdiction_id VARCHAR(64),
     crime_type VARCHAR(128) NOT NULL,
     status VARCHAR(64) DEFAULT 'UNDER_INVESTIGATION',
     incident_date VARCHAR(32),
@@ -134,8 +154,10 @@ CREATE TABLE IF NOT EXISTS firs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_firs_number ON firs(fir_number);
+CREATE INDEX IF NOT EXISTS idx_firs_state ON firs(state);
+CREATE INDEX IF NOT EXISTS idx_firs_ps ON firs(police_station);
 
--- 11. Crimes Table
+-- 11. Crimes Table (Enriched for Jurisdiction Metadata)
 CREATE TABLE IF NOT EXISTS crimes (
     id VARCHAR(64) PRIMARY KEY,
     crime_code VARCHAR(64) NOT NULL,
@@ -144,19 +166,27 @@ CREATE TABLE IF NOT EXISTS crimes (
     severity VARCHAR(32) DEFAULT 'MEDIUM',
     status VARCHAR(32) DEFAULT 'OPEN',
     location_id VARCHAR(64) REFERENCES locations(id) ON DELETE SET NULL,
+    police_station VARCHAR(128),
+    district VARCHAR(64),
+    state VARCHAR(64),
+    jurisdiction_id VARCHAR(64),
     date VARCHAR(32),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_crimes_code ON crimes(crime_code);
 
--- 12. Events Table
+-- 12. Events Table (Enriched for Jurisdiction Metadata)
 CREATE TABLE IF NOT EXISTS events (
     id VARCHAR(64) PRIMARY KEY,
     title VARCHAR(128) NOT NULL,
     event_type VARCHAR(64) NOT NULL,
     timestamp VARCHAR(32) NOT NULL,
     location_id VARCHAR(64) REFERENCES locations(id) ON DELETE SET NULL,
+    police_station VARCHAR(128),
+    district VARCHAR(64),
+    state VARCHAR(64),
+    jurisdiction_id VARCHAR(64),
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -238,3 +268,26 @@ CREATE TABLE IF NOT EXISTS evidence_records (
 );
 
 CREATE INDEX IF NOT EXISTS idx_evidence_type ON evidence_records(evidence_type);
+
+-- 18. Entity Relationships Table (PostgreSQL Graph Layer)
+CREATE TABLE IF NOT EXISTS entity_relationships (
+    id VARCHAR(64) PRIMARY KEY,
+    source_entity_type VARCHAR(64) NOT NULL,
+    source_entity_id VARCHAR(64) NOT NULL,
+    target_entity_type VARCHAR(64) NOT NULL,
+    target_entity_id VARCHAR(64) NOT NULL,
+    relationship_type VARCHAR(64) NOT NULL,
+    confidence DOUBLE PRECISION DEFAULT 1.0,
+    event_timestamp VARCHAR(64),
+    metadata_json JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_rel_source ON entity_relationships(source_entity_id);
+CREATE INDEX IF NOT EXISTS idx_rel_target ON entity_relationships(target_entity_id);
+CREATE INDEX IF NOT EXISTS idx_rel_source_type ON entity_relationships(source_entity_type);
+CREATE INDEX IF NOT EXISTS idx_rel_target_type ON entity_relationships(target_entity_type);
+CREATE INDEX IF NOT EXISTS idx_rel_type ON entity_relationships(relationship_type);
+CREATE INDEX IF NOT EXISTS idx_rel_timestamp ON entity_relationships(event_timestamp);
+CREATE INDEX IF NOT EXISTS idx_rel_src_tgt ON entity_relationships(source_entity_id, target_entity_id);
+

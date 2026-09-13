@@ -15,12 +15,18 @@ class Person(Base):
     __tablename__ = "persons"
 
     id = Column(String, primary_key=True, index=True)
-    name = Column(String, nullable=False, index=True)
-    aliases = Column(JSON, nullable=True)  # List of aliases
+    name = Column(String, nullable=False, index=True)  # Display / primary name
+    canonical_name = Column(String, nullable=True, index=True)
+    name_variants = Column(JSON, nullable=True)  # List of transliterated & spelling variants
+    aliases = Column(JSON, nullable=True)  # List of criminal aliases
     gender = Column(String, nullable=True)
     dob = Column(String, nullable=True)
     nationality = Column(String, nullable=True)
+    language = Column(String, nullable=True)
     address = Column(Text, nullable=True)
+    state = Column(String, nullable=True, index=True)
+    district = Column(String, nullable=True, index=True)
+    phonetic_key = Column(String, nullable=True, index=True)  # Phonetic hash (Soundex/Metaphone)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -96,6 +102,10 @@ class Location(Base):
     name = Column(String, nullable=False, index=True)
     location_type = Column(String, nullable=True)
     address = Column(Text, nullable=True)
+    state = Column(String, nullable=True, index=True)
+    district = Column(String, nullable=True, index=True)
+    police_station = Column(String, nullable=True, index=True)
+    jurisdiction_id = Column(String, nullable=True, index=True)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -105,7 +115,10 @@ class FIR(Base):
 
     id = Column(String, primary_key=True, index=True)
     fir_number = Column(String, nullable=False, index=True, unique=True)
-    police_station = Column(String, nullable=False)
+    police_station = Column(String, nullable=False, index=True)
+    district = Column(String, nullable=True, index=True)
+    state = Column(String, nullable=True, index=True)
+    jurisdiction_id = Column(String, nullable=True, index=True)
     crime_type = Column(String, nullable=False)
     status = Column(String, default="UNDER_INVESTIGATION")
     incident_date = Column(String, nullable=True)
@@ -122,6 +135,10 @@ class Crime(Base):
     severity = Column(String, default="MEDIUM")
     status = Column(String, default="OPEN")
     location_id = Column(String, ForeignKey("locations.id"), nullable=True)
+    police_station = Column(String, nullable=True)
+    district = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    jurisdiction_id = Column(String, nullable=True)
     date = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -133,6 +150,10 @@ class Event(Base):
     event_type = Column(String, nullable=False)
     timestamp = Column(String, nullable=False)
     location_id = Column(String, ForeignKey("locations.id"), nullable=True)
+    police_station = Column(String, nullable=True)
+    district = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    jurisdiction_id = Column(String, nullable=True)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -197,3 +218,18 @@ class EvidenceRecord(Base):
     confidence = Column(Float, default=1.0)
     raw_data = Column(JSON, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class EntityRelationship(Base):
+    __tablename__ = "entity_relationships"
+
+    id = Column(String, primary_key=True, index=True)
+    source_entity_type = Column(String, nullable=False, index=True)
+    source_entity_id = Column(String, nullable=False, index=True)
+    target_entity_type = Column(String, nullable=False, index=True)
+    target_entity_id = Column(String, nullable=False, index=True)
+    relationship_type = Column(String, nullable=False, index=True)
+    confidence = Column(Float, default=1.0)
+    event_timestamp = Column(String, nullable=True, index=True)
+    metadata_json = Column(JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
