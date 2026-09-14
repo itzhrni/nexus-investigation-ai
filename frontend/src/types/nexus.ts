@@ -75,6 +75,17 @@ export interface Entity {
   summary?: string;
   firstSeen?: string;
   lastSeen?: string;
+  // Financial specifics
+  accountNumber?: string;
+  bankName?: string;
+  ifsc?: string;
+  accountType?: string;
+  balance?: number;
+  holderPersonId?: string;
+  holderName?: string;
+  totalVolume?: number;
+  kycStatus?: string;
+  flag?: string;
 }
 
 export interface GraphNode {
@@ -97,6 +108,14 @@ export interface GraphEdge {
   validTo?: string;
   evidenceCount?: number;
   summary?: string;
+  // Financial and communication metadata
+  amount?: number;
+  currency?: string;
+  transactionType?: string;
+  transactionId?: string;
+  status?: string;
+  sourceBank?: string;
+  targetBank?: string;
 }
 
 export interface GraphPayload {
@@ -130,6 +149,13 @@ export interface InvestigationSummary {
   continuityCount: number;
   eventCount: number;
   jurisdictions: string[];
+  crimeType?: string;
+  policeStation?: string;
+  district?: string;
+  state?: string;
+  sections?: string;
+  registeredDate?: string;
+  primarySuspect?: string;
 }
 
 export interface TimelineEvent {

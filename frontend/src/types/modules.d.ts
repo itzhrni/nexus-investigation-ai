@@ -9,6 +9,7 @@ declare module "react-force-graph-3d" {
       durationMs?: number,
     ) => void;
     d3Force: (name: string, force?: unknown) => unknown;
+    d3ReheatSimulation: () => void;
   }
 
   export interface ForceGraph3DProps {
@@ -20,6 +21,8 @@ declare module "react-force-graph-3d" {
     showNavInfo?: boolean;
     warmupTicks?: number;
     cooldownTicks?: number;
+    d3VelocityDecay?: number;
+    d3AlphaDecay?: number;
     enableNodeDrag?: boolean;
     enableNavigationControls?: boolean;
     nodeRelSize?: number;
@@ -35,7 +38,9 @@ declare module "react-force-graph-3d" {
     linkDirectionalArrowLength?: number | ((link: object) => number);
     linkDirectionalArrowRelPos?: number;
     linkDirectionalParticles?: number | ((link: object) => number);
-    linkDirectionalParticleWidth?: number;
+    linkDirectionalParticleWidth?: number | ((link: object) => number);
+    linkDirectionalParticleSpeed?: number | ((link: object) => number);
+    linkDirectionalParticleColor?: string | ((link: object) => string);
     linkLabel?: string | ((link: object) => string);
     onNodeClick?: (node: object, event: MouseEvent) => void;
     onLinkClick?: (link: object, event: MouseEvent) => void;

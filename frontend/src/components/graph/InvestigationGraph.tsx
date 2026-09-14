@@ -30,6 +30,7 @@ export function InvestigationGraph() {
   const selectNode = useInvestigationStore((s) => s.selectNode);
   const selectEdge = useInvestigationStore((s) => s.selectEdge);
   const graphBusy = useInvestigationStore((s) => s.graphBusy);
+  const isOrbiting = useInvestigationStore((s) => s.isOrbiting);
 
   const hops = useMemo(
     () => (graph ? hopDistances(graph.focalId, graph.edges) : new Map<string, number>()),
@@ -42,7 +43,7 @@ export function InvestigationGraph() {
       graph.nodes.map((n) => ({
         ...n,
         hop: hops.get(n.id) ?? 3,
-        val: n.id === graph.focalId ? 22 : hops.get(n.id) === 1 ? 12 : hops.get(n.id) === 2 ? 7 : 4,
+        val: n.id === graph.focalId ? 24 : hops.get(n.id) === 1 ? 14 : hops.get(n.id) === 2 ? 8 : 5,
       })),
       graph.edges,
     );
@@ -71,23 +72,55 @@ export function InvestigationGraph() {
     return () => obs.disconnect();
   }, []);
 
+  // Zoom to fit on initial load or case change
   useEffect(() => {
     if (!graph || data.nodes.length === 0) return;
-    const t = window.setTimeout(() => fgRef.current?.zoomToFit(400, 80), 500);
+    const t = window.setTimeout(() => fgRef.current?.zoomToFit(500, 80), 300);
     return () => window.clearTimeout(t);
-  }, [graph?.focalId, graph?.nodes.length, data.nodes.length]);
+  }, [graph?.focalId, graph?.nodes.length]);
 
+  // Reheat force engine on data/filter changes for dynamic physics settle
+  useEffect(() => {
+    if (fgRef.current && data.nodes.length > 0) {
+      (fgRef.current as any)?.d3ReheatSimulation?.();
+    }
+  }, [graph?.focalId, graph?.nodes.length, graph?.edges.length]);
+
+  // Smooth camera glide to selected node
   useEffect(() => {
     if (!selectedNodeId) return;
     const node = data.nodes.find((n) => n.id === selectedNodeId);
     if (!node || node.x == null) return;
     const dist = 140;
     fgRef.current?.cameraPosition(
-      { x: node.x, y: node.y ?? 0, z: (node.z ?? 0) + dist },
+      { x: node.x, y: (node.y ?? 0) + 15, z: (node.z ?? 0) + dist },
       { x: node.x, y: node.y ?? 0, z: node.z ?? 0 },
       600,
     );
   }, [selectedNodeId, data.nodes]);
+
+  // Dynamic Surveillance Auto-Orbit Mode
+  useEffect(() => {
+    if (!isOrbiting) return;
+    let angle = 0;
+    const radius = 240;
+    let animId: number;
+
+    const tick = () => {
+      angle += 0.0025;
+      if (fgRef.current) {
+        fgRef.current.cameraPosition({
+          x: radius * Math.sin(angle),
+          z: radius * Math.cos(angle),
+          y: 45 * Math.sin(angle * 0.5) + 35,
+        });
+      }
+      animId = requestAnimationFrame(tick);
+    };
+
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [isOrbiting]);
 
   return (
     <div ref={containerRef} className="relative h-full min-h-[320px] w-full overflow-hidden bg-nexus-bg">
@@ -99,38 +132,55 @@ export function InvestigationGraph() {
           graphData={data}
           backgroundColor="#07090c"
           showNavInfo={false}
-          warmupTicks={30}
-          cooldownTicks={80}
+          warmupTicks={35}
+          cooldownTicks={90}
+          d3VelocityDecay={0.3}
+          d3AlphaDecay={0.02}
           enableNodeDrag
           nodeRelSize={4}
           nodeLabel={(n) => {
             const node = n as FGNode;
-            return `${node.label} · ${node.type} · hop ${node.hop}`;
+            return `${node.label} · ${node.type.toUpperCase()}${node.sublabel ? ` (${node.sublabel})` : ""}`;
           }}
           nodeColor={(n) => nodeColor(n as FGNode, selectedNodeId, neighborIds)}
           nodeThreeObject={(n) => {
             const node = n as FGNode;
             const group = new THREE.Group();
             const hop = node.hop;
-            const radius = hop === 0 ? 7 : hop === 1 ? 4.6 : hop === 2 ? 3.2 : 2.2;
+            const radius = hop === 0 ? 7.2 : hop === 1 ? 4.8 : hop === 2 ? 3.4 : 2.4;
             const highlighted = !neighborIds || neighborIds.has(node.id);
-            const color = highlighted ? ENTITY_COLORS[node.type] : "#1b2530";
+            const color = highlighted ? (ENTITY_COLORS[node.type] ?? "#8b9cb3") : "#1b2530";
             const geom = new THREE.SphereGeometry(radius, 16, 16);
             const mat = new THREE.MeshLambertMaterial({
               color,
-              emissive: node.hop === 0 ? color : "#000000",
-              emissiveIntensity: node.hop === 0 ? 0.35 : selectedNodeId === node.id ? 0.25 : 0,
+              emissive: node.hop === 0 ? color : node.type === "account" ? "#10b981" : "#000000",
+              emissiveIntensity: node.hop === 0 ? 0.4 : node.type === "account" ? 0.25 : selectedNodeId === node.id ? 0.35 : 0,
               transparent: true,
-              opacity: highlighted ? 1 : 0.18,
+              opacity: highlighted ? 1 : 0.2,
             });
             group.add(new THREE.Mesh(geom, mat));
+
+            // Pulsing outer halo ring on focal or selected node
+            if ((hop === 0 || selectedNodeId === node.id) && highlighted) {
+              const haloGeom = new THREE.RingGeometry(radius + 1.2, radius + 2.8, 32);
+              const haloMat = new THREE.MeshBasicMaterial({
+                color: new THREE.Color(color),
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.55,
+              });
+              const haloMesh = new THREE.Mesh(haloGeom, haloMat);
+              haloMesh.rotation.x = Math.PI / 2;
+              group.add(haloMesh);
+            }
+
             const showLabel = hop <= 1 || selectedNodeId === node.id || neighborIds?.has(node.id);
             if (showLabel && highlighted) {
               const sprite = new SpriteText(node.label);
-              sprite.color = hop === 0 ? "#3dd6f5" : "#d5dee8";
-              sprite.textHeight = hop === 0 ? 4.2 : 2.6;
-              sprite.fontFace = "Inter";
-              sprite.position.y = radius + 5;
+              sprite.color = hop === 0 ? "#3dd6f5" : node.type === "account" ? "#34d399" : "#d5dee8";
+              sprite.textHeight = hop === 0 ? 4.4 : 2.8;
+              sprite.fontFace = "Inter, sans-serif";
+              sprite.position.y = radius + 5.5;
               group.add(sprite);
             }
             return group;
@@ -141,19 +191,59 @@ export function InvestigationGraph() {
             if (selectedNodeId) {
               const s = endpointId(link.source);
               const t = endpointId(link.target);
-              return s === selectedNodeId || t === selectedNodeId ? "#5eead4" : "#1b2733";
+              if (s === selectedNodeId || t === selectedNodeId) {
+                return link.type === "TRANSFERRED" ? "#34d399" : "#5eead4";
+              }
+              return "#15202c";
             }
-            return "#2a3a4d";
+            if (link.type === "TRANSFERRED") return "#059669";
+            if (link.type === "CALLED") return "#0284c7";
+            if (link.type === "OWNS") return "#d97706";
+            return "#27384a";
           }}
-          linkWidth={(l) => ((l as FGLink).id === selectedEdgeId ? 2.2 : 0.7)}
-          linkOpacity={0.85}
-          linkDirectionalArrowLength={(l) => ((l as GraphEdge).directed ? 4 : 0)}
+          linkWidth={(l) => {
+            const link = l as FGLink;
+            if (link.id === selectedEdgeId) return 2.8;
+            if (link.type === "TRANSFERRED") return 1.8;
+            return 0.8;
+          }}
+          linkOpacity={0.88}
+          linkDirectionalArrowLength={(l: any) => ((l as GraphEdge).directed ? 4.5 : 0)}
           linkDirectionalArrowRelPos={1}
-          linkDirectionalParticles={(l) => ((l as FGLink).id === selectedEdgeId ? 4 : 0)}
-          linkDirectionalParticleWidth={1.4}
+          linkDirectionalParticles={(l: any) => {
+            const link = l as FGLink;
+            if (selectedEdgeId && link.id === selectedEdgeId) return 6;
+            if (link.type === "TRANSFERRED") return 4;
+            if (link.type === "CALLED") return 3;
+            if (link.type === "OWNS" || link.type === "USED" || link.type === "SEEN_AT") return 2;
+            return 1;
+          }}
+          linkDirectionalParticleWidth={((l: any) => {
+            const link = l as FGLink;
+            if (selectedEdgeId && link.id === selectedEdgeId) return 2.6;
+            if (link.type === "TRANSFERRED") return 2.0;
+            if (link.type === "CALLED") return 1.6;
+            return 1.2;
+          }) as any}
+          linkDirectionalParticleSpeed={((l: any) => {
+            const link = l as FGLink;
+            if (selectedEdgeId && link.id === selectedEdgeId) return 0.012;
+            if (link.type === "TRANSFERRED") return 0.007;
+            if (link.type === "CALLED") return 0.009;
+            return 0.004;
+          }) as any}
+          linkDirectionalParticleColor={((l: any) => {
+            const link = l as FGLink;
+            if (selectedEdgeId && link.id === selectedEdgeId) return "#38bdf8";
+            if (link.type === "TRANSFERRED") return "#34d399";
+            if (link.type === "CALLED") return "#38bdf8";
+            if (link.type === "SEEN_AT" || link.type === "LOCATED_AT") return "#fbbf24";
+            return "#818cf8";
+          }) as any}
           linkLabel={(l) => {
             const link = l as GraphEdge;
-            return `${link.type}${link.confidence != null ? ` · ${link.confidence}%` : ""}`;
+            const amountText = link.amount ? ` · ₹${link.amount.toLocaleString("en-IN")}` : "";
+            return `${link.type}${amountText}${link.confidence != null ? ` · ${link.confidence}%` : ""}`;
           }}
           onNodeClick={(n) => {
             void selectNode((n as FGNode).id);
@@ -171,10 +261,10 @@ export function InvestigationGraph() {
             <div className="text-[11px] tracking-[0.28em] text-nexus-cyan">NEXUS GRAPH</div>
             <h2 className="mt-2 text-xl font-medium">Awaiting a clue</h2>
             <p className="mt-2 text-sm text-nexus-muted">
-              Enter any identifier — person, phone, vehicle, case, or location — to build the focal investigation
+              Enter any identifier — person, phone, vehicle, account, case, or location — to build the focal investigation
               network.
             </p>
-            <p className="mt-4 font-mono text-xs text-nexus-cyan/80">Try TN38AB1234</p>
+            <p className="mt-4 font-mono text-xs text-nexus-cyan/80">Try TN38AB1234 or ACC-001</p>
           </div>
         </div>
       )}

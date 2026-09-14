@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { api } from "@/api/client";
 import { hopDistances } from "@/lib/graph";
-import { INVESTIGATION_ID } from "@/mock/investigationData";
+import { CASES_CATALOG } from "@/mock/investigationData";
 import type {
   ContinuityAlert,
   Entity,
@@ -30,6 +30,8 @@ export interface InvestigationState {
   searchError: string | null;
   matches: Entity[];
   investigation: InvestigationSummary | null;
+  availableCases: InvestigationSummary[];
+  activeCaseId: string;
   focalEntityId: string | null;
   graph: GraphPayload | null;
   depth: 1 | 2 | 3;
@@ -47,6 +49,7 @@ export interface InvestigationState {
   jurisdictionAlerts: JurisdictionAlert[];
   continuityAlerts: ContinuityAlert[];
   graphBusy: boolean;
+  isOrbiting: boolean;
   systemStatus: "ONLINE" | "DEGRADED";
   setWorkspaceFocus: (focus: WorkspaceFocus) => void;
   setSearchQuery: (query: string) => void;
@@ -60,6 +63,8 @@ export interface InvestigationState {
   selectEdge: (edgeId: string | null) => Promise<void>;
   reviewMatch: (matchId: string, status: MatchReviewStatus) => Promise<void>;
   loadInvestigation: () => Promise<void>;
+  switchCase: (caseId: string) => Promise<void>;
+  toggleOrbit: () => void;
   refreshGraph: () => Promise<void>;
 }
 
@@ -111,6 +116,8 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   searchError: null,
   matches: [],
   investigation: null,
+  availableCases: Object.values(CASES_CATALOG),
+  activeCaseId: "CASE-142",
   focalEntityId: null,
   graph: null,
   depth: 1,
@@ -128,15 +135,53 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   jurisdictionAlerts: [],
   continuityAlerts: [],
   graphBusy: false,
+  isOrbiting: false,
   systemStatus: "ONLINE",
 
+  toggleOrbit: () => set((s) => ({ isOrbiting: !s.isOrbiting })),
   setWorkspaceFocus: (workspaceFocus) => set({ workspaceFocus }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   setSearchType: (searchType) => set({ searchType }),
 
   loadInvestigation: async () => {
-    const investigation = await api.getInvestigation(INVESTIGATION_ID);
-    set({ investigation });
+    const caseId = get().activeCaseId || "CASE-142";
+    try {
+      const investigation = await api.getInvestigation(caseId);
+      const focalId = get().focalEntityId || investigation.focalEntityId || "V-TN38AB1234";
+      set({
+        investigation,
+        activeCaseId: caseId,
+        focalEntityId: focalId,
+        selectedNodeId: focalId,
+        availableCases: Object.values(CASES_CATALOG),
+      });
+      await get().refreshGraph();
+    } catch {
+      set({ systemStatus: "DEGRADED" });
+    }
+  },
+
+  switchCase: async (caseId: string) => {
+    set({ graphBusy: true, activeCaseId: caseId });
+    try {
+      const investigation = await api.getInvestigation(caseId);
+      const focalId = investigation.focalEntityId || "V-TN38AB1234";
+      set({
+        investigation,
+        activeCaseId: caseId,
+        focalEntityId: focalId,
+        selectedNodeId: focalId,
+        selectedEdgeId: null,
+        selectedEdge: null,
+        depth: 1,
+        relFilters: [],
+      });
+      await get().refreshGraph();
+    } catch {
+      set({ systemStatus: "DEGRADED" });
+    } finally {
+      set({ graphBusy: false });
+    }
   },
 
   refreshGraph: async () => {

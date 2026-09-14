@@ -1,4 +1,4 @@
-import { Crosshair, Expand, Focus, RotateCcw } from "lucide-react";
+import { Crosshair, Expand, Focus, Orbit, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { ENTITY_COLORS, ENTITY_LABELS } from "@/lib/cn";
 import { useInvestigationStore } from "@/store/investigationStore";
@@ -12,7 +12,7 @@ const REL: { id: RelFilterGroup; label: string }[] = [
   { id: "case", label: "Case / Crime" },
 ];
 
-const LEGEND: EntityType[] = ["person", "phone", "sim", "device", "vehicle", "location", "case", "event"];
+const LEGEND: EntityType[] = ["person", "phone", "sim", "device", "vehicle", "account", "location", "case", "event"];
 
 export function GraphToolbar() {
   const depth = useInvestigationStore((s) => s.depth);
@@ -23,9 +23,11 @@ export function GraphToolbar() {
   const selectNode = useInvestigationStore((s) => s.selectNode);
   const focalId = useInvestigationStore((s) => s.focalEntityId);
   const refresh = useInvestigationStore((s) => s.refreshGraph);
+  const isOrbiting = useInvestigationStore((s) => s.isOrbiting);
+  const toggleOrbit = useInvestigationStore((s) => s.toggleOrbit);
 
   return (
-    <div className="pointer-events-auto absolute left-4 top-4 z-10 flex max-w-[min(720px,calc(100%-2rem))] flex-wrap items-center gap-2 rounded-md border border-nexus-line bg-nexus-raised/85 p-2 backdrop-blur-md">
+    <div className="pointer-events-auto absolute left-4 top-4 z-10 flex max-w-[min(760px,calc(100%-2rem))] flex-wrap items-center gap-2 rounded-md border border-nexus-line bg-nexus-raised/85 p-2 backdrop-blur-md">
       <span className="px-1 font-mono text-[10px] text-nexus-muted">DEPTH</span>
       {([1, 2, 3] as const).map((d) => (
         <button
@@ -57,6 +59,20 @@ export function GraphToolbar() {
         </button>
       ))}
       <span className="mx-1 h-4 w-px bg-nexus-line" />
+      <button
+        type="button"
+        className={cn(
+          "flex items-center gap-1.5 rounded px-2 py-1 font-mono text-[10px] tracking-wide transition-colors",
+          isOrbiting
+            ? "bg-nexus-cyan/20 text-nexus-cyan ring-1 ring-nexus-cyan/50"
+            : "text-nexus-muted hover:text-nexus-text hover:bg-white/5"
+        )}
+        title={isOrbiting ? "Pause 3D auto-orbit" : "Start 3D surveillance auto-orbit"}
+        onClick={toggleOrbit}
+      >
+        <Orbit className={cn("h-3.5 w-3.5", isOrbiting && "animate-spin text-nexus-cyan")} style={{ animationDuration: "8s" }} />
+        <span>ORBIT</span>
+      </button>
       <button
         type="button"
         className="rounded p-1.5 text-nexus-muted hover:text-nexus-text"

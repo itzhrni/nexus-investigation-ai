@@ -1,5 +1,6 @@
 import { filterGraph } from "@/lib/graph";
 import {
+  CASES_CATALOG,
   continuityAlerts,
   edges,
   entities,
@@ -33,6 +34,8 @@ function detectType(normalized: string, raw: string): SearchMatch[] {
       entity.id,
       entity.label,
       entity.value,
+      entity.accountNumber ?? "",
+      entity.bankName ?? "",
       ...(entity.aliases ?? []),
       ...(entity.scripts?.map((s) => s.text) ?? []),
       ...(entity.identifiers?.map((i) => i.value) ?? []),
@@ -43,6 +46,7 @@ function detectType(normalized: string, raw: string): SearchMatch[] {
     const rawHay = [
       entity.label,
       entity.value,
+      entity.bankName ?? "",
       ...(entity.aliases ?? []),
       ...(entity.scripts?.map((s) => s.text) ?? []),
     ]
@@ -53,7 +57,7 @@ function detectType(normalized: string, raw: string): SearchMatch[] {
       hits.push({
         entity,
         score: entity.id === "V-TN38AB1234" && normalized.includes("TN38AB1234") ? 99 : 80,
-        reason: "Identifier or name match after normalization",
+        reason: "Identifier, account or name match after normalization",
       });
     }
   }
@@ -78,7 +82,15 @@ export const mockAdapter: NexusApi = {
     };
   },
 
-  async getInvestigation() {
+  async getInvestigation(id?: string) {
+    if (id && CASES_CATALOG[id]) {
+      return CASES_CATALOG[id];
+    }
+    if (id) {
+      for (const c of Object.values(CASES_CATALOG)) {
+        if (c.id === id || c.focalEntityId === id) return c;
+      }
+    }
     return summary;
   },
 
@@ -117,11 +129,38 @@ export const mockAdapter: NexusApi = {
         subjectLabel: `${edge.source} ↔ ${edge.target}`,
         relationship: edge.type,
         reasoning: edge.summary ?? "Relationship present in the investigation graph.",
-        items: [],
+        items: edge.amount
+          ? [
+              {
+                id: "EV-AUTO-FIN",
+                category: "DIRECT" as const,
+                statement: `Core Banking Transaction Log: ₹${edge.amount.toLocaleString("en-IN")} via ${edge.transactionType || "Transfer"}. Status: ${edge.status || "COMPLETED"}.`,
+                sourceRecords: [{ id: "CBS-LOG", kind: "Banking Switch", label: `${edge.sourceBank || "Origin Bank"} Core Banking` }],
+              },
+            ]
+          : [],
         timelineIds: [],
         confidence: edge.confidence,
         confidenceBand: edge.confidenceBand,
       };
+    }
+    if (entityId) {
+      const ent = entities[entityId];
+      if (ent) {
+        return {
+          subjectLabel: ent.label,
+          reasoning: ent.summary ?? `${ent.type} recorded in active investigation network.`,
+          items: ent.identifiers?.map((i, idx) => ({
+            id: `EV-AUTO-${idx}`,
+            category: "DIRECT" as const,
+            statement: `${i.kind}: ${i.value} verified in law enforcement / financial registry.`,
+            sourceRecords: [{ id: `SRC-${idx}`, kind: "Registry", label: `${i.kind} Database` }],
+          })) ?? [],
+          timelineIds: [],
+          confidence: ent.confidence ?? 90,
+          confidenceBand: ent.confidenceBand ?? "HIGH",
+        };
+      }
     }
     return null;
   },

@@ -72,14 +72,14 @@ export function toBackendEntityType(frontendType?: string): string | undefined {
 }
 
 export function inferEntityTypeFromId(id: string): string {
-  if (id.startsWith("P") && !id.startsWith("PH") && id.length <= 6) return "Person";
+  if (id.startsWith("CASE") || id.startsWith("FIR")) return "FIR";
+  if (id.startsWith("ACC")) return "BankAccount";
+  if (id.startsWith("P-") || (id.startsWith("P") && !id.startsWith("PH") && id.length <= 6)) return "Person";
   if (id.startsWith("PH")) return "Phone";
   if (id.startsWith("SIM")) return "SIM";
   if (id.startsWith("DEV")) return "Device";
-  if (id.startsWith("V")) return "Vehicle";
-  if (id.startsWith("ACC")) return "BankAccount";
+  if (id.startsWith("V-") || id.startsWith("V")) return "Vehicle";
   if (id.startsWith("LOC")) return "Location";
-  if (id.startsWith("FIR")) return "FIR";
   if (id.startsWith("EVT")) return "Event";
   return "Person";
 }
@@ -101,10 +101,6 @@ export function mapBackendSearchResultToEntity(r: BackendEntitySearchResult): En
     aliases.push(r.properties.canonical_name);
   }
 
-  const jurisdictions = r.properties?.state
-    ? [{ state: r.properties.state, policeStation: r.properties.police_station }]
-    : undefined;
-
   return {
     id: r.entity_id,
     type: fType,
@@ -113,8 +109,11 @@ export function mapBackendSearchResultToEntity(r: BackendEntitySearchResult): En
     aliases: aliases.length > 0 ? aliases : undefined,
     confidence: r.confidence,
     confidenceBand: toConfidenceBand(r.confidence),
-    jurisdictions,
-    summary: `${r.entity_type} match (${r.match_type}) with confidence ${Math.round(r.confidence * 100)}%`,
+    summary: `${r.entity_type} matched directly from database`,
+    accountNumber: (r.properties?.account_number as string) || undefined,
+    bankName: (r.properties?.bank_name as string) || undefined,
+    ifsc: (r.properties?.ifsc as string) || undefined,
+    accountType: (r.properties?.account_type as string) || undefined,
   };
 }
 
@@ -123,10 +122,9 @@ export function mapBackendSearchResponse(
   originalQuery: string,
 ): SearchResponse {
   const matches = (raw.results || []).map((r) => {
-    const entity = mapBackendSearchResultToEntity(r);
     return {
-      entity,
-      score: r.confidence,
+      entity: mapBackendSearchResultToEntity(r),
+      score: Math.round(r.confidence * 100),
       reason: `${r.match_type.toUpperCase()} match on ${r.entity_type}`,
     };
   });
@@ -156,8 +154,9 @@ export function mapBackendGraphToPayload(raw: BackendFocalGraphResponse): GraphP
   const edges: GraphEdge[] = (raw.relationships || []).map((rel) => {
     const meta = rel.properties || {};
     let summary = `${rel.source} ↔ ${rel.target}`;
-    if (meta.amount) {
-      summary = `₹${Number(meta.amount).toLocaleString("en-IN")} · ${rel.source} → ${rel.target}`;
+    const amount = meta.amount ? Number(meta.amount) : undefined;
+    if (amount != null) {
+      summary = `₹${amount.toLocaleString("en-IN")} · ${rel.source} → ${rel.target}`;
     } else if (meta.camera_id) {
       summary = `Camera ${meta.camera_id} · ${rel.source}`;
     }
@@ -173,6 +172,11 @@ export function mapBackendGraphToPayload(raw: BackendFocalGraphResponse): GraphP
       validFrom: rel.timestamp ?? undefined,
       evidenceCount: rel.evidence_id ? 1 : 0,
       summary,
+      amount,
+      currency: "INR",
+      transactionType: (meta.transaction_type as string) || (meta.mode as string) || undefined,
+      transactionId: (meta.transaction_id as string) || (meta.id as string) || undefined,
+      status: (meta.status as string) || undefined,
     };
   });
 

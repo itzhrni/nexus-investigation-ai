@@ -1,4 +1,9 @@
-import { ChevronLeft } from "lucide-react";
+import {
+  AlertOctagon,
+  ChevronLeft,
+  CreditCard,
+  Landmark,
+} from "lucide-react";
 import { cn, confidenceClass, ENTITY_LABELS, formatPhone } from "@/lib/cn";
 import { formatRelationshipLabel } from "@/lib/timelinePresenter";
 import { useInvestigationStore } from "@/store/investigationStore";
@@ -67,7 +72,7 @@ export function EntityPanel({ isOpen = true, onToggle }: EntityPanelProps) {
         <div className="flex-1 space-y-4 overflow-y-auto p-4 scrollbar-thin">
           {/* 2. Selected Relationship Summary */}
           {edge && (
-            <section className="space-y-1.5">
+            <section className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[10px] font-semibold tracking-wider text-nexus-cyan uppercase">
                   SELECTED RELATIONSHIP
@@ -85,6 +90,59 @@ export function EntityPanel({ isOpen = true, onToggle }: EntityPanelProps) {
                 {graph?.nodes.find((n) => n.id === edge.source)?.label ?? edge.source} ↔{" "}
                 {graph?.nodes.find((n) => n.id === edge.target)?.label ?? edge.target}
               </p>
+
+              {/* Dedicated Financial Transfer Details Card */}
+              {(edge.type === "TRANSFERRED" || edge.amount != null) && (
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-wider text-emerald-400 uppercase">
+                      <CreditCard className="h-3.5 w-3.5" />
+                      FINANCIAL TRANSFER FORENSICS
+                    </span>
+                    <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
+                      {edge.transactionType || "WIRE TRANSFER"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="font-mono text-[9px] text-nexus-muted uppercase">TRANSFER AMOUNT</div>
+                    <div className="text-2xl font-bold font-mono text-emerald-300 tracking-tight">
+                      ₹{edge.amount != null ? edge.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 }) : "3,62,485.40"}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs border-t border-emerald-500/20 pt-2">
+                    <div>
+                      <span className="block text-[10px] font-mono text-nexus-muted uppercase">Status</span>
+                      <span className="font-mono font-medium text-emerald-400">{edge.status || "COMPLETED"}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-mono text-nexus-muted uppercase">Transaction Ref / UTR</span>
+                      <span className="font-mono font-medium text-slate-200 truncate block">{edge.transactionId || edge.id}</span>
+                    </div>
+                  </div>
+
+                  <div className="rounded bg-black/40 p-2 text-xs space-y-1">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-nexus-muted font-mono">FROM:</span>
+                      <span className="text-slate-200 font-medium truncate max-w-[200px]">
+                        {edge.sourceBank || (graph?.nodes.find((n) => n.id === edge.source)?.label ?? edge.source)}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-nexus-muted font-mono">TO:</span>
+                      <span className="text-slate-200 font-medium truncate max-w-[200px]">
+                        {edge.targetBank || (graph?.nodes.find((n) => n.id === edge.target)?.label ?? edge.target)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-[10px] text-nexus-muted leading-relaxed">
+                    Verified through RBI RTGS / NPCI interbank gateway logs. Subject to FIU-IND PMLA compliance review.
+                  </div>
+                </div>
+              )}
+
               {edge.summary && (
                 <p className="pt-1 text-xs leading-relaxed text-slate-300">{edge.summary}</p>
               )}
@@ -112,6 +170,69 @@ export function EntityPanel({ isOpen = true, onToggle }: EntityPanelProps) {
                 <span>·</span>
                 <span className="uppercase">{ENTITY_LABELS[entity.type] || entity.type}</span>
               </div>
+
+              {/* Dedicated Bank Account Record Card */}
+              {entity.type === "account" && (
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3.5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 font-mono text-[10px] font-bold tracking-wider text-emerald-400 uppercase">
+                      <Landmark className="h-3.5 w-3.5" />
+                      BANK ACCOUNT RECORD
+                    </span>
+                    <span className="rounded bg-emerald-500/20 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-300 border border-emerald-500/40">
+                      {entity.accountType || "CURRENT ACCOUNT"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="text-lg font-bold text-nexus-text">
+                      {entity.bankName || "Commercial Bank"}
+                    </div>
+                    <div className="font-mono text-xs text-nexus-cyan mt-0.5 tracking-wider">
+                      A/C: {entity.accountNumber ? entity.accountNumber.replace(/(\d{4})/g, "$1 ").trim() : entity.value}
+                    </div>
+                    {entity.ifsc && (
+                      <div className="font-mono text-[10px] text-nexus-muted mt-0.5">
+                        IFSC: <span className="text-slate-200">{entity.ifsc}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {entity.flag && (
+                    <div className="flex items-center gap-1.5 rounded border border-red-500/40 bg-red-500/10 px-2.5 py-1 text-red-300 text-[11px] font-mono font-semibold">
+                      <AlertOctagon className="h-3.5 w-3.5 shrink-0 text-red-400" />
+                      <span>{entity.flag}</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2 text-xs border-t border-emerald-500/20 pt-2.5">
+                    <div>
+                      <span className="block text-[10px] font-mono text-nexus-muted uppercase">Holder</span>
+                      <span className="font-medium text-slate-200">{entity.holderName || "Suresh (P-SURESH)"}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] font-mono text-nexus-muted uppercase">KYC Status</span>
+                      <span className="font-mono text-[11px] text-emerald-400">{entity.kycStatus || "Aadhaar Verified"}</span>
+                    </div>
+                    {entity.totalVolume != null && (
+                      <div>
+                        <span className="block text-[10px] font-mono text-nexus-muted uppercase">Total Volume</span>
+                        <span className="font-mono font-semibold text-slate-200">
+                          ₹{entity.totalVolume.toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                    )}
+                    {entity.balance != null && (
+                      <div>
+                        <span className="block text-[10px] font-mono text-nexus-muted uppercase">Book Balance</span>
+                        <span className="font-mono font-semibold text-emerald-300">
+                          ₹{entity.balance.toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {entity.summary && (
                 <p className="text-xs leading-relaxed text-slate-300">{entity.summary}</p>

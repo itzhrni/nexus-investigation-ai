@@ -7,8 +7,10 @@ import {
   Network,
   Users,
   ChevronRight,
+  CheckCircle2,
 } from "lucide-react";
 import { useInvestigationStore } from "@/store/investigationStore";
+import { CASES_CATALOG } from "@/mock/investigationData";
 
 interface CaseItem {
   id: string;
@@ -23,40 +25,31 @@ interface CaseItem {
 
 export function CasesWorkspace() {
   const graph = useInvestigationStore((s) => s.graph);
-  const investigation = useInvestigationStore((s) => s.investigation);
+  const activeCaseId = useInvestigationStore((s) => s.activeCaseId || s.investigation?.id || "CASE-142");
+  const switchCase = useInvestigationStore((s) => s.switchCase);
   const jurisdictionAlerts = useInvestigationStore((s) => s.jurisdictionAlerts);
   const timeline = useInvestigationStore((s) => s.timeline);
-  const selectMatch = useInvestigationStore((s) => s.selectMatch);
   const selectNode = useInvestigationStore((s) => s.selectNode);
   const setWorkspaceFocus = useInvestigationStore((s) => s.setWorkspaceFocus);
 
   // Extract cases from graph nodes
   const caseNodes = (graph?.nodes || []).filter((n) => n.type === "case");
 
-  // Collect all cases from graph, jurisdiction alerts, and timeline
+  // Collect all cases from CASES_CATALOG, graph, jurisdiction alerts, and timeline
   const caseMap = new Map<string, CaseItem>();
 
-  // 1. Known primary cases from active investigation session
-  caseMap.set("CASE-142", {
-    id: "CASE-142",
-    label: "FIR #142/2026",
-    policeStation: "Ambattur Police Station",
-    district: "Chennai",
-    state: "Tamil Nadu",
-    date: "2026-06-16",
-    sections: "IPC 420, 120B (Cheating & Conspiracy)",
-    relatedEntities: [],
-  });
-
-  caseMap.set("CASE-217", {
-    id: "CASE-217",
-    label: "FIR #217/2026",
-    policeStation: "Cubbon Park PS",
-    district: "Bengaluru Urban",
-    state: "Karnataka",
-    date: "2026-06-18",
-    sections: "IPC 379, 411 (Inter-state Stolen Property)",
-    relatedEntities: [],
+  // 1. Initialize with all registered cases from CASES_CATALOG
+  Object.values(CASES_CATALOG).forEach((c) => {
+    caseMap.set(c.id, {
+      id: c.id,
+      label: c.label,
+      policeStation: c.policeStation || "Central Police Station",
+      district: c.district || "Metropolitan District",
+      state: c.state || "State Police",
+      date: c.registeredDate || "2026-06-16",
+      sections: c.sections || c.crimeType || "Under Investigation",
+      relatedEntities: [],
+    });
   });
 
   // 2. Add or enrich with graph case nodes
@@ -120,17 +113,17 @@ export function CasesWorkspace() {
   });
 
   const casesList = Array.from(caseMap.values());
-  const [selectedCaseId, setSelectedCaseId] = useState<string>(casesList[0]?.id || "CASE-142");
+  const [selectedCaseId, setSelectedCaseId] = useState<string>(activeCaseId || casesList[0]?.id || "CASE-142");
 
   const selectedCase = casesList.find((c) => c.id === selectedCaseId) || casesList[0];
 
   const handleOpenInvestigation = async (caseId: string) => {
-    await selectMatch(caseId);
+    await switchCase(caseId);
     setWorkspaceFocus("investigation");
   };
 
   const handleOpenNetwork = async (caseId: string) => {
-    await selectMatch(caseId);
+    await switchCase(caseId);
     setWorkspaceFocus("network");
   };
 
@@ -152,9 +145,12 @@ export function CasesWorkspace() {
           <h1 className="text-xl font-semibold tracking-tight text-nexus-text">
             FIR & Legal Cases ({casesList.length})
           </h1>
-          <span className="font-mono text-xs text-nexus-muted">
-            Investigation Session: <span className="text-nexus-text">{investigation?.id ?? "INV-042"}</span>
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-nexus-muted">Active Case:</span>
+            <span className="rounded border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 font-mono text-xs font-semibold text-emerald-400">
+              {activeCaseId}
+            </span>
+          </div>
         </div>
         <p className="text-xs text-nexus-muted">
           Law enforcement FIRs, jurisdictional records, and judicial filings linked to suspected targets.
@@ -177,6 +173,7 @@ export function CasesWorkspace() {
           <div className="flex-1 divide-y divide-nexus-line/40 overflow-y-auto">
             {casesList.map((c) => {
               const isSelected = c.id === selectedCaseId;
+              const isActive = c.id === activeCaseId;
               return (
                 <div
                   key={c.id}
@@ -194,6 +191,11 @@ export function CasesWorkspace() {
                       <span className="rounded border border-nexus-line bg-black/40 px-1.5 py-0.5 font-mono text-[10px] text-nexus-muted">
                         {c.id}
                       </span>
+                      {isActive && (
+                        <span className="rounded border border-emerald-500/40 bg-emerald-500/20 px-1.5 py-0.5 font-mono text-[9px] font-bold text-emerald-300">
+                          ACTIVE CASE
+                        </span>
+                      )}
                     </div>
 
                     <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-nexus-muted">
@@ -241,6 +243,12 @@ export function CasesWorkspace() {
                 </span>
                 <span className="font-mono text-xs text-nexus-muted">{selectedCase.id}</span>
               </div>
+              {selectedCase.id === activeCaseId && (
+                <div className="flex items-center gap-1 text-emerald-400 font-mono text-[10px]">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>LOADED IN WORKSPACE</span>
+                </div>
+              )}
             </div>
 
             <h2 className="mt-3 text-lg font-bold tracking-tight text-nexus-text">
@@ -315,7 +323,7 @@ export function CasesWorkspace() {
                 </div>
               ) : (
                 <div className="mt-3 rounded border border-nexus-line/40 bg-black/20 p-3 text-center text-xs text-nexus-muted">
-                  No additional entities mapped to this FIR in the current focal depth.
+                  Primary suspects and focal vehicles mapped in investigation network.
                 </div>
               )}
             </div>
@@ -328,7 +336,11 @@ export function CasesWorkspace() {
                 className="flex items-center justify-center gap-2 rounded bg-nexus-cyan/15 px-4 py-2.5 font-mono text-xs font-semibold tracking-wider text-nexus-cyan ring-1 ring-nexus-cyan/40 hover:bg-nexus-cyan/25 transition-all"
               >
                 <Shield className="h-4 w-4" />
-                <span>OPEN IN INVESTIGATION GRAPH</span>
+                <span>
+                  {selectedCase.id === activeCaseId
+                    ? "OPEN ACTIVE INVESTIGATION GRAPH"
+                    : "SWITCH ACTIVE CASE & INVESTIGATE"}
+                </span>
               </button>
               <button
                 type="button"
