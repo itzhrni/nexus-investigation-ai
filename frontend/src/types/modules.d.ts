@@ -10,6 +10,7 @@ declare module "react-force-graph-3d" {
     ) => void;
     d3Force: (name: string, force?: unknown) => unknown;
     d3ReheatSimulation: () => void;
+    refresh?: () => void;
   }
 
   export interface ForceGraph3DProps {
@@ -19,6 +20,7 @@ declare module "react-force-graph-3d" {
     height?: number;
     backgroundColor?: string;
     showNavInfo?: boolean;
+    numDimensions?: 1 | 2 | 3 | number;
     warmupTicks?: number;
     cooldownTicks?: number;
     d3VelocityDecay?: number;
@@ -43,7 +45,9 @@ declare module "react-force-graph-3d" {
     linkDirectionalParticleColor?: string | ((link: object) => string);
     linkLabel?: string | ((link: object) => string);
     onNodeClick?: (node: object, event: MouseEvent) => void;
+    onNodeHover?: (node: object | null, prevNode: object | null) => void;
     onLinkClick?: (link: object, event: MouseEvent) => void;
+    onLinkHover?: (link: object | null, prevLink: object | null) => void;
     onBackgroundClick?: () => void;
     onEngineStop?: () => void;
   }
@@ -62,8 +66,9 @@ declare module "three-spritetext" {
     fontFace: string;
     fontWeight: string;
     backgroundColor: false | string;
-    padding: number;
+    padding: number | [number, number];
     borderWidth: number;
+    borderRadius: number;
     borderColor: string;
   }
 }
