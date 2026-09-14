@@ -60,14 +60,14 @@ export function Topbar() {
         </div>
         <button
           type="submit"
-          className="rounded-md bg-nexus-cyan/15 px-3 py-2 text-xs font-medium tracking-wide text-nexus-cyan ring-1 ring-nexus-cyan/40 hover:bg-nexus-cyan/25 transition-colors"
+          className="shrink-0 rounded-md bg-nexus-cyan/15 px-3 py-2 text-xs font-medium tracking-wide text-nexus-cyan ring-1 ring-nexus-cyan/40 hover:bg-nexus-cyan/25 transition-colors"
         >
           RESOLVE
         </button>
       </form>
 
       {/* Right Topbar Navigation & Interactive Case Switcher */}
-      <div className="flex items-center gap-4">
+      <div className="flex shrink-0 items-center gap-4">
         {/* Interactive Case Switcher Dropdown */}
         <div ref={dropdownRef} className="relative">
           <button

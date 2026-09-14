@@ -111,14 +111,7 @@ export function InvestigationGraph() {
     if (!graph || data.nodes.length === 0) return;
     const t = window.setTimeout(() => fgRef.current?.zoomToFit(500, 80), 300);
     return () => window.clearTimeout(t);
-  }, [graph?.focalId, graph?.nodes.length]);
-
-  // Reheat force engine on data/filter changes for dynamic physics settle
-  useEffect(() => {
-    if (fgRef.current && data.nodes.length > 0) {
-      (fgRef.current as any)?.d3ReheatSimulation?.();
-    }
-  }, [graph?.focalId, graph?.nodes.length, graph?.edges.length]);
+  }, [graph?.focalId, data.nodes.length]);
 
   // Smooth camera glide to selected node
   useEffect(() => {
@@ -179,8 +172,8 @@ export function InvestigationGraph() {
           graphData={data}
           backgroundColor="#07090c"
           showNavInfo={false}
-          warmupTicks={35}
-          cooldownTicks={90}
+          warmupTicks={0}
+          cooldownTicks={120}
           d3VelocityDecay={0.3}
           d3AlphaDecay={0.02}
           enableNodeDrag
@@ -193,15 +186,15 @@ export function InvestigationGraph() {
           nodeThreeObject={(n) => {
             const node = n as FGNode;
             const group = new THREE.Group();
-            const hop = node.hop;
+            const hop = node.hop ?? 3;
             const radius = hop === 0 ? 7.2 : hop === 1 ? 4.8 : hop === 2 ? 3.4 : 2.4;
             const highlighted = !neighborIds || neighborIds.has(node.id);
             const color = highlighted ? (ENTITY_COLORS[node.type] ?? "#8b9cb3") : "#1b2530";
             const geom = new THREE.SphereGeometry(radius, 16, 16);
             const mat = new THREE.MeshLambertMaterial({
               color,
-              emissive: node.hop === 0 ? color : node.type === "account" ? "#10b981" : "#000000",
-              emissiveIntensity: node.hop === 0 ? 0.4 : node.type === "account" ? 0.25 : selectedNodeId === node.id ? 0.35 : 0,
+              emissive: hop === 0 ? color : node.type === "account" ? "#10b981" : "#000000",
+              emissiveIntensity: hop === 0 ? 0.4 : node.type === "account" ? 0.25 : selectedNodeId === node.id ? 0.35 : 0,
               transparent: true,
               opacity: highlighted ? 1 : 0.2,
             });
@@ -223,7 +216,7 @@ export function InvestigationGraph() {
 
             const showLabel = hop <= 1 || selectedNodeId === node.id || neighborIds?.has(node.id);
             if (showLabel && highlighted) {
-              const sprite = new SpriteText(node.label);
+              const sprite = new SpriteText(node.label || node.id || "");
               sprite.color = hop === 0 ? "#3dd6f5" : node.type === "account" ? "#34d399" : "#d5dee8";
               sprite.textHeight = hop === 0 ? 4.4 : 2.8;
               sprite.fontFace = "Inter, sans-serif";

@@ -9,8 +9,8 @@ const REL_GROUPS: Record<RelFilterGroup, RelationshipType[]> = {
 };
 
 export function edgeEndpoints(edge: GraphEdge): { source: string; target: string } {
-  const source = typeof edge.source === "string" ? edge.source : String(edge.source);
-  const target = typeof edge.target === "string" ? edge.target : String(edge.target);
+  const source = typeof edge.source === "string" ? edge.source : (edge.source as any)?.id ?? String(edge.source);
+  const target = typeof edge.target === "string" ? edge.target : (edge.target as any)?.id ?? String(edge.target);
   return { source, target };
 }
 
@@ -100,7 +100,28 @@ export function toForceGraphData(
   nodes: GraphNode[],
   edges: GraphEdge[],
 ): { nodes: GraphNode[]; links: GraphEdge[] } {
-  return { nodes: nodes.map((n) => ({ ...n })), links: edges.map((e) => ({ ...e })) };
+  const nodeMap = new Map<string, GraphNode>();
+  nodes.forEach((n) => {
+    if (n && n.id) nodeMap.set(n.id, n);
+  });
+
+  const links: GraphEdge[] = [];
+  edges.forEach((e) => {
+    const s = typeof e.source === "string" ? e.source : (e.source as any)?.id;
+    const t = typeof e.target === "string" ? e.target : (e.target as any)?.id;
+    if (s && t && nodeMap.has(s) && nodeMap.has(t)) {
+      links.push({
+        ...e,
+        source: s,
+        target: t,
+      });
+    }
+  });
+
+  return {
+    nodes: Array.from(nodeMap.values()).map((n) => ({ ...n })),
+    links,
+  };
 }
 
 export { REL_GROUPS };
