@@ -242,7 +242,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       const result = await api.search(q, get().searchType);
       set({ searchPhase: SEARCH_PHASES[2] });
       if (result.matches.length === 0) {
-        set({ searchStatus: "empty", matches: [], searchPhase: null });
+        set({ searchStatus: "empty", matches: [], searchPhase: null, workspaceFocus: "search" });
         return;
       }
       const matchedEntities = result.matches.map((m) => m.entity);
@@ -251,6 +251,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
           searchStatus: "multiple",
           matches: matchedEntities,
           searchPhase: null,
+          workspaceFocus: "search",
         });
         return;
       }
@@ -258,7 +259,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       if (currentFocus !== "search") {
         await get().selectMatch(matchedEntities[0].id);
       } else {
-        set({ searchStatus: "multiple", searchPhase: null });
+        set({ searchStatus: "multiple", searchPhase: null, workspaceFocus: "search" });
       }
     } catch (error) {
       set({

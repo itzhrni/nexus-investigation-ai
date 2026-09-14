@@ -72,11 +72,22 @@ export function SearchWorkspace() {
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    setInputVal(query);
+  }, [query]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputVal.trim()) return;
     setQuery(inputVal.trim());
     void runSearch(inputVal.trim());
+  };
+
+  const handleTypeChange = (typeId: SearchType) => {
+    setType(typeId);
+    if (inputVal.trim()) {
+      void runSearch(inputVal.trim());
+    }
   };
 
   const handleSelectEntity = async (entity: Entity) => {
@@ -145,9 +156,9 @@ export function SearchWorkspace() {
               <button
                 key={t.id}
                 type="button"
-                onClick={() => setType(t.id)}
+                onClick={() => handleTypeChange(t.id)}
                 className={cn(
-                  "flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs transition-all",
+                  "flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs transition-all cursor-pointer",
                   active
                     ? "border-nexus-cyan/50 bg-nexus-cyan/15 text-nexus-cyan shadow-[0_0_10px_rgba(61,214,245,0.15)]"
                     : "border-nexus-line bg-black/30 text-nexus-muted hover:border-nexus-line/80 hover:text-nexus-text",
@@ -236,20 +247,49 @@ export function SearchWorkspace() {
                         <Icon className="h-3 w-3 text-nexus-cyan" />
                         {ENTITY_LABELS[entity.type] || entity.type}
                       </span>
-                      {confDisplay != null && (
-                        <span className="font-mono text-[10px] font-semibold text-emerald-400">
-                          {confDisplay}% Match
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5">
+                        {entity.matchType && (
+                          <span className="rounded border border-nexus-cyan/20 bg-nexus-cyan/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-wider text-nexus-cyan uppercase">
+                            {entity.matchType}
+                          </span>
+                        )}
+                        {confDisplay != null && (
+                          <span className="font-mono text-[10px] font-semibold text-emerald-400">
+                            {confDisplay}% Match
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Entity Label & ID */}
                     <h2 className="mt-2.5 text-sm font-semibold tracking-tight text-nexus-text group-hover:text-nexus-cyan">
                       {entity.label}
                     </h2>
-                    <div className="mt-0.5 font-mono text-[11px] text-nexus-muted">
-                      ID: {entity.id}
+                    <div className="mt-0.5 flex items-center gap-2 font-mono text-[11px] text-nexus-muted">
+                      <span>ID: {entity.id}</span>
+                      {entity.carrier && (
+                        <span className="rounded bg-sky-500/15 px-1.5 py-0.5 font-mono text-[10px] font-medium text-sky-300">
+                          {entity.carrier}
+                        </span>
+                      )}
                     </div>
+
+                    {/* Registered Name (for Phone / Account / Vehicle) */}
+                    {entity.registeredName && (
+                      <div className="mt-1.5 text-xs text-slate-300">
+                        <span className="text-[10px] uppercase text-nexus-muted">Registered to: </span>
+                        <span className="font-medium text-nexus-text">{entity.registeredName}</span>
+                      </div>
+                    )}
+
+                    {/* Bank Account Specifics */}
+                    {entity.type === "account" && (entity.bankName || entity.accountNumber) && (
+                      <div className="mt-1.5 flex flex-wrap items-center gap-2 font-mono text-[11px] text-slate-300">
+                        {entity.bankName && <span className="text-nexus-cyan">{entity.bankName}</span>}
+                        {entity.accountNumber && <span>A/C: {entity.accountNumber}</span>}
+                        {entity.ifsc && <span className="text-nexus-muted">IFSC: {entity.ifsc}</span>}
+                      </div>
+                    )}
 
                     {/* Aliases */}
                     {entity.aliases && entity.aliases.length > 0 && (
@@ -260,13 +300,13 @@ export function SearchWorkspace() {
                     )}
 
                     {/* Jurisdiction / Location info */}
-                    {jurisdiction && (
+                    {(jurisdiction || entity.state) && (
                       <div className="mt-2 flex items-center gap-1.5 font-mono text-[10px] text-slate-400">
-                        <MapPin className="h-3 w-3 text-nexus-cyan/70" />
-                        <span>
-                          {jurisdiction.policeStation ? `${jurisdiction.policeStation} · ` : ""}
-                          {jurisdiction.district ? `${jurisdiction.district}, ` : ""}
-                          {jurisdiction.state || "Jurisdiction on record"}
+                        <MapPin className="h-3 w-3 shrink-0 text-nexus-cyan/70" />
+                        <span className="truncate">
+                          {jurisdiction?.policeStation ? `${jurisdiction.policeStation} · ` : ""}
+                          {jurisdiction?.district ? `${jurisdiction.district}, ` : entity.district ? `${entity.district}, ` : ""}
+                          {jurisdiction?.state || entity.state || "Jurisdiction on record"}
                         </span>
                       </div>
                     )}

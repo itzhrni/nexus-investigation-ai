@@ -86,6 +86,14 @@ export interface Entity {
   totalVolume?: number;
   kycStatus?: string;
   flag?: string;
+  // Communication & Location specifics
+  carrier?: string;
+  registeredName?: string;
+  state?: string;
+  district?: string;
+  policeStation?: string;
+  canonicalName?: string;
+  matchType?: string;
 }
 
 export interface GraphNode {
@@ -128,6 +136,7 @@ export interface SearchMatch {
   entity: Entity;
   score: number;
   reason: string;
+  matchType?: string;
 }
 
 export interface SearchResponse {

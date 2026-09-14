@@ -26,6 +26,7 @@ import type {
   EvidenceBundle,
   EvidenceItem,
   IdentityMatch,
+  JurisdictionMeta,
 } from "@/types/nexus";
 
 export function toFrontendEntityType(backendType: string): EntityType {
@@ -100,6 +101,21 @@ export function mapBackendSearchResultToEntity(r: BackendEntitySearchResult): En
   if (r.properties?.canonical_name && r.properties.canonical_name !== r.label) {
     aliases.push(r.properties.canonical_name);
   }
+  if (Array.isArray(r.properties?.aliases)) {
+    r.properties.aliases.forEach((a: string) => {
+      if (a && !aliases.includes(a)) aliases.push(a);
+    });
+  }
+
+  const jurisdictions: JurisdictionMeta[] = [];
+  if (r.properties?.state || r.properties?.district || r.properties?.police_station) {
+    jurisdictions.push({
+      state: (r.properties.state as string) || undefined,
+      district: (r.properties.district as string) || undefined,
+      policeStation: (r.properties.police_station as string) || undefined,
+      country: (r.properties.country as string) || "India",
+    });
+  }
 
   return {
     id: r.entity_id,
@@ -109,11 +125,19 @@ export function mapBackendSearchResultToEntity(r: BackendEntitySearchResult): En
     aliases: aliases.length > 0 ? aliases : undefined,
     confidence: r.confidence,
     confidenceBand: toConfidenceBand(r.confidence),
-    summary: `${r.entity_type} matched directly from database`,
+    matchType: r.match_type,
+    jurisdictions: jurisdictions.length > 0 ? jurisdictions : undefined,
+    summary: (r.properties?.notes as string) || `${r.entity_type} matched directly from database`,
     accountNumber: (r.properties?.account_number as string) || undefined,
     bankName: (r.properties?.bank_name as string) || undefined,
     ifsc: (r.properties?.ifsc as string) || undefined,
     accountType: (r.properties?.account_type as string) || undefined,
+    carrier: (r.properties?.carrier as string) || undefined,
+    registeredName: (r.properties?.registered_name as string) || undefined,
+    state: (r.properties?.state as string) || undefined,
+    district: (r.properties?.district as string) || undefined,
+    policeStation: (r.properties?.police_station as string) || undefined,
+    canonicalName: (r.properties?.canonical_name as string) || undefined,
   };
 }
 
@@ -124,8 +148,9 @@ export function mapBackendSearchResponse(
   const matches = (raw.results || []).map((r) => {
     return {
       entity: mapBackendSearchResultToEntity(r),
-      score: Math.round(r.confidence * 100),
+      score: Math.round(r.confidence > 1 ? r.confidence : r.confidence * 100),
       reason: `${r.match_type.toUpperCase()} match on ${r.entity_type}`,
+      matchType: r.match_type,
     };
   });
 

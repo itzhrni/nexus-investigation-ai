@@ -14,6 +14,7 @@ import type {
 import {
   toBackendEntityType,
   inferEntityTypeFromId,
+  mapBackendSearchResultToEntity,
   mapBackendSearchResponse,
   mapBackendGraphToPayload,
   mapBackendSummaryToInvestigation,
@@ -23,7 +24,6 @@ import {
   mapBackendEvidenceToBundle,
   mapBackendCandidatesToMatches,
   toFrontendEntityType,
-  toConfidenceBand,
 } from "@/lib/backendMappers";
 import { formatRelationshipLabel } from "@/lib/timelinePresenter";
 
@@ -41,31 +41,39 @@ const edgeCache = new Map<string, GraphEdge>();
 let activeFocalId = "P001";
 let activeFocalType = "Person";
 
-function getBaseUrl(): string {
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  const candidates: string[] = [];
+
   const envUrl = import.meta.env.VITE_API_BASE_URL;
   if (envUrl) {
-    return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
+    const trimmed = envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
+    candidates.push(`${trimmed}${cleanPath}`);
   }
-  return "http://localhost:8000/api";
-}
+  candidates.push(`/api${cleanPath}`);
+  candidates.push(`http://127.0.0.1:8000/api${cleanPath}`);
+  candidates.push(`http://localhost:8000/api${cleanPath}`);
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const base = getBaseUrl();
-  const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  let lastError: any = null;
+  for (const url of candidates) {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          ...(init?.headers ?? {}),
+        },
+        ...init,
+      });
 
-  const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-      ...(init?.headers ?? {}),
-    },
-    ...init,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Backend API Error [${response.status}]: ${path}`);
+      if (response.ok) {
+        return (await response.json()) as T;
+      }
+    } catch (err) {
+      lastError = err;
+    }
   }
 
-  return response.json() as Promise<T>;
+  throw lastError || new Error(`Backend API Error: ${path}`);
 }
 
 export const httpAdapter: NexusApi = {
@@ -75,7 +83,7 @@ export const httpAdapter: NexusApi = {
 
     try {
       const backendType = toBackendEntityType(type);
-      const params = new URLSearchParams({ q: query, limit: "20" });
+      const params = new URLSearchParams({ q: query, limit: "100" });
       if (backendType) {
         params.set("entity_type", backendType);
       }
@@ -89,8 +97,8 @@ export const httpAdapter: NexusApi = {
       backendMatches.forEach((m) => {
         nodeCache.set(m.entity.id, m.entity);
       });
-    } catch {
-      // Backend unavailable, offline, or errored
+    } catch (err) {
+      console.warn("Live backend search error:", err);
     }
 
     // Always query mock catalog to ensure 100% data coverage
@@ -214,18 +222,12 @@ export const httpAdapter: NexusApi = {
 
     // Try lookup via search API
     try {
-      const searchRes = await request<BackendSearchResponse>(`/search?q=${encodeURIComponent(id)}&limit=1`);
+      const searchRes = await request<BackendSearchResponse>(`/search?q=${encodeURIComponent(id)}&limit=10`);
       if (searchRes.results && searchRes.results.length > 0) {
-        const first = searchRes.results[0];
-        const entity: Entity = {
-          id: first.entity_id,
-          type: toFrontendEntityType(first.entity_type),
-          label: first.label,
-          value: first.label,
-          confidence: first.confidence,
-          confidenceBand: toConfidenceBand(first.confidence),
-          summary: `${first.entity_type} matched directly from database`,
-        };
+        const found =
+          searchRes.results.find((r) => r.entity_id.toUpperCase() === id.toUpperCase()) ||
+          searchRes.results[0];
+        const entity = mapBackendSearchResultToEntity(found);
         nodeCache.set(id, entity);
         return entity;
       }
