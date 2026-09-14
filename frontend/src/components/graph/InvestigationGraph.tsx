@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ForceGraph3D, { type ForceGraphMethods } from "react-force-graph-3d";
 import SpriteText from "three-spritetext";
 import * as THREE from "three";
+import { forceCollide } from "d3-force-3d";
 import { hopDistances, neighborhood, toForceGraphData } from "@/lib/graph";
 import { ENTITY_COLORS } from "@/lib/cn";
 import { useInvestigationStore } from "@/store/investigationStore";
@@ -23,6 +24,16 @@ function endpointId(end: string | FGNode): string {
   return typeof end === "string" ? end : end.id;
 }
 
+// Convert hex color to rgba string for fine-grained alpha control
+function hexToRgba(hex: string, alpha: number): string {
+  const clean = hex.replace("#", "");
+  const num = parseInt(clean, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 // Clean badge format: ENTITY NAME \n TYPE · ID
 function formatNodeLabel(node: FGNode): string {
   const name = node.label || node.id;
@@ -30,23 +41,23 @@ function formatNodeLabel(node: FGNode): string {
   return `${name}\n${node.type.toUpperCase()}${idPart}`;
 }
 
-const LINK_STYLE_CONFIG: Record<string, { line: string; particle: string; bright: string }> = {
-  TRANSFERRED: { line: "#059669", particle: "#10b981", bright: "#34d399" }, // FINANCIAL: green
-  CALLED: { line: "#0284c7", particle: "#38bdf8", bright: "#7dd3fc" },      // COMMUNICATION: cyan/blue
-  MET: { line: "#0284c7", particle: "#38bdf8", bright: "#7dd3fc" },         // COMMUNICATION: cyan/blue
-  OWNS: { line: "#d97706", particle: "#f59e0b", bright: "#fbbf24" },        // VEHICLE: amber
-  USED: { line: "#d97706", particle: "#f59e0b", bright: "#fbbf24" },        // VEHICLE: amber
-  ASSOCIATED_WITH: { line: "#b45309", particle: "#f59e0b", bright: "#fbbf24" },
-  SEEN_AT: { line: "#ca8a04", particle: "#eab308", bright: "#fde047" },     // LOCATION: yellow
-  LOCATED_AT: { line: "#ca8a04", particle: "#eab308", bright: "#fde047" },  // LOCATION: yellow
-  INVOLVED_IN: { line: "#7c3aed", particle: "#c084fc", bright: "#e879f9" }, // CASE/CRIME: muted red/purple
-  APPEARED_IN: { line: "#7c3aed", particle: "#c084fc", bright: "#e879f9" },
-  CONNECTED_TO: { line: "#475569", particle: "#94a3b8", bright: "#cbd5e1" },
-  WORKS_FOR: { line: "#475569", particle: "#94a3b8", bright: "#cbd5e1" },
+const LINK_STYLE_CONFIG: Record<string, { hex: string; particle: string }> = {
+  TRANSFERRED: { hex: "#10b981", particle: "#34d399" },      // FINANCIAL: green
+  CALLED: { hex: "#0284c7", particle: "#38bdf8" },           // COMMUNICATION: cyan/blue
+  MET: { hex: "#0ea5e9", particle: "#38bdf8" },              // COMMUNICATION: cyan/blue
+  OWNS: { hex: "#d97706", particle: "#f59e0b" },             // VEHICLE: amber
+  USED: { hex: "#d97706", particle: "#f59e0b" },             // VEHICLE: amber
+  ASSOCIATED_WITH: { hex: "#b45309", particle: "#f59e0b" },
+  SEEN_AT: { hex: "#ca8a04", particle: "#eab308" },          // LOCATION: yellow
+  LOCATED_AT: { hex: "#ca8a04", particle: "#eab308" },       // LOCATION: yellow
+  INVOLVED_IN: { hex: "#a855f7", particle: "#c084fc" },      // CASE/CRIME: muted red/purple
+  APPEARED_IN: { hex: "#a855f7", particle: "#c084fc" },
+  CONNECTED_TO: { hex: "#64748b", particle: "#94a3b8" },
+  WORKS_FOR: { hex: "#64748b", particle: "#94a3b8" },
 };
 
 function getLinkStyle(type: string) {
-  return LINK_STYLE_CONFIG[type] ?? { line: "#334155", particle: "#94a3b8", bright: "#cbd5e1" };
+  return LINK_STYLE_CONFIG[type] ?? { hex: "#64748b", particle: "#94a3b8" };
 }
 
 function nodeColor(node: FGNode, selectedId: string | null, neighborIds: Set<string> | null): string {
@@ -151,16 +162,16 @@ export function InvestigationGraph() {
       charge.strength((node: any) => {
         const hop = node?.hop ?? 2;
         // Focal node has dominant negative charge to push out all neighbors radially
-        if (hop === 0) return -550;
+        if (hop === 0) return -600;
         // Direct connections have strong repulsion to stay clearly separated
-        if (hop === 1) return -320;
-        // Secondary nodes push outward
-        if (hop === 2) return -190;
+        if (hop === 1) return -360;
+        // Secondary nodes push outward into outer orbital shell
+        if (hop === 2) return -220;
         // Outer network
-        return -120;
+        return -140;
       });
-      charge.distanceMin(25); // Prevents overlapping spheres
-      charge.distanceMax(950);
+      charge.distanceMin(28); // Prevents overlapping spheres
+      charge.distanceMax(1000);
     }
 
     // Link distance hierarchy
@@ -171,20 +182,36 @@ export function InvestigationGraph() {
         const tHop = l.target?.hop ?? 1;
         const maxHop = Math.max(sHop, tHop);
         // Direct connections have ample breathing room for labels
-        if (maxHop <= 1) return 85;
+        if (maxHop <= 1) return 95;
         // Secondary connections push outward into outer orbital layer
-        if (maxHop === 2) return 145;
+        if (maxHop === 2) return 160;
         // Outer network spread
-        return 210;
+        return 230;
       });
       link.strength((l: any) => {
         const sHop = l.source?.hop ?? 1;
         const tHop = l.target?.hop ?? 1;
         const maxHop = Math.max(sHop, tHop);
-        if (maxHop <= 1) return 0.75;
-        if (maxHop === 2) return 0.5;
-        return 0.35;
+        if (maxHop <= 1) return 0.65;
+        if (maxHop === 2) return 0.45;
+        return 0.30;
       });
+    }
+
+    // 3D Collision force to prevent node spheres from intersecting
+    try {
+      fg.d3Force(
+        "collide",
+        forceCollide((node: any) => {
+          const hop = node?.hop ?? 2;
+          if (hop === 0) return 18;
+          if (hop === 1) return 14;
+          if (hop === 2) return 10;
+          return 8;
+        }).strength(0.85),
+      );
+    } catch {
+      // Fallback if collide already exists
     }
 
     // On subsequent updates (depth change, filters, search), reheat simulation smoothly
@@ -263,12 +290,32 @@ export function InvestigationGraph() {
           backgroundColor="#07090c"
           showNavInfo={false}
           numDimensions={3}
-          warmupTicks={160}
-          cooldownTicks={180}
-          d3VelocityDecay={0.25}
-          d3AlphaDecay={0.018}
+          warmupTicks={150}
+          cooldownTicks={240}
+          d3VelocityDecay={0.20}
+          d3AlphaDecay={0.015}
           enableNodeDrag
           nodeRelSize={4}
+          onNodeDrag={(_node) => {
+            const fg = fgRef.current as any;
+            if (fg) {
+              // Maintain active engine energy throughout drag so surrounding nodes react
+              fg.d3AlphaTarget?.(0.35);
+              fg.resetCountdown?.();
+            }
+          }}
+          onNodeDragEnd={(node) => {
+            const fg = fgRef.current as any;
+            const n = node as any;
+            // Unfix coordinates so released node settles naturally into equilibrium
+            delete n.fx;
+            delete n.fy;
+            delete n.fz;
+            if (fg) {
+              fg.d3AlphaTarget?.(0);
+              fg.d3ReheatSimulation?.();
+            }
+          }}
           nodeLabel={(n) => {
             const node = n as FGNode;
             return `${node.label} · ${node.type.toUpperCase()}${node.sublabel ? ` (${node.sublabel})` : ""}`;
@@ -282,43 +329,65 @@ export function InvestigationGraph() {
             const isSelected = selectedNodeId === node.id;
             const isHovered = hoveredNodeId === node.id;
             const isNeighborOfSelected = neighborIds?.has(node.id) ?? false;
+            const isDimmed = !!selectedNodeId && !isSelected && !isNeighborOfSelected;
 
-            // 6. Node Sizes based on hierarchy
-            const radius = isFocal ? 7.5 : hop === 1 ? 4.8 : hop === 2 ? 3.5 : 2.4;
-            const highlighted = !neighborIds || neighborIds.has(node.id);
-            const color = highlighted ? (ENTITY_COLORS[node.type] ?? "#8b9cb3") : "#1b2530";
+            // 1. Node Sizes
+            const radius = isFocal ? 7.6 : hop === 1 ? 4.8 : hop === 2 ? 3.5 : 2.5;
+            const baseColor = ENTITY_COLORS[node.type] ?? "#8b9cb3";
+            const color = isDimmed ? "#2d3748" : baseColor;
 
-            const geom = new THREE.SphereGeometry(radius, 20, 20);
-            const mat = new THREE.MeshLambertMaterial({
-              color,
-              emissive: isFocal ? "#06b6d4" : isSelected ? color : node.type === "account" ? "#10b981" : "#000000",
-              emissiveIntensity: isFocal ? 0.45 : isSelected ? 0.35 : node.type === "account" ? 0.2 : 0,
+            // 2. Opacity hierarchy:
+            // FOCAL: ~0.90
+            // HOP 1: ~0.72
+            // HOP 2: ~0.58
+            // HOP 3: ~0.45
+            // Hovered gets +0.20 boost
+            // Dimmed drops to ~0.18
+            let outerOpacity = isFocal ? 0.90 : hop === 1 ? 0.72 : hop === 2 ? 0.58 : 0.45;
+            if (isHovered) outerOpacity = Math.min(0.96, outerOpacity + 0.20);
+            if (isSelected) outerOpacity = 0.95;
+            if (isDimmed) outerOpacity = 0.18;
+
+            // 3. Glass-like outer sphere with specular highlight and subtle translucency
+            const outerGeom = new THREE.SphereGeometry(radius, 24, 24);
+            const outerMat = new THREE.MeshPhongMaterial({
+              color: new THREE.Color(color),
+              specular: new THREE.Color(isFocal ? "#a5f3fc" : isSelected ? "#ffffff" : isHovered ? "#e2e8f0" : "#94a3b8"),
+              shininess: isFocal ? 100 : 85,
+              emissive: new THREE.Color(isFocal ? "#0891b2" : isSelected ? color : node.type === "account" ? "#059669" : "#000000"),
+              emissiveIntensity: isFocal ? 0.45 : isSelected ? 0.40 : isHovered ? 0.30 : node.type === "account" ? 0.20 : 0.05,
               transparent: true,
-              opacity: highlighted ? 1 : 0.25,
+              opacity: outerOpacity,
+              depthWrite: false, // Ensures transparency without sorting occlusion artifacts
             });
-            group.add(new THREE.Mesh(geom, mat));
+            group.add(new THREE.Mesh(outerGeom, outerMat));
 
-            // 5. Subtle outer ring on focal or selected node
-            if ((isFocal || isSelected) && highlighted) {
-              const ringRadius = radius + (isFocal ? 1.8 : 1.4);
+            // 4. Luminous inner data nucleus (floating inside the glass orb)
+            const coreRadius = radius * (isFocal ? 0.42 : 0.36);
+            const coreGeom = new THREE.SphereGeometry(coreRadius, 16, 16);
+            const coreMat = new THREE.MeshBasicMaterial({
+              color: new THREE.Color(isFocal ? "#38bdf8" : color),
+              transparent: true,
+              opacity: isDimmed ? 0.20 : isFocal ? 0.95 : isSelected ? 0.90 : isHovered ? 0.85 : outerOpacity * 0.9,
+            });
+            group.add(new THREE.Mesh(coreGeom, coreMat));
+
+            // 5. Subtle outer halo ring on focal or selected node
+            if ((isFocal || isSelected) && !isDimmed) {
+              const ringRadius = radius + (isFocal ? 2.0 : 1.5);
               const haloGeom = new THREE.RingGeometry(ringRadius, ringRadius + 1.2, 32);
               const haloMat = new THREE.MeshBasicMaterial({
                 color: new THREE.Color(isFocal ? "#38bdf8" : color),
                 side: THREE.DoubleSide,
                 transparent: true,
-                opacity: isFocal ? 0.6 : 0.45,
+                opacity: isFocal ? 0.60 : 0.45,
               });
               const haloMesh = new THREE.Mesh(haloGeom, haloMat);
               haloMesh.rotation.x = Math.PI / 2;
               group.add(haloMesh);
             }
 
-            // 7. Label Cleanup:
-            // FOCAL: always visible
-            // SELECTED: always visible
-            // HOP 1: visible
-            // HOP 2: visible on hover or selection (or neighbor of selected)
-            // HOP 3: hidden unless hovered/selected
+            // 6. Label progressive disclosure
             let showLabel = false;
             if (isFocal || isSelected || isHovered) {
               showLabel = true;
@@ -328,9 +397,9 @@ export function InvestigationGraph() {
               showLabel = isNeighborOfSelected;
             }
 
-            if (showLabel && highlighted) {
+            if (showLabel && !isDimmed) {
               const sprite = new SpriteText(formatNodeLabel(node));
-              sprite.color = isFocal ? "#38bdf8" : isSelected ? "#5eead4" : hop === 1 ? "#e2e8f0" : "#cbd5e1";
+              sprite.color = isFocal ? "#38bdf8" : isSelected ? "#5eead4" : isHovered ? "#38bdf8" : hop === 1 ? "#e2e8f0" : "#cbd5e1";
               sprite.textHeight = isFocal ? 3.8 : isSelected ? 3.2 : hop === 1 ? 2.8 : 2.4;
               sprite.fontFace = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
               sprite.fontWeight = isFocal || isSelected ? "bold" : "500";
@@ -345,67 +414,71 @@ export function InvestigationGraph() {
 
             return group;
           }}
+          linkOpacity={1.0}
           linkColor={(l) => {
             const link = l as FGLink;
             const style = getLinkStyle(link.type);
-            if (selectedEdgeId && link.id === selectedEdgeId) return "#38bdf8";
+            const s = endpointId(link.source);
+            const t = endpointId(link.target);
+
+            // Selected edge: high opacity, bright cyan
+            if (selectedEdgeId && link.id === selectedEdgeId) {
+              return "rgba(56, 189, 248, 0.95)";
+            }
+
+            // Hovered node: brighten its connected edges
+            if (hoveredNodeId && (s === hoveredNodeId || t === hoveredNodeId)) {
+              return hexToRgba(style.hex, 0.85);
+            }
+
+            // When a node is selected:
             if (selectedNodeId) {
-              const s = endpointId(link.source);
-              const t = endpointId(link.target);
               if (s === selectedNodeId || t === selectedNodeId) {
-                return style.bright;
+                return hexToRgba(style.hex, 0.85);
               }
-              return "rgba(18, 26, 36, 0.4)";
+              // Dim unrelated edges
+              return "rgba(20, 30, 45, 0.12)";
             }
-            if (graph?.focalId) {
-              const s = endpointId(link.source);
-              const t = endpointId(link.target);
-              if (s === graph.focalId || t === graph.focalId) {
-                return style.bright;
-              }
+
+            // Direct focal relationships: slightly brighter (0.60)
+            if (graph?.focalId && (s === graph.focalId || t === graph.focalId)) {
+              return hexToRgba(style.hex, 0.60);
             }
-            return style.line;
+
+            // Normal edges: thin & semi-transparent (0.35)
+            return hexToRgba(style.hex, 0.35);
           }}
           linkWidth={(l) => {
             const link = l as FGLink;
-            if (selectedEdgeId && link.id === selectedEdgeId) return 2.8;
+            const s = endpointId(link.source);
+            const t = endpointId(link.target);
+
+            if (selectedEdgeId && link.id === selectedEdgeId) return 2.4;
+            if (hoveredNodeId && (s === hoveredNodeId || t === hoveredNodeId)) return 1.4;
             if (selectedNodeId) {
-              const s = endpointId(link.source);
-              const t = endpointId(link.target);
-              if (s === selectedNodeId || t === selectedNodeId) return 2.0;
-              return 0.5;
+              if (s === selectedNodeId || t === selectedNodeId) return 1.5;
+              return 0.4;
             }
-            if (graph?.focalId) {
-              const s = endpointId(link.source);
-              const t = endpointId(link.target);
-              if (s === graph.focalId || t === graph.focalId) return 1.5;
-            }
-            return 0.8;
+            if (graph?.focalId && (s === graph.focalId || t === graph.focalId)) return 1.1;
+            return 0.7; // Thin semi-transparent edge
           }}
-          linkOpacity={0.88}
           linkDirectionalArrowLength={(l: any) => ((l as GraphEdge).directed ? 4.5 : 0)}
           linkDirectionalArrowRelPos={0.9}
           linkDirectionalParticles={(l: any) => {
             const link = l as FGLink;
+            const s = endpointId(link.source);
+            const t = endpointId(link.target);
+
             if (selectedEdgeId && link.id === selectedEdgeId) return 6;
+            if (hoveredNodeId && (s === hoveredNodeId || t === hoveredNodeId)) return 4;
             if (selectedNodeId) {
-              const s = endpointId(link.source);
-              const t = endpointId(link.target);
               if (s === selectedNodeId || t === selectedNodeId) return 4;
               return 0;
             }
-            if (graph?.focalId) {
-              const s = endpointId(link.source);
-              const t = endpointId(link.target);
-              if (s === graph.focalId || t === graph.focalId) return 3;
-            }
+            if (graph?.focalId && (s === graph.focalId || t === graph.focalId)) return 3;
             return 1;
           }}
-          linkDirectionalParticleWidth={((l: any) => {
-            const link = l as FGLink;
-            if (selectedEdgeId && link.id === selectedEdgeId) return 2.6;
-            return 1.8;
-          }) as any}
+          linkDirectionalParticleWidth={1.8}
           linkDirectionalParticleSpeed={((l: any) => {
             const link = l as FGLink;
             if (selectedEdgeId && link.id === selectedEdgeId) return 0.012;

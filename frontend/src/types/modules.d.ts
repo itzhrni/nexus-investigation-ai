@@ -10,6 +10,8 @@ declare module "react-force-graph-3d" {
     ) => void;
     d3Force: (name: string, force?: unknown) => unknown;
     d3ReheatSimulation: () => void;
+    d3AlphaTarget?: (target: number) => ForceGraphMethods;
+    resetCountdown?: () => ForceGraphMethods;
     refresh?: () => void;
   }
 
@@ -46,6 +48,8 @@ declare module "react-force-graph-3d" {
     linkLabel?: string | ((link: object) => string);
     onNodeClick?: (node: object, event: MouseEvent) => void;
     onNodeHover?: (node: object | null, prevNode: object | null) => void;
+    onNodeDrag?: (node: object, translate: { x: number; y: number; z: number }) => void;
+    onNodeDragEnd?: (node: object, translate: { x: number; y: number; z: number }) => void;
     onLinkClick?: (link: object, event: MouseEvent) => void;
     onLinkHover?: (link: object | null, prevLink: object | null) => void;
     onBackgroundClick?: () => void;
@@ -71,4 +75,8 @@ declare module "three-spritetext" {
     borderRadius: number;
     borderColor: string;
   }
+}
+
+declare module "d3-force-3d" {
+  export function forceCollide(radius?: number | ((node: any) => number)): any;
 }
