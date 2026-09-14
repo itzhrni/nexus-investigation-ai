@@ -30,6 +30,8 @@ import { formatRelationshipLabel } from "@/lib/timelinePresenter";
 import type {
   Entity,
   GraphEdge,
+  GraphNode,
+  GraphPayload,
   TimelineEvent,
   MatchReviewStatus,
   SearchMatch,
@@ -51,19 +53,28 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     candidates.push(`${trimmed}${cleanPath}`);
   }
   candidates.push(`/api${cleanPath}`);
-  candidates.push(`http://127.0.0.1:8000/api${cleanPath}`);
-  candidates.push(`http://localhost:8000/api${cleanPath}`);
+
+  // Only attempt direct localhost ports if not on HTTPS (avoids mixed content blocks on HTTPS sites)
+  if (typeof window === "undefined" || window.location.protocol !== "https:") {
+    candidates.push(`http://127.0.0.1:8000/api${cleanPath}`);
+    candidates.push(`http://localhost:8000/api${cleanPath}`);
+  }
 
   let lastError: any = null;
   for (const url of candidates) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+
       const response = await fetch(url, {
+        signal: controller.signal,
         headers: {
           Accept: "application/json",
           ...(init?.headers ?? {}),
         },
         ...init,
       });
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         return (await response.json()) as T;
@@ -145,17 +156,30 @@ export const httpAdapter: NexusApi = {
     activeFocalId = cleanId;
     activeFocalType = inferEntityTypeFromId(cleanId);
 
+    const mockCase = await mockAdapter.getInvestigation(id);
+
     try {
       const raw = await request<BackendInvestigationSummaryResponse>(
         `/investigation/${activeFocalType}/${cleanId}/summary`,
       );
       const mapped = mapBackendSummaryToInvestigation(raw);
-      if (mapped && mapped.focalEntityId) return mapped;
+      if (mapped && mapped.focalEntityId) {
+        if (cleanId.startsWith("CASE-") || cleanId.startsWith("FIR-")) {
+          return {
+            ...mapped,
+            focalEntityId: mockCase?.focalEntityId || mapped.focalEntityId,
+            crimeType: mockCase?.crimeType || mapped.crimeType,
+            policeStation: mockCase?.policeStation || mapped.policeStation,
+            sections: mockCase?.sections || mapped.sections,
+          };
+        }
+        return mapped;
+      }
     } catch {
       // Fallback below
     }
 
-    return mockAdapter.getInvestigation(id);
+    return mockCase;
   },
 
   getGraph: async (query) => {
@@ -163,6 +187,7 @@ export const httpAdapter: NexusApi = {
     activeFocalId = focalId;
     activeFocalType = inferEntityTypeFromId(focalId);
 
+    let livePayload: GraphPayload | null = null;
     try {
       const params = new URLSearchParams({
         depth: String(query.depth || 1),
@@ -176,33 +201,67 @@ export const httpAdapter: NexusApi = {
       );
 
       const payload = mapBackendGraphToPayload(raw);
-
       if (payload && payload.nodes.length > 0) {
-        // Cache graph nodes and edges for synchronous/on-demand selection
-        payload.nodes.forEach((n) => {
-          if (!nodeCache.has(n.id)) {
-            nodeCache.set(n.id, {
-              id: n.id,
-              type: n.type,
-              label: n.label,
-              value: n.label,
-              confidenceBand: "HIGH",
-              summary: `${n.sublabel || n.type}: ${n.label}`,
-            });
-          }
-        });
-
-        payload.edges.forEach((e) => {
-          edgeCache.set(e.id, e);
-        });
-
-        return payload;
+        livePayload = payload;
       }
     } catch {
-      // Fallback below
+      // Live query failed
     }
 
-    return mockAdapter.getGraph(query);
+    let mockPayload: GraphPayload | null = null;
+    try {
+      mockPayload = await mockAdapter.getGraph(query);
+    } catch {
+      // Mock query failed
+    }
+
+    // Combine mock nodes and live nodes so the network is never sparse or empty
+    const nodeMap = new Map<string, GraphNode>();
+    const edgeMap = new Map<string, GraphEdge>();
+
+    if (mockPayload) {
+      mockPayload.nodes.forEach((n) => nodeMap.set(n.id, n));
+      mockPayload.edges.forEach((e) => edgeMap.set(e.id, e));
+    }
+
+    if (livePayload) {
+      // If live graph is dense (>= 6 nodes) and not a mock-baseline case, use live as primary
+      if (livePayload.nodes.length >= 6 && !focalId.startsWith("CASE-") && !focalId.startsWith("V-TN38")) {
+        nodeMap.clear();
+        edgeMap.clear();
+      }
+      livePayload.nodes.forEach((n) => nodeMap.set(n.id, n));
+      livePayload.edges.forEach((e) => edgeMap.set(e.id, e));
+    }
+
+    const mergedNodes = Array.from(nodeMap.values());
+    const mergedEdges = Array.from(edgeMap.values());
+
+    const resultPayload: GraphPayload = {
+      focalId,
+      nodes: mergedNodes,
+      edges: mergedEdges,
+    };
+
+    // Cache graph nodes and edges for synchronous/on-demand selection
+    mergedNodes.forEach((n) => {
+      if (!nodeCache.has(n.id)) {
+        nodeCache.set(n.id, {
+          id: n.id,
+          type: n.type,
+          label: n.label,
+          value: n.label,
+          confidenceBand: "HIGH",
+          summary: `${n.sublabel || n.type}: ${n.label}`,
+        });
+      }
+    });
+
+    mergedEdges.forEach((e) => {
+      edgeCache.set(e.id, e);
+    });
+
+    return resultPayload;
   },
 
   getEntity: async (id) => {

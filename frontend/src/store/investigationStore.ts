@@ -145,9 +145,10 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
 
   loadInvestigation: async () => {
     const caseId = get().activeCaseId || "CASE-142";
+    let focalId = get().focalEntityId || "V-TN38AB1234";
     try {
       const investigation = await api.getInvestigation(caseId);
-      const focalId = get().focalEntityId || investigation.focalEntityId || "V-TN38AB1234";
+      focalId = get().focalEntityId || investigation?.focalEntityId || "V-TN38AB1234";
       set({
         investigation,
         activeCaseId: caseId,
@@ -155,9 +156,16 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
         selectedNodeId: focalId,
         availableCases: Object.values(CASES_CATALOG),
       });
-      await get().refreshGraph();
     } catch {
-      set({ systemStatus: "DEGRADED" });
+      set({
+        systemStatus: "DEGRADED",
+        activeCaseId: caseId,
+        focalEntityId: focalId,
+        selectedNodeId: focalId,
+        availableCases: Object.values(CASES_CATALOG),
+      });
+    } finally {
+      await get().refreshGraph();
     }
   },
 

@@ -31,6 +31,7 @@ export function InvestigationGraph() {
   const selectEdge = useInvestigationStore((s) => s.selectEdge);
   const graphBusy = useInvestigationStore((s) => s.graphBusy);
   const isOrbiting = useInvestigationStore((s) => s.isOrbiting);
+  const focus = useInvestigationStore((s) => s.workspaceFocus);
 
   const hops = useMemo(
     () => (graph ? hopDistances(graph.focalId, graph.edges) : new Map<string, number>()),
@@ -64,13 +65,46 @@ export function InvestigationGraph() {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const obs = new ResizeObserver(() => {
-      setSize({ width: el.clientWidth, height: el.clientHeight });
-    });
+    const updateSize = () => {
+      if (el.clientWidth > 0 && el.clientHeight > 0) {
+        setSize({ width: el.clientWidth, height: el.clientHeight });
+      }
+    };
+    updateSize();
+    const obs = new ResizeObserver(updateSize);
     obs.observe(el);
-    setSize({ width: el.clientWidth, height: el.clientHeight });
-    return () => obs.disconnect();
+    window.addEventListener("resize", updateSize);
+    return () => {
+      obs.disconnect();
+      window.removeEventListener("resize", updateSize);
+    };
   }, []);
+
+  // When workspace focus changes (e.g. user clicks "Network" or "Investigation"), recalculate canvas size and zoom to fit
+  useEffect(() => {
+    if (focus === "investigation" || focus === "network") {
+      const el = containerRef.current;
+      if (el && el.clientWidth > 0 && el.clientHeight > 0) {
+        setSize({ width: el.clientWidth, height: el.clientHeight });
+      }
+      const t1 = setTimeout(() => {
+        if (el && el.clientWidth > 0 && el.clientHeight > 0) {
+          setSize({ width: el.clientWidth, height: el.clientHeight });
+        }
+        fgRef.current?.zoomToFit(400, 80);
+      }, 80);
+      const t2 = setTimeout(() => {
+        if (el && el.clientWidth > 0 && el.clientHeight > 0) {
+          setSize({ width: el.clientWidth, height: el.clientHeight });
+        }
+        fgRef.current?.zoomToFit(400, 80);
+      }, 260);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
+    }
+  }, [focus]);
 
   // Zoom to fit on initial load or case change
   useEffect(() => {
@@ -122,13 +156,26 @@ export function InvestigationGraph() {
     return () => cancelAnimationFrame(animId);
   }, [isOrbiting]);
 
+  const graphWidth =
+    size.width > 50
+      ? size.width
+      : typeof window !== "undefined"
+      ? Math.max(window.innerWidth - 240, 600)
+      : 800;
+  const graphHeight =
+    size.height > 50
+      ? size.height
+      : typeof window !== "undefined"
+      ? Math.max(window.innerHeight - 140, 400)
+      : 500;
+
   return (
     <div ref={containerRef} className="relative h-full min-h-[320px] w-full overflow-hidden bg-nexus-bg">
       {graph && data.nodes.length > 0 ? (
         <ForceGraph3D
           ref={fgRef}
-          width={size.width}
-          height={size.height}
+          width={graphWidth}
+          height={graphHeight}
           graphData={data}
           backgroundColor="#07090c"
           showNavInfo={false}

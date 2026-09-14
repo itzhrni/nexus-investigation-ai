@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Network } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { InsightStrip } from "@/components/dashboard/InsightStrip";
@@ -20,23 +20,27 @@ import { cn } from "@/lib/cn";
 export function InvestigationShell() {
   const load = useInvestigationStore((s) => s.loadInvestigation);
   const focus = useInvestigationStore((s) => s.workspaceFocus);
+  const graph = useInvestigationStore((s) => s.graph);
+  const activeCaseId = useInvestigationStore((s) => s.activeCaseId);
   const [contextPanelOpen, setContextPanelOpen] = useState(true);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  // Dispatch a window resize event after panel transition or workspace focus changes
-  // to ensure 3D ForceGraph WebGL canvas dimensions are pixel-perfect
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.dispatchEvent(new Event("resize"));
-    }, 220);
-    return () => clearTimeout(timer);
-  }, [contextPanelOpen, focus]);
-
   const isGraphMode = focus === "investigation" || focus === "network";
   const isDedicatedNetwork = focus === "network";
+
+  // Dispatch window resize events to guarantee 3D WebGL canvas dimensions are pixel-perfect
+  useEffect(() => {
+    if (isGraphMode) {
+      window.dispatchEvent(new Event("resize"));
+      const timer = setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+      }, 120);
+      return () => clearTimeout(timer);
+    }
+  }, [contextPanelOpen, focus, isGraphMode]);
 
   return (
     <div className="flex h-full w-full overflow-hidden bg-nexus-bg text-nexus-text">
@@ -62,6 +66,46 @@ export function InvestigationShell() {
               {/* Quick KPI Strip (Investigation mode only) */}
               {!isDedicatedNetwork && <InsightStrip />}
 
+              {/* Dedicated Network Header Bar (Network mode only) */}
+              {isDedicatedNetwork && (
+                <div className="flex shrink-0 items-center justify-between border-b border-nexus-line bg-nexus-raised/95 px-4 py-2.5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-7 w-7 items-center justify-center rounded border border-nexus-cyan/40 bg-nexus-cyan/10">
+                      <Network className="h-4 w-4 text-nexus-cyan" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-semibold tracking-wider text-nexus-text uppercase">
+                          NETWORK TOPOLOGY & LINK SURVEILLANCE
+                        </span>
+                        <span className="rounded bg-nexus-cyan/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-nexus-cyan uppercase">
+                          3D CLUSTER
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-nexus-muted">
+                        Full relational graph across communications, core banking transfers, and vehicle checkpoints.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Network Topology Metrics */}
+                  <div className="flex items-center gap-3 font-mono text-[11px]">
+                    <div className="flex items-center gap-1.5 rounded border border-nexus-line bg-black/40 px-2.5 py-1">
+                      <span className="text-nexus-muted">NODES:</span>
+                      <span className="font-bold text-nexus-cyan">{graph?.nodes.length ?? 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 rounded border border-nexus-line bg-black/40 px-2.5 py-1">
+                      <span className="text-nexus-muted">EDGES:</span>
+                      <span className="font-bold text-emerald-400">{graph?.edges.length ?? 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 rounded border border-nexus-line bg-black/40 px-2.5 py-1">
+                      <span className="text-nexus-muted">FOCAL:</span>
+                      <span className="font-bold text-amber-300">{graph?.focalId ?? activeCaseId}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Graph Workspace Container */}
               <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
                 <GraphToolbar />
@@ -69,8 +113,8 @@ export function InvestigationShell() {
                 <GraphLegend />
                 <SearchStatus />
 
-                {/* Floating Expand Tab at Far Right Edge (Visible when panel is collapsed in investigation mode) */}
-                {!isDedicatedNetwork && !contextPanelOpen && (
+                {/* Floating Expand Tab at Far Right Edge (Visible when panel is collapsed) */}
+                {!contextPanelOpen && (
                   <button
                     type="button"
                     onClick={() => setContextPanelOpen(true)}
@@ -87,13 +131,11 @@ export function InvestigationShell() {
               {!isDedicatedNetwork && <InvestigationTimeline />}
             </div>
 
-            {/* Persistent Right Context / Evidence Rail (Collapsible in investigation mode, collapsed in network mode) */}
-            {!isDedicatedNetwork && (
-              <EntityPanel
-                isOpen={contextPanelOpen}
-                onToggle={() => setContextPanelOpen((prev) => !prev)}
-              />
-            )}
+            {/* Persistent Right Context / Evidence Rail (Collapsible in both modes) */}
+            <EntityPanel
+              isOpen={contextPanelOpen}
+              onToggle={() => setContextPanelOpen((prev) => !prev)}
+            />
           </div>
 
           {/* Dedicated Search Workspace */}
