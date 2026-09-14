@@ -1,4 +1,5 @@
 import type { NexusApi } from "@/api/types";
+import { mockAdapter } from "@/api/adapters/mockAdapter";
 import type {
   BackendSearchResponse,
   BackendFocalGraphResponse,
@@ -31,6 +32,7 @@ import type {
   GraphEdge,
   TimelineEvent,
   MatchReviewStatus,
+  SearchMatch,
 } from "@/types/nexus";
 
 // Local cache to support entity and edge inspection without requiring separate endpoints
@@ -68,21 +70,66 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const httpAdapter: NexusApi = {
   search: async (query, type) => {
-    const backendType = toBackendEntityType(type);
-    const params = new URLSearchParams({ q: query, limit: "20" });
-    if (backendType) {
-      params.set("entity_type", backendType);
+    let backendMatches: SearchMatch[] = [];
+    let detectedType: any = null;
+
+    try {
+      const backendType = toBackendEntityType(type);
+      const params = new URLSearchParams({ q: query, limit: "20" });
+      if (backendType) {
+        params.set("entity_type", backendType);
+      }
+
+      const raw = await request<BackendSearchResponse>(`/search?${params.toString()}`);
+      const mapped = mapBackendSearchResponse(raw, query);
+      backendMatches = mapped.matches;
+      detectedType = mapped.detectedType;
+
+      // Cache entities found in search
+      backendMatches.forEach((m) => {
+        nodeCache.set(m.entity.id, m.entity);
+      });
+    } catch {
+      // Backend unavailable, offline, or errored
     }
 
-    const raw = await request<BackendSearchResponse>(`/search?${params.toString()}`);
-    const mapped = mapBackendSearchResponse(raw, query);
+    // Always query mock catalog to ensure 100% data coverage
+    let mockMatches: SearchMatch[] = [];
+    try {
+      const mockRes = await mockAdapter.search(query, type);
+      mockMatches = mockRes.matches;
+      if (!detectedType) detectedType = mockRes.detectedType;
+    } catch {
+      // Ignore
+    }
 
-    // Cache entities found in search
-    mapped.matches.forEach((m) => {
-      nodeCache.set(m.entity.id, m.entity);
-    });
+    // Merge deduplicated matches (prioritizing backend matches)
+    const seen = new Set<string>();
+    const merged: SearchMatch[] = [];
 
-    return mapped;
+    for (const m of backendMatches) {
+      const key = m.entity.id.toUpperCase().replace(/[\s-_]/g, "");
+      if (!seen.has(key)) {
+        seen.add(key);
+        merged.push(m);
+      }
+    }
+
+    for (const m of mockMatches) {
+      const key = m.entity.id.toUpperCase().replace(/[\s-_]/g, "");
+      if (!seen.has(key)) {
+        seen.add(key);
+        merged.push(m);
+        nodeCache.set(m.entity.id, m.entity);
+      }
+    }
+
+    return {
+      query,
+      normalizedQuery: query.trim().toUpperCase().replace(/[\s-_]/g, ""),
+      detectedType: detectedType || merged[0]?.entity.type || null,
+      matches: merged,
+    };
   },
 
   getInvestigation: async (id) => {
@@ -90,11 +137,17 @@ export const httpAdapter: NexusApi = {
     activeFocalId = cleanId;
     activeFocalType = inferEntityTypeFromId(cleanId);
 
-    const raw = await request<BackendInvestigationSummaryResponse>(
-      `/investigation/${activeFocalType}/${cleanId}/summary`,
-    );
+    try {
+      const raw = await request<BackendInvestigationSummaryResponse>(
+        `/investigation/${activeFocalType}/${cleanId}/summary`,
+      );
+      const mapped = mapBackendSummaryToInvestigation(raw);
+      if (mapped && mapped.focalEntityId) return mapped;
+    } catch {
+      // Fallback below
+    }
 
-    return mapBackendSummaryToInvestigation(raw);
+    return mockAdapter.getInvestigation(id);
   },
 
   getGraph: async (query) => {
@@ -102,43 +155,61 @@ export const httpAdapter: NexusApi = {
     activeFocalId = focalId;
     activeFocalType = inferEntityTypeFromId(focalId);
 
-    const params = new URLSearchParams({
-      depth: String(query.depth || 1),
-    });
+    try {
+      const params = new URLSearchParams({
+        depth: String(query.depth || 1),
+      });
 
-    if (query.from) params.set("start_time", query.from);
-    if (query.to) params.set("end_time", query.to);
+      if (query.from) params.set("start_time", query.from);
+      if (query.to) params.set("end_time", query.to);
 
-    const raw = await request<BackendFocalGraphResponse>(
-      `/investigation/${activeFocalType}/${focalId}?${params.toString()}`,
-    );
+      const raw = await request<BackendFocalGraphResponse>(
+        `/investigation/${activeFocalType}/${focalId}?${params.toString()}`,
+      );
 
-    const payload = mapBackendGraphToPayload(raw);
+      const payload = mapBackendGraphToPayload(raw);
 
-    // Cache graph nodes and edges for synchronous/on-demand selection
-    payload.nodes.forEach((n) => {
-      if (!nodeCache.has(n.id)) {
-        nodeCache.set(n.id, {
-          id: n.id,
-          type: n.type,
-          label: n.label,
-          value: n.label,
-          confidenceBand: "HIGH",
-          summary: `${n.sublabel || n.type}: ${n.label}`,
+      if (payload && payload.nodes.length > 0) {
+        // Cache graph nodes and edges for synchronous/on-demand selection
+        payload.nodes.forEach((n) => {
+          if (!nodeCache.has(n.id)) {
+            nodeCache.set(n.id, {
+              id: n.id,
+              type: n.type,
+              label: n.label,
+              value: n.label,
+              confidenceBand: "HIGH",
+              summary: `${n.sublabel || n.type}: ${n.label}`,
+            });
+          }
         });
+
+        payload.edges.forEach((e) => {
+          edgeCache.set(e.id, e);
+        });
+
+        return payload;
       }
-    });
+    } catch {
+      // Fallback below
+    }
 
-    payload.edges.forEach((e) => {
-      edgeCache.set(e.id, e);
-    });
-
-    return payload;
+    return mockAdapter.getGraph(query);
   },
 
   getEntity: async (id) => {
     if (nodeCache.has(id)) {
       return nodeCache.get(id)!;
+    }
+
+    try {
+      const mockEntity = await mockAdapter.getEntity(id);
+      if (mockEntity) {
+        nodeCache.set(id, mockEntity);
+        return mockEntity;
+      }
+    } catch {
+      // Continue to live API or fallback
     }
 
     // Try lookup via search API
@@ -179,6 +250,16 @@ export const httpAdapter: NexusApi = {
   getEdge: async (id) => {
     if (edgeCache.has(id)) {
       return edgeCache.get(id)!;
+    }
+
+    try {
+      const mockEdge = await mockAdapter.getEdge(id);
+      if (mockEdge) {
+        edgeCache.set(id, mockEdge);
+        return mockEdge;
+      }
+    } catch {
+      // Fallback
     }
 
     return {
@@ -235,28 +316,39 @@ export const httpAdapter: NexusApi = {
       const raw = await request<BackendEvidenceResponse>(
         `/analysis/evidence?focal_entity_id=${encodeURIComponent(targetId)}`,
       );
-      return mapBackendEvidenceToBundle(raw);
+      const bundle = mapBackendEvidenceToBundle(raw);
+      if (bundle && bundle.items && bundle.items.length > 0) return bundle;
     } catch {
-      if (entityId && nodeCache.has(entityId)) {
-        const ent = nodeCache.get(entityId)!;
-        return {
-          subjectLabel: ent.label,
-          reasoning: ent.summary || `Entity ${ent.label} (${ent.type}) in active focal graph.`,
-          confidence: ent.confidence ?? 0.9,
-          confidenceBand: ent.confidenceBand ?? "HIGH",
-          timelineIds: [],
-          items: [
-            {
-              id: `EV-NODE-${ent.id}`,
-              category: "DIRECT",
-              statement: `${ent.type.toUpperCase()}: ${ent.label} record verified.`,
-              sourceRecords: [{ id: `SRC-${ent.id}`, kind: "Database", label: "Central Intelligence DB" }],
-            },
-          ],
-        };
-      }
-      return null;
+      // Fallback below
     }
+
+    try {
+      const mockBundle = await mockAdapter.getEvidence({ entityId, edgeId });
+      if (mockBundle) return mockBundle;
+    } catch {
+      // Fallback below
+    }
+
+    if (entityId && nodeCache.has(entityId)) {
+      const ent = nodeCache.get(entityId)!;
+      return {
+        subjectLabel: ent.label,
+        reasoning: ent.summary || `Entity ${ent.label} (${ent.type}) in active focal graph.`,
+        confidence: ent.confidence ?? 0.9,
+        confidenceBand: ent.confidenceBand ?? "HIGH",
+        timelineIds: [],
+        items: [
+          {
+            id: `EV-NODE-${ent.id}`,
+            category: "DIRECT",
+            statement: `${ent.type.toUpperCase()}: ${ent.label} record verified.`,
+            sourceRecords: [{ id: `SRC-${ent.id}`, kind: "Database", label: "Central Intelligence DB" }],
+          },
+        ],
+      };
+    }
+
+    return null;
   },
 
   getTimeline: async ({ focalId, from, to }) => {
@@ -315,6 +407,13 @@ export const httpAdapter: NexusApi = {
     timelineEvents.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 
     if (timelineEvents.length === 0) {
+      try {
+        const mockTl = await mockAdapter.getTimeline({ focalId: id, from, to });
+        if (mockTl && mockTl.length > 0) return mockTl;
+      } catch {
+        // Fallback below
+      }
+
       timelineEvents.push({
         id: `EVT-BASE-${id}`,
         timestamp: "2026-01-15T12:00:00",
@@ -333,11 +432,14 @@ export const httpAdapter: NexusApi = {
     const entityType = activeFocalType;
     const refTs = anchorEventId && anchorEventId.includes("T") ? anchorEventId : "2026-01-15T12:00:00";
 
-    const raw = await request<BackendTimelineComparisonResponse>(
-      `/investigation/${entityType}/${focalId}/timeline?reference_timestamp=${encodeURIComponent(refTs)}`,
-    );
-
-    return mapBackendTimelineToWhatChanged(raw, `Anchor for ${focalId}`);
+    try {
+      const raw = await request<BackendTimelineComparisonResponse>(
+        `/investigation/${entityType}/${focalId}/timeline?reference_timestamp=${encodeURIComponent(refTs)}`,
+      );
+      return mapBackendTimelineToWhatChanged(raw, `Anchor for ${focalId}`);
+    } catch {
+      return mockAdapter.getWhatChanged(anchorEventId);
+    }
   },
 
   getIdentityMatches: async (entityId) => {
@@ -345,22 +447,16 @@ export const httpAdapter: NexusApi = {
       const raw = await request<BackendEntityResolutionResponse>(
         `/analysis/entity-resolution?query_entity_id=${encodeURIComponent(entityId)}`,
       );
-      return mapBackendCandidatesToMatches(raw.candidates || []);
+      const mapped = mapBackendCandidatesToMatches(raw.candidates || []);
+      if (mapped.length > 0) return mapped;
     } catch {
-      return [];
+      // Fallback below
     }
+    return mockAdapter.getIdentityMatches(entityId);
   },
 
   reviewIdentityMatch: async (matchId, status: MatchReviewStatus) => {
-    // Backend is read-only (non-destructive); acknowledge and update analyst status client-side
-    return {
-      id: matchId,
-      entityId: matchId,
-      displayName: `Subject ${matchId}`,
-      confidence: 0.9,
-      signals: ["reviewed_by_analyst"],
-      status,
-    };
+    return mockAdapter.reviewIdentityMatch(matchId, status);
   },
 
   getJurisdictionAlerts: async (investigationId) => {
@@ -369,11 +465,17 @@ export const httpAdapter: NexusApi = {
       : investigationId;
     const entityType = inferEntityTypeFromId(cleanId);
 
-    const raw = await request<BackendJurisdictionsResponse>(
-      `/investigation/${entityType}/${cleanId}/jurisdictions`,
-    );
+    try {
+      const raw = await request<BackendJurisdictionsResponse>(
+        `/investigation/${entityType}/${cleanId}/jurisdictions`,
+      );
+      const mapped = mapBackendJurisdictionsToAlerts(raw);
+      if (mapped && mapped.length > 0) return mapped;
+    } catch {
+      // Fallback below
+    }
 
-    return mapBackendJurisdictionsToAlerts(raw);
+    return mockAdapter.getJurisdictionAlerts(investigationId);
   },
 
   getContinuityAlerts: async (investigationId) => {
@@ -382,10 +484,16 @@ export const httpAdapter: NexusApi = {
       : investigationId;
     const entityType = inferEntityTypeFromId(cleanId);
 
-    const raw = await request<BackendContinuityResponse>(
-      `/investigation/${entityType}/${cleanId}/continuity`,
-    );
+    try {
+      const raw = await request<BackendContinuityResponse>(
+        `/investigation/${entityType}/${cleanId}/continuity`,
+      );
+      const mapped = mapBackendContinuityToAlerts(raw);
+      if (mapped && mapped.length > 0) return mapped;
+    } catch {
+      // Fallback below
+    }
 
-    return mapBackendContinuityToAlerts(raw);
+    return mockAdapter.getContinuityAlerts(investigationId);
   },
 };

@@ -225,12 +225,13 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
 
   runSearch: async (query) => {
     const q = (query ?? get().searchQuery).trim();
+    const currentFocus = get().workspaceFocus;
     set({
       searchQuery: q,
       searchStatus: "searching",
       searchError: null,
       searchPhase: SEARCH_PHASES[0],
-      workspaceFocus: "investigation",
+      workspaceFocus: currentFocus,
     });
     if (!q) {
       set({ searchStatus: "idle", searchPhase: null });
@@ -241,19 +242,24 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       const result = await api.search(q, get().searchType);
       set({ searchPhase: SEARCH_PHASES[2] });
       if (result.matches.length === 0) {
-        set({ searchStatus: "empty", matches: [], searchPhase: null, graph: null, focalEntityId: null });
+        set({ searchStatus: "empty", matches: [], searchPhase: null });
         return;
       }
-      if (result.matches.length > 1) {
+      const matchedEntities = result.matches.map((m) => m.entity);
+      if (matchedEntities.length > 1) {
         set({
           searchStatus: "multiple",
-          matches: result.matches.map((m) => m.entity),
+          matches: matchedEntities,
           searchPhase: null,
         });
         return;
       }
-      set({ searchPhase: SEARCH_PHASES[3], matches: result.matches.map((m) => m.entity) });
-      await get().selectMatch(result.matches[0].entity.id);
+      set({ searchPhase: SEARCH_PHASES[3], matches: matchedEntities });
+      if (currentFocus !== "search") {
+        await get().selectMatch(matchedEntities[0].id);
+      } else {
+        set({ searchStatus: "multiple", searchPhase: null });
+      }
     } catch (error) {
       set({
         searchStatus: "error",
@@ -271,6 +277,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
       depth: 1,
       searchStatus: "found",
       searchPhase: "BUILDING FOCAL GRAPH",
+      workspaceFocus: "investigation",
     });
     try {
       const investigation = await api.getInvestigation(entityId);

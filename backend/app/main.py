@@ -64,6 +64,7 @@ def root():
     }
 
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
+@app.get("/api/health", response_model=HealthResponse, tags=["Health"])
 def health_check():
     """Health check endpoint to verify backend status and PostgreSQL graph connection."""
     postgres_status = check_postgres_connection()
