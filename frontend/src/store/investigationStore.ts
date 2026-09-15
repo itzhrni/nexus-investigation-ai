@@ -147,14 +147,17 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     const caseId = get().activeCaseId || "CASE-142";
     let focalId = get().focalEntityId || "V-TN38AB1234";
     try {
-      const investigation = await api.getInvestigation(caseId);
+      const [investigation, dynamicCases] = await Promise.all([
+        api.getInvestigation(caseId),
+        api.getAllCases ? api.getAllCases() : Promise.resolve(Object.values(CASES_CATALOG)),
+      ]);
       focalId = get().focalEntityId || investigation?.focalEntityId || "V-TN38AB1234";
       set({
         investigation,
         activeCaseId: caseId,
         focalEntityId: focalId,
         selectedNodeId: focalId,
-        availableCases: Object.values(CASES_CATALOG),
+        availableCases: dynamicCases && dynamicCases.length > 0 ? dynamicCases : Object.values(CASES_CATALOG),
       });
     } catch {
       set({

@@ -27,4 +27,5 @@ export interface NexusApi {
   reviewIdentityMatch: (matchId: string, status: MatchReviewStatus) => Promise<IdentityMatch>;
   getJurisdictionAlerts: (investigationId: string) => Promise<JurisdictionAlert[]>;
   getContinuityAlerts: (investigationId: string) => Promise<ContinuityAlert[]>;
+  getAllCases?: () => Promise<InvestigationSummary[]>;
 }

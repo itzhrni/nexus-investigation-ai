@@ -196,6 +196,10 @@ export const mockAdapter: NexusApi = {
   async getContinuityAlerts() {
     return continuityAlerts;
   },
+
+  async getAllCases() {
+    return Object.values(CASES_CATALOG);
+  },
 };
 
 export { INVESTIGATION_ID };

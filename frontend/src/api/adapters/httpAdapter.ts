@@ -1,5 +1,6 @@
 import type { NexusApi } from "@/api/types";
 import { mockAdapter } from "@/api/adapters/mockAdapter";
+import { CASES_CATALOG } from "@/mock/investigationData";
 import type {
   BackendSearchResponse,
   BackendFocalGraphResponse,
@@ -30,11 +31,11 @@ import { formatRelationshipLabel } from "@/lib/timelinePresenter";
 import type {
   Entity,
   GraphEdge,
-  GraphNode,
   GraphPayload,
   TimelineEvent,
   MatchReviewStatus,
   SearchMatch,
+  IdentityMatch,
 } from "@/types/nexus";
 
 // Local cache to support entity and edge inspection without requiring separate endpoints
@@ -42,6 +43,8 @@ const nodeCache = new Map<string, Entity>();
 const edgeCache = new Map<string, GraphEdge>();
 let activeFocalId = "P001";
 let activeFocalType = "Person";
+
+const reviewedMatches = new Map<string, IdentityMatch>();
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
@@ -112,7 +115,17 @@ export const httpAdapter: NexusApi = {
       console.warn("Live backend search error:", err);
     }
 
-    // Always query mock catalog to ensure 100% data coverage
+    // If backend returned results, use them exclusively
+    if (backendMatches.length > 0) {
+      return {
+        query,
+        normalizedQuery: query.trim().toUpperCase().replace(/[\s-_]/g, ""),
+        detectedType: detectedType || backendMatches[0]?.entity.type || null,
+        matches: backendMatches,
+      };
+    }
+
+    // Only query mock catalog if live backend returned 0 matches (resilience fallback)
     let mockMatches: SearchMatch[] = [];
     try {
       const mockRes = await mockAdapter.search(query, type);
@@ -122,32 +135,11 @@ export const httpAdapter: NexusApi = {
       // Ignore
     }
 
-    // Merge deduplicated matches (prioritizing backend matches)
-    const seen = new Set<string>();
-    const merged: SearchMatch[] = [];
-
-    for (const m of backendMatches) {
-      const key = m.entity.id.toUpperCase().replace(/[\s-_]/g, "");
-      if (!seen.has(key)) {
-        seen.add(key);
-        merged.push(m);
-      }
-    }
-
-    for (const m of mockMatches) {
-      const key = m.entity.id.toUpperCase().replace(/[\s-_]/g, "");
-      if (!seen.has(key)) {
-        seen.add(key);
-        merged.push(m);
-        nodeCache.set(m.entity.id, m.entity);
-      }
-    }
-
     return {
       query,
       normalizedQuery: query.trim().toUpperCase().replace(/[\s-_]/g, ""),
-      detectedType: detectedType || merged[0]?.entity.type || null,
-      matches: merged,
+      detectedType: detectedType || mockMatches[0]?.entity.type || null,
+      matches: mockMatches,
     };
   },
 
@@ -156,30 +148,39 @@ export const httpAdapter: NexusApi = {
     activeFocalId = cleanId;
     activeFocalType = inferEntityTypeFromId(cleanId);
 
-    const mockCase = await mockAdapter.getInvestigation(id);
-
     try {
       const raw = await request<BackendInvestigationSummaryResponse>(
         `/investigation/${activeFocalType}/${cleanId}/summary`,
       );
       const mapped = mapBackendSummaryToInvestigation(raw);
       if (mapped && mapped.focalEntityId) {
-        if (cleanId.startsWith("CASE-") || cleanId.startsWith("FIR-")) {
-          return {
-            ...mapped,
-            focalEntityId: mockCase?.focalEntityId || mapped.focalEntityId,
-            crimeType: mockCase?.crimeType || mapped.crimeType,
-            policeStation: mockCase?.policeStation || mapped.policeStation,
-            sections: mockCase?.sections || mapped.sections,
-          };
-        }
         return mapped;
       }
     } catch {
-      // Fallback below
+      // Fallback to synthesizing investigation summary from entity info below
     }
 
-    return mockCase;
+    // If it's a known mock case ID, fall back to mock catalog
+    if (cleanId.startsWith("CASE-") || cleanId.startsWith("FIR-")) {
+      const mockCase = await mockAdapter.getInvestigation(id);
+      if (mockCase) return mockCase;
+    }
+
+    // Synthesize structured summary for the focal entity without hardcoding mock CASE-142
+    const entityLabel = nodeCache.get(cleanId)?.label || cleanId;
+    return {
+      id: cleanId,
+      label: `Investigation: ${entityLabel}`,
+      status: "ACTIVE",
+      focalEntityId: cleanId,
+      focalLabel: entityLabel,
+      entityCount: 1,
+      caseCount: 0,
+      jurisdictionCount: 1,
+      continuityCount: 0,
+      eventCount: 0,
+      jurisdictions: ["India"],
+    };
   },
 
   getGraph: async (query) => {
@@ -208,75 +209,69 @@ export const httpAdapter: NexusApi = {
       // Live query failed
     }
 
-    let mockPayload: GraphPayload | null = null;
-    try {
-      mockPayload = await mockAdapter.getGraph(query);
-    } catch {
-      // Mock query failed
+    // In live mode, if livePayload exists, use it exclusively (NO mock contamination)
+    if (livePayload && livePayload.nodes.length > 0) {
+      livePayload.nodes.forEach((n) => {
+        if (!nodeCache.has(n.id)) {
+          nodeCache.set(n.id, {
+            id: n.id,
+            type: n.type,
+            label: n.label,
+            value: n.label,
+            confidenceBand: "HIGH",
+            summary: `${n.sublabel || n.type}: ${n.label}`,
+          });
+        }
+      });
+      livePayload.edges.forEach((e) => {
+        edgeCache.set(e.id, e);
+      });
+      return livePayload;
     }
 
-    // Combine mock nodes and live nodes so the network is never sparse or empty
-    const nodeMap = new Map<string, GraphNode>();
-    const edgeMap = new Map<string, GraphEdge>();
-
-    if (mockPayload) {
-      mockPayload.nodes.forEach((n) => nodeMap.set(n.id, n));
-      mockPayload.edges.forEach((e) => edgeMap.set(e.id, e));
-    }
-
-    if (livePayload) {
-      // If live graph is dense (>= 6 nodes) and not a mock-baseline case, use live as primary
-      if (livePayload.nodes.length >= 6 && !focalId.startsWith("CASE-") && !focalId.startsWith("V-TN38")) {
-        nodeMap.clear();
-        edgeMap.clear();
+    // Fallback to mock query only if live query produced nothing and it's a known mock ID
+    if (focalId.startsWith("CASE-") || focalId.startsWith("V-TN38") || focalId.startsWith("P-")) {
+      try {
+        const mockPayload = await mockAdapter.getGraph(query);
+        if (mockPayload && mockPayload.nodes.length > 0) {
+          mockPayload.nodes.forEach((n) =>
+            nodeCache.set(n.id, {
+              id: n.id,
+              type: n.type,
+              label: n.label,
+              value: n.label,
+              confidenceBand: "HIGH",
+              summary: `${n.sublabel || n.type}: ${n.label}`,
+            }),
+          );
+          mockPayload.edges.forEach((e) => edgeCache.set(e.id, e));
+          return mockPayload;
+        }
+      } catch {
+        // Ignore
       }
-      livePayload.nodes.forEach((n) => nodeMap.set(n.id, n));
-      livePayload.edges.forEach((e) => edgeMap.set(e.id, e));
     }
 
-    const mergedNodes = Array.from(nodeMap.values());
-    const mergedEdges = Array.from(edgeMap.values());
-
-    const resultPayload: GraphPayload = {
+    // If entity has no graph relationships in DB, return focal node alone
+    const ent = nodeCache.get(focalId);
+    return {
       focalId,
-      nodes: mergedNodes,
-      edges: mergedEdges,
+      nodes: [
+        {
+          id: focalId,
+          type: toFrontendEntityType(activeFocalType),
+          label: ent?.label || focalId,
+          sublabel: activeFocalType,
+          val: 15,
+        },
+      ],
+      edges: [],
     };
-
-    // Cache graph nodes and edges for synchronous/on-demand selection
-    mergedNodes.forEach((n) => {
-      if (!nodeCache.has(n.id)) {
-        nodeCache.set(n.id, {
-          id: n.id,
-          type: n.type,
-          label: n.label,
-          value: n.label,
-          confidenceBand: "HIGH",
-          summary: `${n.sublabel || n.type}: ${n.label}`,
-        });
-      }
-    });
-
-    mergedEdges.forEach((e) => {
-      edgeCache.set(e.id, e);
-    });
-
-    return resultPayload;
   },
 
   getEntity: async (id) => {
     if (nodeCache.has(id)) {
       return nodeCache.get(id)!;
-    }
-
-    try {
-      const mockEntity = await mockAdapter.getEntity(id);
-      if (mockEntity) {
-        nodeCache.set(id, mockEntity);
-        return mockEntity;
-      }
-    } catch {
-      // Continue to live API or fallback
     }
 
     // Try lookup via search API
@@ -313,20 +308,10 @@ export const httpAdapter: NexusApi = {
       return edgeCache.get(id)!;
     }
 
-    try {
-      const mockEdge = await mockAdapter.getEdge(id);
-      if (mockEdge) {
-        edgeCache.set(id, mockEdge);
-        return mockEdge;
-      }
-    } catch {
-      // Fallback
-    }
-
     return {
       id,
-      source: "unknown",
-      target: "unknown",
+      source: activeFocalId,
+      target: "UNKNOWN",
       type: "CONNECTED_TO",
       confidence: 1.0,
       confidenceBand: "HIGH",
@@ -383,13 +368,7 @@ export const httpAdapter: NexusApi = {
       // Fallback below
     }
 
-    try {
-      const mockBundle = await mockAdapter.getEvidence({ entityId, edgeId });
-      if (mockBundle) return mockBundle;
-    } catch {
-      // Fallback below
-    }
-
+    // Direct node inspection without mock fallback
     if (entityId && nodeCache.has(entityId)) {
       const ent = nodeCache.get(entityId)!;
       return {
@@ -418,7 +397,7 @@ export const httpAdapter: NexusApi = {
 
     const timelineEvents: TimelineEvent[] = [];
 
-    // 1. Gather timestamped edges from edge cache
+    // 1. Gather timestamped edges from edge cache for the focal entity
     edgeCache.forEach((e) => {
       if ((e.source === id || e.target === id) && e.validFrom) {
         if (from && e.validFrom < from) return;
@@ -467,24 +446,7 @@ export const httpAdapter: NexusApi = {
     // Sort chronologically
     timelineEvents.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 
-    if (timelineEvents.length === 0) {
-      try {
-        const mockTl = await mockAdapter.getTimeline({ focalId: id, from, to });
-        if (mockTl && mockTl.length > 0) return mockTl;
-      } catch {
-        // Fallback below
-      }
-
-      timelineEvents.push({
-        id: `EVT-BASE-${id}`,
-        timestamp: "2026-01-15T12:00:00",
-        kind: "INVESTIGATION_ANCHOR",
-        title: `Anchor Activity Recorded`,
-        description: `Baseline activity point for focal entity ${id}`,
-        entityIds: [id],
-      });
-    }
-
+    // Return true timeline events; if none, return empty array without falling back to mock Suresh
     return timelineEvents;
   },
 
@@ -499,7 +461,12 @@ export const httpAdapter: NexusApi = {
       );
       return mapBackendTimelineToWhatChanged(raw, `Anchor for ${focalId}`);
     } catch {
-      return mockAdapter.getWhatChanged(anchorEventId);
+      return {
+        anchorEventId: "T-ANCHOR-0",
+        anchorLabel: `Investigation for ${focalId}`,
+        before: { label: "Baseline Period", communication: "Normal", locations: [], vehicles: [] },
+        after: { label: "Active Window", communication: "Normal", locations: [], vehicles: [] },
+      };
     }
   },
 
@@ -509,15 +476,25 @@ export const httpAdapter: NexusApi = {
         `/analysis/entity-resolution?query_entity_id=${encodeURIComponent(entityId)}`,
       );
       const mapped = mapBackendCandidatesToMatches(raw.candidates || []);
-      if (mapped.length > 0) return mapped;
+      // Check if any match was reviewed locally
+      return mapped.map((m) => reviewedMatches.get(m.id) || m);
     } catch {
-      // Fallback below
+      return [];
     }
-    return mockAdapter.getIdentityMatches(entityId);
   },
 
   reviewIdentityMatch: async (matchId, status: MatchReviewStatus) => {
-    return mockAdapter.reviewIdentityMatch(matchId, status);
+    const existing = reviewedMatches.get(matchId) || {
+      id: matchId,
+      entityId: activeFocalId,
+      displayName: matchId,
+      confidence: 90,
+      signals: ["Investigator manual decision"],
+      status,
+    };
+    const updated = { ...existing, status };
+    reviewedMatches.set(matchId, updated);
+    return updated;
   },
 
   getJurisdictionAlerts: async (investigationId) => {
@@ -531,12 +508,10 @@ export const httpAdapter: NexusApi = {
         `/investigation/${entityType}/${cleanId}/jurisdictions`,
       );
       const mapped = mapBackendJurisdictionsToAlerts(raw);
-      if (mapped && mapped.length > 0) return mapped;
+      return mapped || [];
     } catch {
-      // Fallback below
+      return [];
     }
-
-    return mockAdapter.getJurisdictionAlerts(investigationId);
   },
 
   getContinuityAlerts: async (investigationId) => {
@@ -550,11 +525,43 @@ export const httpAdapter: NexusApi = {
         `/investigation/${entityType}/${cleanId}/continuity`,
       );
       const mapped = mapBackendContinuityToAlerts(raw);
-      if (mapped && mapped.length > 0) return mapped;
+      return mapped || [];
+    } catch {
+      return [];
+    }
+  },
+
+  getAllCases: async () => {
+    try {
+      const raw = await request<BackendSearchResponse>("/search?q=FIR&entity_type=FIR&limit=100");
+      if (raw.results && raw.results.length > 0) {
+        return raw.results.map((r) => {
+          const props = r.properties || {};
+          return {
+            id: r.entity_id,
+            label: `${r.label || r.entity_id} · ${props.crime_type || "Under Investigation"}`,
+            status: "ACTIVE" as const,
+            focalEntityId: r.entity_id,
+            focalLabel: r.label || r.entity_id,
+            entityCount: 1,
+            caseCount: 1,
+            jurisdictionCount: 1,
+            continuityCount: 0,
+            eventCount: 0,
+            jurisdictions: props.state ? [props.state] : ["National Jurisdiction"],
+            policeStation: props.police_station || "Jurisdiction Police Station",
+            district: props.district || "District HQ",
+            state: props.state || "State Police",
+            registeredDate: props.incident_date || "2026-01-15",
+            sections: props.crime_type || "Under Investigation",
+            crimeType: props.crime_type,
+          };
+        });
+      }
     } catch {
       // Fallback below
     }
 
-    return mockAdapter.getContinuityAlerts(investigationId);
+    return Object.values(CASES_CATALOG);
   },
 };
