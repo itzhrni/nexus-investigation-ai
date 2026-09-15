@@ -1,13 +1,15 @@
 import {
+  BarChart3,
+  FileText,
   Fingerprint,
   FolderSearch,
   GitBranch,
   MapPinned,
-  Network,
   Search,
   Settings,
   Shield,
   Timer,
+  Upload,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useInvestigationStore } from "@/store/investigationStore";
@@ -17,10 +19,12 @@ const ITEMS: { id: WorkspaceFocus; label: string; icon: typeof Search }[] = [
   { id: "investigation", label: "Investigation", icon: Shield },
   { id: "search", label: "Search", icon: Search },
   { id: "cases", label: "Cases", icon: FolderSearch },
-  { id: "network", label: "Network", icon: Network },
   { id: "timeline", label: "Timeline", icon: Timer },
   { id: "map", label: "Map", icon: MapPinned },
   { id: "evidence", label: "Evidence", icon: GitBranch },
+  { id: "ingestion", label: "Ingestion", icon: Upload },
+  { id: "analytics", label: "Analytics", icon: BarChart3 },
+  { id: "reports", label: "Report Center", icon: FileText },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 

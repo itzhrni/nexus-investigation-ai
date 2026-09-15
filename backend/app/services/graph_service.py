@@ -2,6 +2,7 @@ import logging
 from typing import List, Dict, Any, Optional, Set
 from sqlalchemy.orm import Session
 from sqlalchemy import text, or_
+import networkx as nx
 
 from app.models.database_models import EntityRelationship, Entity, Person, Phone, SIM, Device, Vehicle, BankAccount, Location, FIR, Crime, Event
 from app.models.schemas import FocalGraphResponse, NodeSchema, EdgeSchema, GraphMetricsSchema
@@ -258,24 +259,114 @@ class PostgresGraphService:
                 properties={}
             )
 
+        # Enrich Location nodes with DB coordinates and jurisdiction metadata
+        loc_ids = [nid for nid, node in nodes_dict.items() if node.type.lower() == "location" or nid.startswith("LOC")]
+        if loc_ids:
+            locations = db.query(Location).filter(Location.id.in_(loc_ids)).all()
+            for loc in locations:
+                if loc.id in nodes_dict:
+                    if loc.name:
+                        nodes_dict[loc.id].label = loc.name
+                    nodes_dict[loc.id].properties.update({
+                        "name": loc.name,
+                        "state": loc.state,
+                        "district": loc.district,
+                        "police_station": loc.police_station,
+                        "jurisdiction_id": loc.jurisdiction_id,
+                        "latitude": loc.latitude,
+                        "longitude": loc.longitude,
+                        "address": loc.address,
+                        "location_type": loc.location_type
+                    })
+
         return nodes_dict
 
     def _calculate_graph_metrics(self, nodes: List[NodeSchema], edges: List[EdgeSchema]) -> GraphMetricsSchema:
-        """Calculate graph-level metrics and central entities with non-accusatory terminology."""
+        """
+        Calculate graph-level metrics, Louvain communities, and Betweenness Centrality bridge nodes
+        for the focal investigation subgraph using NetworkX.
+        """
         rel_dist: Dict[str, int] = {}
         for e in edges:
             rel_dist[e.type] = rel_dist.get(e.type, 0) + 1
 
         if not nodes:
-            return GraphMetricsSchema(total_nodes=0, total_edges=0, relationship_distribution={}, central_entities=[])
+            return GraphMetricsSchema(
+                total_nodes=0,
+                total_edges=0,
+                relationship_distribution={},
+                central_entities=[],
+                total_communities=0,
+                bridge_nodes=[]
+            )
 
-        degrees: Dict[str, int] = {n.id: 0 for n in nodes}
+        # Build NetworkX undirected graph for structural analysis
+        G = nx.Graph()
+        for n in nodes:
+            G.add_node(n.id)
         for e in edges:
-            if e.source in degrees:
-                degrees[e.source] += 1
-            if e.target in degrees:
-                degrees[e.target] += 1
+            if e.source != e.target:  # Ignore self-loops for community/betweenness calculations
+                G.add_edge(e.source, e.target)
 
+        # 1. Louvain Community Detection
+        community_map: Dict[str, int] = {}
+        total_communities = 0
+        if G.number_of_nodes() > 0:
+            try:
+                # Use built-in NetworkX Louvain algorithm
+                communities_list = list(nx.community.louvain_communities(G, seed=42))
+                total_communities = len(communities_list)
+                for comm_idx, comm_set in enumerate(communities_list):
+                    for nid in comm_set:
+                        community_map[nid] = comm_idx
+            except Exception as err:
+                logger.debug(f"Louvain community detection fallback: {err}")
+                # Fallback to connected components if Louvain fails
+                components = list(nx.connected_components(G))
+                total_communities = len(components)
+                for comm_idx, comp_set in enumerate(components):
+                    for nid in comp_set:
+                        community_map[nid] = comm_idx
+
+        # 2. Betweenness Centrality & Bridge / Connector Node Identification
+        betweenness_map: Dict[str, float] = {}
+        if G.number_of_nodes() > 0:
+            try:
+                betweenness_map = nx.betweenness_centrality(G)
+            except Exception as err:
+                logger.debug(f"Betweenness calculation note: {err}")
+                betweenness_map = {n.id: 0.0 for n in nodes}
+
+        # Determine dynamic bridge threshold based on graph size and community structure
+        is_bridge_map: Dict[str, bool] = {}
+        all_bc_scores = [score for score in betweenness_map.values() if score > 0.0]
+        bc_threshold = 0.10
+        if all_bc_scores:
+            all_bc_scores.sort(reverse=True)
+            # Threshold at 75th percentile or 0.08
+            p75_idx = max(0, len(all_bc_scores) // 4)
+            bc_threshold = max(0.08, all_bc_scores[p75_idx])
+
+        for nid in G.nodes():
+            score = betweenness_map.get(nid, 0.0)
+            is_br = False
+            if score > 0.0:
+                # Node connects neighbors in 2 or more distinct communities
+                neighbor_comms = {community_map.get(nbr) for nbr in G.neighbors(nid) if nbr in community_map}
+                if total_communities > 1 and len(neighbor_comms) > 1 and score >= 0.03:
+                    is_br = True
+                elif score >= bc_threshold:
+                    is_br = True
+            is_bridge_map[nid] = is_br
+
+        # 3. Populate fields on NodeSchema objects
+        for n in nodes:
+            n.community_id = community_map.get(n.id, 0)
+            n.betweenness_centrality = round(betweenness_map.get(n.id, 0.0), 4)
+            n.is_bridge = is_bridge_map.get(n.id, False)
+
+        # 4. Degree centrality highlights
+        degrees: Dict[str, int] = {n.id: G.degree(n.id) if n.id in G else 0 for n in nodes}
         sorted_nodes = sorted(degrees.items(), key=lambda item: item[1], reverse=True)
 
         node_lookup = {n.id: n for n in nodes}
@@ -291,11 +382,26 @@ class PostgresGraphService:
                 "investigation_role": role
             })
 
+        # 5. Collect bridge nodes details
+        bridge_nodes_summary = []
+        for n in nodes:
+            if n.is_bridge:
+                bridge_nodes_summary.append({
+                    "entity_id": n.id,
+                    "label": n.label,
+                    "entity_type": n.type,
+                    "betweenness_centrality": n.betweenness_centrality,
+                    "community_id": n.community_id,
+                    "investigation_role": "High-connectivity bridge intermediary"
+                })
+
         return GraphMetricsSchema(
             total_nodes=len(nodes),
             total_edges=len(edges),
             relationship_distribution=rel_dist,
-            central_entities=central_entities
+            central_entities=central_entities,
+            total_communities=total_communities,
+            bridge_nodes=bridge_nodes_summary
         )
 
 graph_service = PostgresGraphService()

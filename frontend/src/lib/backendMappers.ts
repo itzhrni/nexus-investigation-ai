@@ -167,12 +167,24 @@ export function mapBackendSearchResponse(
 export function mapBackendGraphToPayload(raw: BackendFocalGraphResponse): GraphPayload {
   const nodes: GraphNode[] = (raw.nodes || []).map((n) => {
     const fType = toFrontendEntityType(n.type);
+    const props = n.properties || {};
+    const lat = props.latitude != null ? Number(props.latitude) : undefined;
+    const lng = props.longitude != null ? Number(props.longitude) : undefined;
     return {
       id: n.id,
       type: fType,
       label: n.label,
-      sublabel: n.type,
+      sublabel: (props.district && props.state) ? `${props.district}, ${props.state}` : n.type,
       val: n.id === raw.focal_entity_id ? 15 : 8,
+      communityId: n.community_id ?? 0,
+      isBridge: n.is_bridge ?? false,
+      betweennessCentrality: n.betweenness_centrality ?? 0.0,
+      latitude: lat,
+      longitude: lng,
+      state: (props.state as string) || undefined,
+      district: (props.district as string) || undefined,
+      policeStation: (props.police_station as string) || undefined,
+      properties: props,
     };
   });
 

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, FileText, FolderKanban, Search } from "lucide-react";
+import { ChevronDown, FileText, FolderKanban, Search, LogOut, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useInvestigationStore } from "@/store/investigationStore";
+import { useAuthStore } from "@/store/authStore";
 
 export function Topbar() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -17,6 +18,9 @@ export function Topbar() {
   const switchCase = useInvestigationStore((s) => s.switchCase);
   const status = useInvestigationStore((s) => s.systemStatus);
   const focus = useInvestigationStore((s) => s.workspaceFocus);
+
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   useEffect(() => {
     if (focus === "search") inputRef.current?.focus();
@@ -155,12 +159,34 @@ export function Topbar() {
           <span className="font-mono text-[10px] text-nexus-muted">{status}</span>
         </div>
 
-        {/* Investigator Profile */}
-        <div className="hidden rounded-md border border-nexus-line bg-black/30 px-2.5 py-1 md:block">
-          <div className="font-mono text-[9px] text-nexus-muted uppercase">INVESTIGATOR</div>
-          <div className="text-xs font-medium text-slate-200">Ops / Demo</div>
+        {/* Authenticated Officer Profile & Role Badge */}
+        <div className="hidden rounded-md border border-nexus-line bg-black/40 px-2.5 py-1 md:flex items-center gap-2">
+          <ShieldCheck className={cn("h-4 w-4", user?.role === "ADMIN" ? "text-amber-400" : "text-nexus-cyan")} />
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono text-[9px] text-slate-300 font-semibold">{user?.email || "officer@nexus.gov.in"}</span>
+              <span className={cn(
+                "rounded px-1 py-0.2 font-mono text-[8px] font-bold border uppercase",
+                user?.role === "ADMIN" ? "bg-amber-500/20 text-amber-300 border-amber-500/30" : "bg-cyan-500/20 text-cyan-300 border-cyan-500/30"
+              )}>
+                {user?.role || "INVESTIGATOR"}
+              </span>
+            </div>
+            <div className="text-[10px] text-nexus-muted truncate max-w-[130px]">{user?.unit || "Central PS"}</div>
+          </div>
         </div>
+
+        {/* Logout Button */}
+        <button
+          type="button"
+          onClick={logout}
+          title="Sign out of NEXUS session"
+          className="flex h-8 w-8 items-center justify-center rounded border border-nexus-line/80 bg-black/40 text-slate-400 hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
+        >
+          <LogOut className="h-4 w-4" />
+        </button>
       </div>
     </header>
   );
 }
+

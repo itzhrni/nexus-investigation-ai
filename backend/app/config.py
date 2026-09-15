@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     SECRET_KEY: str = "nexus-super-secret-key-change-in-production"
+    DEMO_PASSWORD: str = "demo1234"
+
 
     # PostgreSQL / Supabase Database Configuration
     POSTGRES_USER: str = "postgres"

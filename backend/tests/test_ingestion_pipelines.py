@@ -12,7 +12,9 @@ from app.services.entity_extraction import entity_extraction_service
 from app.services.relationship_extraction import relationship_extraction_service
 from app.services.csv_ingestion_service import csv_ingestion_service
 from app.services.vision_service import vision_service
+from app.services.auth_service import auth_service
 from scripts.seed_database import extract_entity_relationships, bulk_seed_table, load_json
+
 
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///:memory:"
 
@@ -21,40 +23,45 @@ engine = create_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool
 )
+
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def override_get_db():
+    database_models.Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
-
 @pytest.fixture(scope="module", autouse=True)
 def setup_test_db():
-    Base.metadata.create_all(bind=engine)
+    database_models.Base.metadata.create_all(bind=engine)
+    app.dependency_overrides[get_db] = override_get_db
     db = TestingSessionLocal()
-    
+
     persons = load_json("persons.json") or []
     phones = load_json("phones.json") or []
     vehicles = load_json("vehicles.json") or []
     locations = load_json("locations.json") or []
-    
+
     bulk_seed_table(db, database_models.Person, persons)
     bulk_seed_table(db, database_models.Phone, phones)
     bulk_seed_table(db, database_models.Vehicle, vehicles)
     bulk_seed_table(db, database_models.Location, locations)
-    
+
     rels = extract_entity_relationships()
     bulk_seed_table(db, database_models.EntityRelationship, rels)
-    
+    db.commit()
+
     yield db
-    
+
     db.close()
-    Base.metadata.drop_all(bind=engine)
+    database_models.Base.metadata.drop_all(bind=engine)
+    app.dependency_overrides.clear()
+
+client = TestClient(app)
+
 
 # ==================== NLP INGESTION TESTS ====================
 def test_nlp_entity_normalization():
@@ -105,27 +112,40 @@ def test_vision_invalid_image(setup_test_db):
 
 # ==================== API & GRAPH INTEGRATION TESTS ====================
 def test_fir_ingest_api():
+    token = auth_service.create_access_token({"sub": "USR-TEST", "email": "test@nexus.gov.in", "role": "INVESTIGATOR", "unit": "Central PS"})
+    headers = {"Authorization": f"Bearer {token}"}
+
     payload = {
         "text_content": "Reported case involving Aarav Sharma using phone +919810012345 in Connaught Place PS under FIR001.",
         "report_title": "Test FIR Ingest"
     }
-    response = client.post("/api/ingest/fir", json=payload)
+    response = client.post("/api/ingest/fir", json=payload, headers=headers)
     assert response.status_code == 200
     data = response.json()
     assert len(data["extracted_entities"]) >= 1
     assert len(data["extracted_relationships"]) >= 1
 
 def test_csv_ingest_api():
+    token = auth_service.create_access_token({"sub": "USR-TEST", "email": "test@nexus.gov.in", "role": "INVESTIGATOR", "unit": "Central PS"})
+    headers = {"Authorization": f"Bearer {token}"}
+
     csv_content = b"record_id,date,time,person_name,phone,vehicle,location,district,state,police_station,description\nREC_API_01,2026-01-12,10:00:00,Karan Gupta,+919876543210,DL02CB8888,Connaught Place,New Delhi,Delhi,Connaught Place PS,API test\n"
     files = {"file": ("test.csv", csv_content, "text/csv")}
-    response = client.post("/api/ingest/csv", files=files)
+    response = client.post("/api/ingest/csv", files=files, headers=headers)
     assert response.status_code == 200
     data = response.json()
     assert data["records_processed"] == 1
 
 def test_vision_analyze_api():
+    token = auth_service.create_access_token({"sub": "USR-TEST", "email": "test@nexus.gov.in", "role": "INVESTIGATOR", "unit": "Central PS"})
+    headers = {"Authorization": f"Bearer {token}"}
+
     files = {"file": ("cctv.jpg", b"CCTV_FRAME_DL01CA1234", "image/jpeg")}
-    response = client.post("/api/vision/analyze", files=files, data={"location_id": "LOC005"})
+    response = client.post("/api/vision/analyze", files=files, data={"location_id": "LOC005"}, headers=headers)
     assert response.status_code == 200
     data = response.json()
     assert data["detected_plate"] == "DL01CA1234"
+
+
+
+

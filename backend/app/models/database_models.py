@@ -233,3 +233,27 @@ class EntityRelationship(Base):
     metadata_json = Column(JSON, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+
+    id = Column(String, primary_key=True, index=True)
+    email = Column(String, nullable=False, unique=True, index=True)
+    full_name = Column(String, nullable=True)
+    role = Column(String, default="INVESTIGATOR", nullable=False)  # INVESTIGATOR or ADMIN
+    unit = Column(String, default="Central PS")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, nullable=False, index=True)
+    user_email = Column(String, nullable=True)
+    action = Column(String, nullable=False, index=True)  # AUTH_LOGIN, SEARCH, INVESTIGATION_OPEN, FIR_INGEST, etc.
+    resource_type = Column(String, nullable=True)
+    resource_id = Column(String, nullable=True)
+    metadata_json = Column(JSON, nullable=True)
+    ip_address = Column(String, nullable=True)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+

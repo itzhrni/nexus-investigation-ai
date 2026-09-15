@@ -33,6 +33,9 @@ class NodeSchema(BaseModel):
     type: str
     label: str
     properties: Dict[str, Any] = {}
+    community_id: Optional[int] = Field(None, description="Louvain community cluster ID")
+    is_bridge: Optional[bool] = Field(False, description="Whether node acts as a bridge/connector between communities")
+    betweenness_centrality: Optional[float] = Field(0.0, description="Betweenness centrality score in focal graph")
 
 class EdgeSchema(BaseModel):
     id: str
@@ -49,6 +52,8 @@ class GraphMetricsSchema(BaseModel):
     total_edges: int = 0
     relationship_distribution: Dict[str, int] = {}
     central_entities: List[Dict[str, Any]] = []
+    total_communities: int = 0
+    bridge_nodes: List[Dict[str, Any]] = []
 
 class FocalGraphResponse(BaseModel):
     focal_entity_id: str

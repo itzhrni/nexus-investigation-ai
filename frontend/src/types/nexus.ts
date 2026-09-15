@@ -44,11 +44,32 @@ export type WorkspaceFocus =
   | "investigation"
   | "search"
   | "cases"
-  | "network"
   | "timeline"
   | "map"
   | "evidence"
+  | "ingestion"
+  | "analytics"
+  | "reports"
   | "settings";
+
+export type AnalyticsTab =
+  | "overview"
+  | "network"
+  | "temporal"
+  | "identity"
+  | "jurisdiction"
+  | "patterns"
+  | "evidence";
+
+export interface AnalyticsFilterState {
+  timeFrom?: string;
+  timeTo?: string;
+  communityId?: string;
+  entityType?: string;
+  severity?: string;
+  patternType?: string;
+  state?: string;
+}
 
 export type MatchReviewStatus = "pending" | "confirmed" | "rejected" | "review";
 
@@ -102,6 +123,15 @@ export interface GraphNode {
   label: string;
   sublabel?: string;
   val?: number;
+  communityId?: number;
+  isBridge?: boolean;
+  betweennessCentrality?: number;
+  latitude?: number;
+  longitude?: number;
+  state?: string;
+  district?: string;
+  policeStation?: string;
+  properties?: Record<string, any>;
 }
 
 export interface GraphEdge {
@@ -253,8 +283,64 @@ export interface WhatChangedInsight {
 
 export interface GraphQuery {
   focalId: string;
-  depth: 1 | 2 | 3;
+  depth: 1 | 2 | 3 | 4 | 5;
   relTypes?: RelFilterGroup[];
   from?: string;
   to?: string;
 }
+
+export interface IngestFirResponse {
+  report_title: string;
+  extracted_entities: Array<{
+    id: string;
+    entity_type: string;
+    label: string;
+    metadata: Record<string, any>;
+  }>;
+  extracted_relationships: Array<{
+    id: string;
+    source_entity_type: string;
+    source_entity_id: string;
+    target_entity_type: string;
+    target_entity_id: string;
+    relationship_type: string;
+    confidence: number;
+  }>;
+  overall_confidence: number;
+  warnings: string[];
+}
+
+export interface IngestCsvResponse {
+  records_processed: number;
+  entities_created: number;
+  relationships_created: number;
+  duplicates_resolved: number;
+  warnings: string[];
+}
+
+export interface AnalyzeVisionResponse {
+  extracted_text: string;
+  detected_plate: string | null;
+  confidence: number;
+  matched_vehicle?: {
+    vehicle_id: string;
+    registration_number: string;
+    make?: string;
+    model?: string;
+    color?: string;
+    owner_person_id?: string;
+  } | null;
+  owner?: {
+    person_id: string;
+    name: string;
+    state?: string;
+    district?: string;
+  } | null;
+  connected_entities: Array<{
+    entity_id: string;
+    relationship_type: string;
+    confidence: number;
+  }>;
+  warnings: string[];
+}
+

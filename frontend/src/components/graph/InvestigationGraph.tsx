@@ -34,11 +34,28 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+const COMMUNITY_COLORS = [
+  "#06b6d4", // Cyan
+  "#a855f7", // Purple
+  "#10b981", // Emerald
+  "#f59e0b", // Amber
+  "#ec4899", // Pink
+  "#3b82f6", // Blue
+  "#84cc16", // Lime
+  "#f97316", // Orange
+];
+
+function getCommunityColor(communityId?: number): string {
+  const idx = Math.abs(communityId ?? 0) % COMMUNITY_COLORS.length;
+  return COMMUNITY_COLORS[idx];
+}
+
 // Clean badge format: ENTITY NAME \n TYPE · ID
-function formatNodeLabel(node: FGNode): string {
+function formatNodeLabel(node: FGNode, graphViewMode: string): string {
   const name = node.label || node.id;
-  const idPart = node.id && !name.includes(node.id) ? ` · ${node.id}` : "";
-  return `${name}\n${node.type.toUpperCase()}${idPart}`;
+  const bridgeTag = node.isBridge ? " [BRIDGE]" : "";
+  const commTag = graphViewMode === "community" ? ` (Comm #${node.communityId ?? 0})` : "";
+  return `${name}${bridgeTag}\n${node.type.toUpperCase()}${commTag}`;
 }
 
 const LINK_STYLE_CONFIG: Record<string, { hex: string; particle: string }> = {
@@ -60,8 +77,8 @@ function getLinkStyle(type: string) {
   return LINK_STYLE_CONFIG[type] ?? { hex: "#64748b", particle: "#94a3b8" };
 }
 
-function nodeColor(node: FGNode, selectedId: string | null, neighborIds: Set<string> | null): string {
-  const base = ENTITY_COLORS[node.type] ?? "#8b9cb3";
+function nodeColor(node: FGNode, selectedId: string | null, neighborIds: Set<string> | null, graphViewMode: string): string {
+  const base = graphViewMode === "community" ? getCommunityColor(node.communityId) : (ENTITY_COLORS[node.type] ?? "#8b9cb3");
   if (!selectedId || !neighborIds) return base;
   return neighborIds.has(node.id) ? base : "#243040";
 }
@@ -83,6 +100,7 @@ export function InvestigationGraph() {
   const graphBusy = useInvestigationStore((s) => s.graphBusy);
   const isOrbiting = useInvestigationStore((s) => s.isOrbiting);
   const focus = useInvestigationStore((s) => s.workspaceFocus);
+  const graphViewMode = useInvestigationStore((s) => s.graphViewMode);
 
   const hops = useMemo(
     () => (graph ? hopDistances(graph.focalId, graph.edges) : new Map<string, number>()),
@@ -100,7 +118,7 @@ export function InvestigationGraph() {
         return {
           ...n,
           hop,
-          val: isFocal ? 28 : hop === 1 ? 16 : hop === 2 ? 10 : 6,
+          val: isFocal ? 28 : n.isBridge ? 18 : hop === 1 ? 16 : hop === 2 ? 10 : 6,
         };
       }),
       graph.edges || [],
@@ -139,7 +157,7 @@ export function InvestigationGraph() {
 
   // When workspace focus changes, recalculate canvas size and gently fit
   useEffect(() => {
-    if (focus === "investigation" || focus === "network") {
+    if (focus === "investigation") {
       const el = containerRef.current;
       if (el && el.clientWidth > 0 && el.clientHeight > 0) {
         setSize({ width: el.clientWidth, height: el.clientHeight });
@@ -161,16 +179,12 @@ export function InvestigationGraph() {
     if (charge) {
       charge.strength((node: any) => {
         const hop = node?.hop ?? 2;
-        // Focal node has dominant negative charge to push out all neighbors radially
         if (hop === 0) return -600;
-        // Direct connections have strong repulsion to stay clearly separated
         if (hop === 1) return -360;
-        // Secondary nodes push outward into outer orbital shell
         if (hop === 2) return -220;
-        // Outer network
         return -140;
       });
-      charge.distanceMin(28); // Prevents overlapping spheres
+      charge.distanceMin(28);
       charge.distanceMax(1000);
     }
 
@@ -181,11 +195,8 @@ export function InvestigationGraph() {
         const sHop = l.source?.hop ?? 1;
         const tHop = l.target?.hop ?? 1;
         const maxHop = Math.max(sHop, tHop);
-        // Direct connections have ample breathing room for labels
         if (maxHop <= 1) return 95;
-        // Secondary connections push outward into outer orbital layer
         if (maxHop === 2) return 160;
-        // Outer network spread
         return 230;
       });
       link.strength((l: any) => {
@@ -211,10 +222,9 @@ export function InvestigationGraph() {
         }).strength(0.85),
       );
     } catch {
-      // Fallback if collide already exists
+      // Fallback
     }
 
-    // On subsequent updates (depth change, filters, search), reheat simulation smoothly
     if (isMountedRef.current) {
       needsFitRef.current = true;
       (fg as any).d3ReheatSimulation?.();
@@ -276,7 +286,7 @@ export function InvestigationGraph() {
     size.height > 50
       ? size.height
       : typeof window !== "undefined"
-      ? Math.max(window.innerHeight - 140, 400)
+    ? Math.max(window.innerHeight - 140, 400)
       : 500;
 
   return (
@@ -299,7 +309,6 @@ export function InvestigationGraph() {
           onNodeDrag={(_node) => {
             const fg = fgRef.current as any;
             if (fg) {
-              // Maintain active engine energy throughout drag so surrounding nodes react
               fg.d3AlphaTarget?.(0.35);
               fg.resetCountdown?.();
             }
@@ -307,7 +316,6 @@ export function InvestigationGraph() {
           onNodeDragEnd={(node) => {
             const fg = fgRef.current as any;
             const n = node as any;
-            // Unfix coordinates so released node settles naturally into equilibrium
             delete n.fx;
             delete n.fy;
             delete n.fz;
@@ -318,9 +326,12 @@ export function InvestigationGraph() {
           }}
           nodeLabel={(n) => {
             const node = n as FGNode;
-            return `${node.label} · ${node.type.toUpperCase()}${node.sublabel ? ` (${node.sublabel})` : ""}`;
+            const bridgeTag = node.isBridge ? " · [BRIDGE CONNECTOR]" : "";
+            const commTag = node.communityId != null ? ` · Community #${node.communityId}` : "";
+            const bcTag = node.betweennessCentrality ? ` · Betweenness: ${node.betweennessCentrality}` : "";
+            return `${node.label} · ${node.type.toUpperCase()}${commTag}${bridgeTag}${bcTag}`;
           }}
-          nodeColor={(n) => nodeColor(n as FGNode, selectedNodeId, neighborIds)}
+          nodeColor={(n) => nodeColor(n as FGNode, selectedNodeId, neighborIds, graphViewMode)}
           nodeThreeObject={(n) => {
             const node = n as FGNode;
             const group = new THREE.Group();
@@ -332,64 +343,75 @@ export function InvestigationGraph() {
             const isDimmed = !!selectedNodeId && !isSelected && !isNeighborOfSelected;
 
             // 1. Node Sizes
-            const radius = isFocal ? 7.6 : hop === 1 ? 4.8 : hop === 2 ? 3.5 : 2.5;
-            const baseColor = ENTITY_COLORS[node.type] ?? "#8b9cb3";
+            const radius = isFocal ? 7.8 : node.isBridge ? 5.6 : hop === 1 ? 4.8 : hop === 2 ? 3.5 : 2.5;
+            const baseColor = graphViewMode === "community"
+              ? getCommunityColor(node.communityId)
+              : (ENTITY_COLORS[node.type] ?? "#8b9cb3");
             const color = isDimmed ? "#2d3748" : baseColor;
 
-            // 2. Opacity hierarchy:
-            // FOCAL: ~0.90
-            // HOP 1: ~0.72
-            // HOP 2: ~0.58
-            // HOP 3: ~0.45
-            // Hovered gets +0.20 boost
-            // Dimmed drops to ~0.18
+            // 2. Opacity hierarchy
             let outerOpacity = isFocal ? 0.90 : hop === 1 ? 0.72 : hop === 2 ? 0.58 : 0.45;
             if (isHovered) outerOpacity = Math.min(0.96, outerOpacity + 0.20);
             if (isSelected) outerOpacity = 0.95;
             if (isDimmed) outerOpacity = 0.18;
 
-            // 3. Glass-like outer sphere with specular highlight and subtle translucency
+            // 3. Outer Sphere Mesh
             const outerGeom = new THREE.SphereGeometry(radius, 24, 24);
             const outerMat = new THREE.MeshPhongMaterial({
               color: new THREE.Color(color),
-              specular: new THREE.Color(isFocal ? "#a5f3fc" : isSelected ? "#ffffff" : isHovered ? "#e2e8f0" : "#94a3b8"),
-              shininess: isFocal ? 100 : 85,
-              emissive: new THREE.Color(isFocal ? "#0891b2" : isSelected ? color : node.type === "account" ? "#059669" : "#000000"),
-              emissiveIntensity: isFocal ? 0.45 : isSelected ? 0.40 : isHovered ? 0.30 : node.type === "account" ? 0.20 : 0.05,
+              specular: new THREE.Color(isFocal ? "#a5f3fc" : node.isBridge ? "#fde68a" : isSelected ? "#ffffff" : "#94a3b8"),
+              shininess: isFocal || node.isBridge ? 100 : 85,
+              emissive: new THREE.Color(isFocal ? "#0891b2" : node.isBridge ? "#d97706" : isSelected ? color : "#000000"),
+              emissiveIntensity: isFocal ? 0.45 : node.isBridge ? 0.40 : isSelected ? 0.35 : 0.05,
               transparent: true,
               opacity: outerOpacity,
-              depthWrite: false, // Ensures transparency without sorting occlusion artifacts
+              depthWrite: false,
             });
             group.add(new THREE.Mesh(outerGeom, outerMat));
 
-            // 4. Luminous inner data nucleus (floating inside the glass orb)
+            // 4. Luminous inner nucleus
             const coreRadius = radius * (isFocal ? 0.42 : 0.36);
             const coreGeom = new THREE.SphereGeometry(coreRadius, 16, 16);
             const coreMat = new THREE.MeshBasicMaterial({
-              color: new THREE.Color(isFocal ? "#38bdf8" : color),
+              color: new THREE.Color(isFocal ? "#38bdf8" : node.isBridge ? "#fbbf24" : color),
               transparent: true,
-              opacity: isDimmed ? 0.20 : isFocal ? 0.95 : isSelected ? 0.90 : isHovered ? 0.85 : outerOpacity * 0.9,
+              opacity: isDimmed ? 0.20 : isFocal ? 0.95 : isSelected ? 0.90 : outerOpacity * 0.9,
             });
             group.add(new THREE.Mesh(coreGeom, coreMat));
 
-            // 5. Subtle outer halo ring on focal or selected node
-            if ((isFocal || isSelected) && !isDimmed) {
-              const ringRadius = radius + (isFocal ? 2.0 : 1.5);
-              const haloGeom = new THREE.RingGeometry(ringRadius, ringRadius + 1.2, 32);
+            // 5. Focal Node Ring Halo (Cyan)
+            if (isFocal && !isDimmed) {
+              const ringRadius = radius + 2.0;
+              const haloGeom = new THREE.RingGeometry(ringRadius, ringRadius + 1.4, 32);
               const haloMat = new THREE.MeshBasicMaterial({
-                color: new THREE.Color(isFocal ? "#38bdf8" : color),
+                color: new THREE.Color("#38bdf8"),
                 side: THREE.DoubleSide,
                 transparent: true,
-                opacity: isFocal ? 0.60 : 0.45,
+                opacity: 0.65,
               });
               const haloMesh = new THREE.Mesh(haloGeom, haloMat);
               haloMesh.rotation.x = Math.PI / 2;
               group.add(haloMesh);
             }
 
-            // 6. Label progressive disclosure
+            // 6. Bridge Node Outer Ring Halo (Amber / Gold)
+            if (node.isBridge && !isDimmed) {
+              const bridgeRingRadius = radius + (isFocal ? 3.8 : 2.0);
+              const bridgeGeom = new THREE.RingGeometry(bridgeRingRadius, bridgeRingRadius + 1.6, 32);
+              const bridgeMat = new THREE.MeshBasicMaterial({
+                color: new THREE.Color("#f59e0b"),
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.85,
+              });
+              const bridgeMesh = new THREE.Mesh(bridgeGeom, bridgeMat);
+              bridgeMesh.rotation.x = Math.PI / 2;
+              group.add(bridgeMesh);
+            }
+
+            // 7. Label progressive disclosure
             let showLabel = false;
-            if (isFocal || isSelected || isHovered) {
+            if (isFocal || isSelected || isHovered || node.isBridge) {
               showLabel = true;
             } else if (hop === 1) {
               showLabel = true;
@@ -398,17 +420,29 @@ export function InvestigationGraph() {
             }
 
             if (showLabel && !isDimmed) {
-              const sprite = new SpriteText(formatNodeLabel(node));
-              sprite.color = isFocal ? "#38bdf8" : isSelected ? "#5eead4" : isHovered ? "#38bdf8" : hop === 1 ? "#e2e8f0" : "#cbd5e1";
-              sprite.textHeight = isFocal ? 3.8 : isSelected ? 3.2 : hop === 1 ? 2.8 : 2.4;
+              const sprite = new SpriteText(formatNodeLabel(node, graphViewMode));
+              sprite.color = isFocal
+                ? "#38bdf8"
+                : node.isBridge
+                ? "#fbbf24"
+                : isSelected
+                ? "#5eead4"
+                : isHovered
+                ? "#38bdf8"
+                : "#e2e8f0";
+              sprite.textHeight = isFocal ? 3.8 : node.isBridge ? 3.2 : hop === 1 ? 2.8 : 2.4;
               sprite.fontFace = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-              sprite.fontWeight = isFocal || isSelected ? "bold" : "500";
-              sprite.backgroundColor = "rgba(6, 10, 16, 0.75)";
-              sprite.borderColor = isFocal ? "rgba(56, 189, 248, 0.5)" : isSelected ? "rgba(94, 234, 212, 0.4)" : "rgba(30, 41, 59, 0.6)";
-              sprite.borderWidth = 0.4;
+              sprite.fontWeight = isFocal || isSelected || node.isBridge ? "bold" : "500";
+              sprite.backgroundColor = node.isBridge ? "rgba(45, 26, 0, 0.85)" : "rgba(6, 10, 16, 0.75)";
+              sprite.borderColor = isFocal
+                ? "rgba(56, 189, 248, 0.6)"
+                : node.isBridge
+                ? "rgba(245, 158, 11, 0.7)"
+                : "rgba(30, 41, 59, 0.6)";
+              sprite.borderWidth = node.isBridge ? 0.8 : 0.4;
               sprite.borderRadius = 2;
               sprite.padding = [2.5, 1.5];
-              sprite.position.y = radius + (isFocal ? 6.2 : 4.8);
+              sprite.position.y = radius + (isFocal ? 6.5 : 5.0);
               group.add(sprite);
             }
 
@@ -421,31 +455,21 @@ export function InvestigationGraph() {
             const s = endpointId(link.source);
             const t = endpointId(link.target);
 
-            // Selected edge: high opacity, bright cyan
             if (selectedEdgeId && link.id === selectedEdgeId) {
               return "rgba(56, 189, 248, 0.95)";
             }
-
-            // Hovered node: brighten its connected edges
             if (hoveredNodeId && (s === hoveredNodeId || t === hoveredNodeId)) {
               return hexToRgba(style.hex, 0.85);
             }
-
-            // When a node is selected:
             if (selectedNodeId) {
               if (s === selectedNodeId || t === selectedNodeId) {
                 return hexToRgba(style.hex, 0.85);
               }
-              // Dim unrelated edges
               return "rgba(20, 30, 45, 0.12)";
             }
-
-            // Direct focal relationships: slightly brighter (0.60)
             if (graph?.focalId && (s === graph.focalId || t === graph.focalId)) {
               return hexToRgba(style.hex, 0.60);
             }
-
-            // Normal edges: thin & semi-transparent (0.35)
             return hexToRgba(style.hex, 0.35);
           }}
           linkWidth={(l) => {
@@ -460,7 +484,7 @@ export function InvestigationGraph() {
               return 0.4;
             }
             if (graph?.focalId && (s === graph.focalId || t === graph.focalId)) return 1.1;
-            return 0.7; // Thin semi-transparent edge
+            return 0.7;
           }}
           linkDirectionalArrowLength={(l: any) => ((l as GraphEdge).directed ? 4.5 : 0)}
           linkDirectionalArrowRelPos={0.9}
