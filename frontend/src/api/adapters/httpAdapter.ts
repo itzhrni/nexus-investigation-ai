@@ -367,6 +367,7 @@ export const httpAdapter: NexusApi = {
     ) {
       livePayload.nodes.forEach((n) => {
         if (!nodeCache.has(n.id)) {
+          const props = n.properties || {};
           nodeCache.set(n.id, {
             id: n.id,
             type: n.type,
@@ -374,6 +375,8 @@ export const httpAdapter: NexusApi = {
             value: n.label,
             confidenceBand: "HIGH",
             summary: `${n.sublabel || n.type}: ${n.label}`,
+            aadhaarMasked: (props.aadhaar_masked as string) || undefined,
+            aadhaarStatus: (props.aadhaar_status as string) || undefined,
           });
         }
       });

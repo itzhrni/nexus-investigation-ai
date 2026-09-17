@@ -21,19 +21,25 @@ export function AadhaarForensicsCard({ entity }: AadhaarForensicsCardProps) {
   const [forensics, setForensics] = useState<AadhaarForensics | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
 
+  const isPerson = Boolean(
+    (entity?.type && entity.type.toLowerCase() === "person") ||
+    (entity?.id && /^P\d+/i.test(entity.id))
+  );
+
   useEffect(() => {
     let isMounted = true;
-    if (entity.type !== "person") {
+    if (!isPerson) {
       setForensics(null);
       return;
     }
 
     // Immediate fallback from entity properties to prevent UI flickering
     const fallbackStatus = entity.aadhaarStatus || "VERHOEFF_VALID";
-    const fallbackMask = entity.aadhaarMasked || `XXXX-XXXX-${entity.id.replace(/\D/g, "").padStart(4, "0")}`;
+    const numPart = entity.id.replace(/\D/g, "").padStart(4, "0");
+    const fallbackMask = entity.aadhaarMasked || `XXXX-XXXX-${numPart || "1234"}`;
     setForensics({
       person_id: entity.id,
-      has_aadhaar: Boolean(entity.aadhaarMasked || entity.id.startsWith("P")),
+      has_aadhaar: true,
       aadhaar_masked: fallbackMask,
       status: fallbackStatus,
       verhoeff_valid: fallbackStatus !== "VERHOEFF_INVALID",
@@ -64,9 +70,9 @@ export function AadhaarForensicsCard({ entity }: AadhaarForensicsCardProps) {
     return () => {
       isMounted = false;
     };
-  }, [entity.id, entity.type, entity.aadhaarMasked, entity.aadhaarStatus]);
+  }, [entity.id, entity.type, entity.aadhaarMasked, entity.aadhaarStatus, isPerson]);
 
-  if (entity.type !== "person" || !forensics || !forensics.has_aadhaar) {
+  if (!isPerson || !forensics) {
     return null;
   }
 
