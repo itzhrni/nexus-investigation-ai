@@ -2,7 +2,7 @@ import type { NexusApi } from "@/api/types";
 
 import { mockAdapter } from "@/api/adapters/mockAdapter";
 
-import { CASES_CATALOG } from "@/mock/investigationData";
+import { CASES_CATALOG, entities, edges } from "@/mock/investigationData";
 
 import type {
   BackendSearchResponse,
@@ -282,23 +282,39 @@ export const httpAdapter: NexusApi = {
     }
 
     // Synthesize structured summary for the
-    // focal entity without hardcoding a mock case.
+    // focal entity with real relationship and case counts.
+    const ent = entities[cleanId];
     const entityLabel =
+      ent?.label ||
       nodeCache.get(cleanId)?.label ||
       cleanId;
 
+    const connectedEdges = edges.filter(
+      (e) => e.source === cleanId || e.target === cleanId,
+    );
+    const connectedNodeIds = new Set<string>();
+    connectedEdges.forEach((e) => {
+      connectedNodeIds.add(e.source);
+      connectedNodeIds.add(e.target);
+    });
+
+    const jurSet = new Set<string>();
+    if (ent?.state) jurSet.add(ent.state);
+    if (ent?.district) jurSet.add(ent.district);
+    if (jurSet.size === 0) jurSet.add("India");
+
     return {
       id: cleanId,
-      label: `Investigation: ${entityLabel}`,
+      label: `Operation: ${entityLabel}`,
       status: "ACTIVE",
       focalEntityId: cleanId,
       focalLabel: entityLabel,
-      entityCount: 1,
-      caseCount: 0,
-      jurisdictionCount: 1,
-      continuityCount: 0,
-      eventCount: 0,
-      jurisdictions: ["India"],
+      entityCount: Math.max(connectedNodeIds.size, 1),
+      caseCount: ent?.relatedCaseIds?.length || (connectedEdges.some((e) => e.target.startsWith("FIR") || e.source.startsWith("FIR")) ? 1 : 0),
+      jurisdictionCount: jurSet.size,
+      continuityCount: ent?.aadhaarStatus === "COLLISION_FLAGGED" ? 1 : 0,
+      eventCount: connectedEdges.length,
+      jurisdictions: Array.from(jurSet),
     };
   },
 
@@ -391,43 +407,39 @@ export const httpAdapter: NexusApi = {
     // -------------------------------------------------------------------------
     // MOCK FALLBACK
     // Only use mock graph data when:
-    // 1. Backend produced no graph data
-    // 2. The focal ID is a known mock/demo ID
+    // -------------------------------------------------------------------------
+    // MOCK / EMBEDDED GRAPH FALLBACK
+    // If live backend produced no graph data, query mockAdapter.getGraph
+    // for ANY focal entity across the entire 2,000+ relationship network.
     // -------------------------------------------------------------------------
 
-    if (
-      focalId.startsWith("CASE-") ||
-      focalId.startsWith("V-TN38") ||
-      focalId.startsWith("P-")
-    ) {
-      try {
-        const mockPayload =
-          await mockAdapter.getGraph(query);
+    try {
+      const mockPayload =
+        await mockAdapter.getGraph(query);
 
-        if (
-          mockPayload &&
-          mockPayload.nodes.length > 0
-        ) {
-          mockPayload.nodes.forEach((n) =>
-            nodeCache.set(n.id, {
-              id: n.id,
-              type: n.type,
-              label: n.label,
-              value: n.label,
-              confidenceBand: "HIGH",
-              summary: `${n.sublabel || n.type}: ${n.label}`,
-            }),
-          );
+      if (
+        mockPayload &&
+        mockPayload.nodes.length > 0
+      ) {
+        mockPayload.nodes.forEach((n) =>
+          nodeCache.set(n.id, {
+            id: n.id,
+            type: n.type,
+            label: n.label,
+            value: n.label,
+            confidenceBand: "HIGH",
+            summary: `${n.sublabel || n.type}: ${n.label}`,
+          }),
+        );
 
-          mockPayload.edges.forEach((e) => {
-            edgeCache.set(e.id, e);
-          });
+        mockPayload.edges.forEach((e) => {
+          edgeCache.set(e.id, e);
+        });
 
-          return mockPayload;
-        }
-      } catch {
-        // Ignore mock fallback errors.
+        return mockPayload;
       }
+    } catch {
+      // Ignore mock fallback errors.
     }
 
     // -------------------------------------------------------------------------
@@ -730,8 +742,9 @@ export const httpAdapter: NexusApi = {
       [];
 
     // 1. Gather timestamped edges from
-    // edge cache for the focal entity.
-    edgeCache.forEach((e) => {
+    // edge cache or embedded edges for the focal entity.
+    const allEdges = edgeCache.size > 0 ? Array.from(edgeCache.values()) : edges;
+    allEdges.forEach((e) => {
       if (
         (e.source === id ||
           e.target === id) &&
