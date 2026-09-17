@@ -138,6 +138,8 @@ export function mapBackendSearchResultToEntity(r: BackendEntitySearchResult): En
     district: (r.properties?.district as string) || undefined,
     policeStation: (r.properties?.police_station as string) || undefined,
     canonicalName: (r.properties?.canonical_name as string) || undefined,
+    aadhaarMasked: (r.properties?.aadhaar_masked as string) || undefined,
+    aadhaarStatus: (r.properties?.aadhaar_status as string) || undefined,
   };
 }
 

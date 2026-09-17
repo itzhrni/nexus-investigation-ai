@@ -108,7 +108,7 @@ export function SearchWorkspace() {
           Entity Search & Resolution
         </h1>
         <p className="max-w-2xl text-xs text-nexus-muted">
-          Resolve names, phone numbers, vehicle registrations, bank accounts, SIM cards, or FIR identifiers
+          Resolve names, Aadhaar numbers (masked e.g. XXXX-XXXX-9015 or 12 digits), phone numbers, vehicle registrations, bank accounts, SIM cards, or FIR identifiers
           against multi-source law enforcement records.
         </p>
       </div>
@@ -122,7 +122,7 @@ export function SearchWorkspace() {
             type="text"
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
-            placeholder="Search by Person name, Phone (+91...), Vehicle (TN38...), FIR (#142), Account..."
+            placeholder="Search by Person, Aadhaar (e.g. XXXX-XXXX-9015), Phone (+91...), Vehicle (TN38...), FIR (#142)..."
             className="w-full bg-transparent px-4 py-3.5 text-sm text-nexus-text outline-none placeholder:text-nexus-muted"
           />
           <button
@@ -273,6 +273,29 @@ export function SearchWorkspace() {
                         </span>
                       )}
                     </div>
+
+                    {/* Aadhaar Forensics Status on Card */}
+                    {entity.aadhaarMasked && (
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
+                        <span className="text-nexus-muted">AADHAAR:</span>
+                        <span className="font-semibold text-nexus-cyan">{entity.aadhaarMasked}</span>
+                        {entity.aadhaarStatus === "COLLISION_FLAGGED" && (
+                          <span className="rounded border border-amber-500/40 bg-amber-500/20 px-1.5 py-0.5 font-mono text-[9px] font-bold text-amber-300">
+                            COLLISION
+                          </span>
+                        )}
+                        {entity.aadhaarStatus === "VERHOEFF_VALID" && (
+                          <span className="rounded border border-emerald-500/40 bg-emerald-500/20 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-emerald-300">
+                            VALID D₅
+                          </span>
+                        )}
+                        {entity.aadhaarStatus === "VERHOEFF_INVALID" && (
+                          <span className="rounded border border-rose-500/40 bg-rose-500/20 px-1.5 py-0.5 font-mono text-[9px] font-bold text-rose-300">
+                            INVALID D₅
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {/* Registered Name (for Phone / Account / Vehicle) */}
                     {entity.registeredName && (

@@ -18,7 +18,10 @@
     "state": "Delhi",
     "district": "New Delhi",
     "phonetic_key": "A5S6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0016",
+    "aadhaar_hash": "687bbc123aba183c7f2eac717ee8c1b05db11410bf20a6527eaac0fdeeb1e47b",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P002",
@@ -39,7 +42,10 @@
     "state": "Maharashtra",
     "district": "Mumbai Suburban",
     "phonetic_key": "A6V5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0021",
+    "aadhaar_hash": "122931879ab32e1e9e23185690fa2f6125b152e25230a462d37a701b08343bb8",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P003",
@@ -62,7 +68,10 @@
     "state": "Karnataka",
     "district": "Bengaluru Urban",
     "phonetic_key": "R5G5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0030",
+    "aadhaar_hash": "ce40c3a2d1f2d2006c114ba911c84cd0285a63718eb623449e8aa3fe4df5a1da",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P004",
@@ -84,7 +93,10 @@
     "state": "West Bengal",
     "district": "Kolkata",
     "phonetic_key": "V6P5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0047",
+    "aadhaar_hash": "212672a3af08b671481c89d7a319a457b33ca8482bcb5d3500f0e604171b17c8",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P005",
@@ -105,7 +117,10 @@
     "state": "Haryana",
     "district": "Gurugram",
     "phonetic_key": "K5S5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-9015",
+    "aadhaar_hash": "9e95e2b09dbe71ac07a6b7a5a6e11ebcda176d746a5d7f74de79f41991f4a919",
+    "aadhaar_status": "COLLISION_FLAGGED"
   },
   {
     "id": "P006",
@@ -128,7 +143,10 @@
     "state": "Telangana",
     "district": "Hyderabad",
     "phonetic_key": "S9K5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0062",
+    "aadhaar_hash": "bc48afcf39ed1982fb84bc7e0a837fc5a4ddeb05d42ae8564717fa8cc1dfa044",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P007",
@@ -149,7 +167,10 @@
     "state": "Tamil Nadu",
     "district": "Chennai",
     "phonetic_key": "P5R5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0079",
+    "aadhaar_hash": "535dd1cb633999fee2ef58270edbc7d3aba67aa87dc4ccedef6c26a11ebc01f7",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P008",
@@ -171,7 +192,10 @@
     "state": "Maharashtra",
     "district": "Pune",
     "phonetic_key": "A6R3",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0087",
+    "aadhaar_hash": "a55d012258316b086a2f8bc3db08d6a2d3396409a7b8b5e730708d76bfe9c65a",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P009",
@@ -194,7 +218,10 @@
     "state": "Gujarat",
     "district": "Ahmedabad",
     "phonetic_key": "R6J5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0093",
+    "aadhaar_hash": "05c38db94dc69071fbd113d78cf57e7f9ace95c9d9026c3b753f5f3d95b14135",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P010",
@@ -215,7 +242,10 @@
     "state": "Uttar Pradesh",
     "district": "Lucknow",
     "phonetic_key": "S6N4",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-9999",
+    "aadhaar_hash": "0ad91b904cbed4733192662470ca963de1e11a39342e5b35f1420fa7694ff387",
+    "aadhaar_status": "VERHOEFF_INVALID"
   },
   {
     "id": "P011",
@@ -236,7 +266,10 @@
     "state": "Rajasthan",
     "district": "Jaipur",
     "phonetic_key": "M5M5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0114",
+    "aadhaar_hash": "307b01390ed58647b72ddb26b1cccfb33370ecc16f1f6c12e0908896edca0d82",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P012",
@@ -260,7 +293,10 @@
     "state": "Punjab",
     "district": "Chandigarh",
     "phonetic_key": "D6D8",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0128",
+    "aadhaar_hash": "a72526dcfdd064d1d115b6d81bc53e49ec581e5f3c892cb7bbd3183f2401d544",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P013",
@@ -281,7 +317,10 @@
     "state": "Rajasthan",
     "district": "Jaipur",
     "phonetic_key": "S5C6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0139",
+    "aadhaar_hash": "504f190463e72b2fe9c05f5c221d216bf0b1657db67fbcca9a82ce2981bc40de",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P014",
@@ -302,7 +341,10 @@
     "state": "Kerala",
     "district": "Ernakulam",
     "phonetic_key": "M6A7",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0142",
+    "aadhaar_hash": "87f1bebc2fe5c8ce947ee766d9b17bcfebfff859d95a70c495ae162c9a8d39e7",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P015",
@@ -325,7 +367,10 @@
     "state": "West Bengal",
     "district": "North 24 Parganas",
     "phonetic_key": "P5B9",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-9015",
+    "aadhaar_hash": "9e95e2b09dbe71ac07a6b7a5a6e11ebcda176d746a5d7f74de79f41991f4a919",
+    "aadhaar_status": "COLLISION_FLAGGED"
   },
   {
     "id": "P016",
@@ -347,7 +392,10 @@
     "state": "Maharashtra",
     "district": "Thane",
     "phonetic_key": "R5I4",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0168",
+    "aadhaar_hash": "cbc10f47df488c5475ca246aa9984e092caf8ec7c76ab61860fee586e0b1ca64",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P017",
@@ -368,7 +416,10 @@
     "state": "Karnataka",
     "district": "Bengaluru Urban",
     "phonetic_key": "V5C9",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0170",
+    "aadhaar_hash": "4f161ff3bc94b181f0a8b1b52b4dd0216c1f321cf5a4e931f7f64053833e311b",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P018",
@@ -391,7 +442,10 @@
     "state": "Karnataka",
     "district": "Bengaluru Urban",
     "phonetic_key": "A5S6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0183",
+    "aadhaar_hash": "14bbecc33bc65138650cf33f2aacc547e6fd2c908a5bd4ebfef58a97cf46f0d9",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P019",
@@ -412,7 +466,10 @@
     "state": "Telangana",
     "district": "Rangareddy",
     "phonetic_key": "N6K6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0197",
+    "aadhaar_hash": "b12da3d065bc247f80ce3c07fc90b80ecb5ac713ef29b5a8e19e59342a9f9d78",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P020",
@@ -434,7 +491,10 @@
     "state": "Maharashtra",
     "district": "Mumbai Suburban",
     "phonetic_key": "A4M6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0204",
+    "aadhaar_hash": "1e71943754d47043380e20c1f4b02638a8e8928c89786524b0a347c00b4d48c4",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P021",
@@ -457,7 +517,10 @@
     "state": "Delhi",
     "district": "South West Delhi",
     "phonetic_key": "H6S6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0218",
+    "aadhaar_hash": "8726eba3e682c694f2878d4c9e891a7e0ea2389d8fdf70fd9af50ea98cf5e78c",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P022",
@@ -478,7 +541,10 @@
     "state": "Maharashtra",
     "district": "Pune",
     "phonetic_key": "S6V5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0224",
+    "aadhaar_hash": "b105e1b696fd982ccdd4ef0bdec8f52794be4c0fcbb0c0f3c48f1cf3c8be9bca",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P023",
@@ -499,7 +565,10 @@
     "state": "West Bengal",
     "district": "Kolkata",
     "phonetic_key": "R6G5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0232",
+    "aadhaar_hash": "cf34570b72d0428d60d35aa7225e70e6c7e769083b756e1e9e48c83a5fd46c36",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P024",
@@ -523,7 +592,10 @@
     "state": "Tamil Nadu",
     "district": "Chennai",
     "phonetic_key": "G6P5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0246",
+    "aadhaar_hash": "1bc1061d6ef24dd82713ded215cbcf96434696d5079cd11ede5f8debccb467b5",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P025",
@@ -544,7 +616,10 @@
     "state": "Tamil Nadu",
     "district": "Chennai",
     "phonetic_key": "N4S5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0254",
+    "aadhaar_hash": "afa2bff5e0267fd6be59899c0d98878ee4bf553d6ba7151b804fe3f97c395ada",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P026",
@@ -565,7 +640,10 @@
     "state": "Delhi",
     "district": "New Delhi",
     "phonetic_key": "D5K5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0261",
+    "aadhaar_hash": "2f2ac8f943f82fbc05529315d1ea112b5c26b216d75ef65a93688dc01b044e6e",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P027",
@@ -588,7 +666,10 @@
     "state": "Maharashtra",
     "district": "Mumbai Suburban",
     "phonetic_key": "A5R5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0275",
+    "aadhaar_hash": "e9d711ba04048c6336a6631d9be847e459dffaec8d5d87b2b86c5c7ab5aab607",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P028",
@@ -610,7 +691,10 @@
     "state": "Karnataka",
     "district": "Bengaluru Urban",
     "phonetic_key": "P6R3",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0285",
+    "aadhaar_hash": "46e3cf165f7866018ab2438d20d918043b53ae1e287c4766664e44534a876c22",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P029",
@@ -631,7 +715,10 @@
     "state": "West Bengal",
     "district": "Kolkata",
     "phonetic_key": "A4J5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0293",
+    "aadhaar_hash": "e79e8ca9f73acaafe26da9e7548087c739df50605e3dd5e79552f0b362db1aae",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P030",
@@ -654,7 +741,10 @@
     "state": "Haryana",
     "district": "Gurugram",
     "phonetic_key": "V5N4",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0307",
+    "aadhaar_hash": "b2966768d37f2de994c2e5239fb45b3ad148d058b6267b4ba17aeb7d5247532a",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P031",
@@ -675,7 +765,10 @@
     "state": "Telangana",
     "district": "Hyderabad",
     "phonetic_key": "S6M5",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0313",
+    "aadhaar_hash": "b3437365bc205c0bc5c90b6380f1d2c5fcc1d7bb9cd8f32cbdc03510ca02622e",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P032",
@@ -697,7 +790,10 @@
     "state": "Tamil Nadu",
     "district": "Chennai",
     "phonetic_key": "K5D8",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0326",
+    "aadhaar_hash": "4232a6946f87c1a4ef6c9d71c00bb6651c7e1bd96b9dd837179d2f0410434a24",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P033",
@@ -720,7 +816,10 @@
     "state": "Maharashtra",
     "district": "Pune",
     "phonetic_key": "T5C6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0338",
+    "aadhaar_hash": "8733900c4bbec69b49891a88f70a849e92ab3303854d11a935b0425d71b910fd",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P034",
@@ -741,7 +840,10 @@
     "state": "Gujarat",
     "district": "Ahmedabad",
     "phonetic_key": "B6A7",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0344",
+    "aadhaar_hash": "6405c1025c22c9762fb307e4eebc1b6c8989a5c3517d4f07b960bd7a9ff1e4b4",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P035",
@@ -762,7 +864,10 @@
     "state": "Uttar Pradesh",
     "district": "Lucknow",
     "phonetic_key": "V6B9",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0356",
+    "aadhaar_hash": "bbd5395b0f873d44108142d47f6f2d56b7e3be5a998c1fdf47367e8d9c34b7e8",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P036",
@@ -786,7 +891,10 @@
     "state": "Rajasthan",
     "district": "Jaipur",
     "phonetic_key": "Y4I4",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0365",
+    "aadhaar_hash": "c99c760d984338b8e993f95dca5bed1a343ee7e5e01ed7593056e2efb332c3de",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P037",
@@ -807,7 +915,10 @@
     "state": "Punjab",
     "district": "Chandigarh",
     "phonetic_key": "S5C9",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0370",
+    "aadhaar_hash": "d4fda0a73055f6141edf3af818dd2e036c4cc7a8f5a6fb3599f912268bc55253",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P038",
@@ -828,7 +939,10 @@
     "state": "Rajasthan",
     "district": "Jaipur",
     "phonetic_key": "N5S6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0381",
+    "aadhaar_hash": "8264ed2611a9630cd671397bd431b016fd52378ecb0ee42b303b05e8662fc2b6",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P039",
@@ -851,7 +965,10 @@
     "state": "Kerala",
     "district": "Ernakulam",
     "phonetic_key": "M5K6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0398",
+    "aadhaar_hash": "f89dcc21d7fbcc94829a040940839fae749725c11d8be9f4bc92f8f4a63ada81",
+    "aadhaar_status": "VERHOEFF_VALID"
   },
   {
     "id": "P040",
@@ -873,6 +990,9 @@
     "state": "West Bengal",
     "district": "North 24 Parganas",
     "phonetic_key": "A5M6",
-    "notes": "Synthetic profile for investigation simulation"
+    "notes": "Synthetic profile for investigation simulation",
+    "aadhaar_masked": "XXXX-XXXX-0407",
+    "aadhaar_hash": "9dbb651ffc9c3ee940dbc9bbea704a29289d90641e73459768a1e41729465951",
+    "aadhaar_status": "VERHOEFF_VALID"
   }
 ]

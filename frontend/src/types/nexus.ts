@@ -115,7 +115,30 @@ export interface Entity {
   policeStation?: string;
   canonicalName?: string;
   matchType?: string;
+  // Government Identifiers
+  aadhaarMasked?: string;
+  aadhaarStatus?: string;
+  aadhaarCollision?: {
+    isCollision: boolean;
+    details?: string;
+    collidingPersonIds?: string[];
+  };
 }
+
+export interface AadhaarForensics {
+  person_id: string;
+  has_aadhaar: boolean;
+  aadhaar_masked?: string | null;
+  status: "VERHOEFF_VALID" | "VERHOEFF_INVALID" | "COLLISION_FLAGGED" | "UNREGISTERED" | string;
+  verhoeff_valid: boolean;
+  collision_detected: boolean;
+  collision_details?: string | null;
+  colliding_person_ids: string[];
+  fanout_sim_count: number;
+  fanout_account_count: number;
+  total_fanout: number;
+}
+
 
 export interface GraphNode {
   id: string;

@@ -177,3 +177,18 @@ class InvestigationSummaryResponse(BaseModel):
     cross_jurisdiction_insights: List[CrossJurisdictionInsight]
     temporal_summary: Optional[TimelineComparisonResponse] = None
     explainable_evidence: List[ExplainableEvidenceItem]
+
+# Government Identifier / Aadhaar Forensics Schema
+class AadhaarForensicsResponse(BaseModel):
+    person_id: str
+    has_aadhaar: bool
+    aadhaar_masked: Optional[str] = None
+    status: str = "UNREGISTERED"
+    verhoeff_valid: bool = False
+    collision_detected: bool = False
+    collision_details: Optional[str] = None
+    colliding_person_ids: List[str] = []
+    fanout_sim_count: int = 0
+    fanout_account_count: int = 0
+    total_fanout: int = 0
+

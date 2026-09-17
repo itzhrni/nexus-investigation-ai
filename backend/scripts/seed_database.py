@@ -277,6 +277,29 @@ def seed_supabase_postgresql():
         bulk_seed_table(db, database_models.VehicleSighting, sightings_data)
         bulk_seed_table(db, database_models.IntelligenceReport, reports_data)
 
+        # Ensure Aadhaar columns and updated synthetic Aadhaar credentials are synchronized
+        from sqlalchemy import text
+        try:
+            db.execute(text("ALTER TABLE persons ADD COLUMN IF NOT EXISTS aadhaar_masked VARCHAR;"))
+            db.execute(text("ALTER TABLE persons ADD COLUMN IF NOT EXISTS aadhaar_hash VARCHAR;"))
+            db.execute(text("ALTER TABLE persons ADD COLUMN IF NOT EXISTS aadhaar_status VARCHAR;"))
+            db.commit()
+        except Exception as err:
+            db.rollback()
+            logger.debug(f"Aadhaar column alteration note: {err}")
+
+        for p in persons_data:
+            db.execute(
+                text("UPDATE persons SET aadhaar_masked = :mask, aadhaar_hash = :hash, aadhaar_status = :status WHERE id = :pid"),
+                {"mask": p.get("aadhaar_masked"), "hash": p.get("aadhaar_hash"), "status": p.get("aadhaar_status"), "pid": p["id"]}
+            )
+            db.execute(
+                text("UPDATE entities SET metadata_json = :meta WHERE id = :pid"),
+                {"meta": json.dumps(p), "pid": p["id"]}
+            )
+        db.commit()
+        logger.info("Synchronized Aadhaar attributes across persons and entity registry.")
+
         # Seed PostgreSQL Graph Layer Relationships
         relationship_records = extract_entity_relationships()
         bulk_seed_table(db, database_models.EntityRelationship, relationship_records)

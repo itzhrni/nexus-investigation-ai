@@ -24,6 +24,7 @@ import type {
   SearchMatch,
   SearchResponse,
   SearchType,
+  AadhaarForensics,
 } from "@/types/nexus";
 
 import type { NexusApi } from "@/api/types";
@@ -194,6 +195,26 @@ export const mockAdapter: NexusApi = {
     }
 
     return entity;
+  },
+
+  async getAadhaarForensics(personId: string): Promise<AadhaarForensics | null> {
+    const isCollision = personId === "P005" || personId === "P015";
+    const isInvalid = personId === "P010";
+    return {
+      person_id: personId,
+      has_aadhaar: true,
+      aadhaar_masked: isCollision ? "XXXX-XXXX-9015" : isInvalid ? "XXXX-XXXX-9999" : "XXXX-XXXX-0016",
+      status: isCollision ? "COLLISION_FLAGGED" : isInvalid ? "VERHOEFF_INVALID" : "VERHOEFF_VALID",
+      verhoeff_valid: !isInvalid,
+      collision_detected: isCollision,
+      collision_details: isCollision
+        ? "CRITICAL AADHAAR COLLISION: Identifier XXXX-XXXX-9015 is simultaneously claimed across 2 distinct profiles: Karan Singh (P005) and Pooja Bhatnagar (P015). High indicator of forged identity documentation or synthetic identity theft."
+        : null,
+      colliding_person_ids: isCollision ? ["P015"] : [],
+      fanout_sim_count: 1,
+      fanout_account_count: 1,
+      total_fanout: 2,
+    };
   },
 
   // ---------------------------------------------------------------------------

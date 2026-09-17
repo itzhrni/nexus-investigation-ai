@@ -28,6 +28,9 @@ class Person(Base):
     district = Column(String, nullable=True, index=True)
     phonetic_key = Column(String, nullable=True, index=True)  # Phonetic hash (Soundex/Metaphone)
     notes = Column(Text, nullable=True)
+    aadhaar_masked = Column(String, nullable=True, index=True)
+    aadhaar_hash = Column(String, nullable=True, index=True)
+    aadhaar_status = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Phone(Base):

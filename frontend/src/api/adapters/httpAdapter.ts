@@ -40,6 +40,7 @@ import type {
   MatchReviewStatus,
   SearchMatch,
   IdentityMatch,
+  AadhaarForensics,
 } from "@/types/nexus";
 
 // Local cache to support entity and edge inspection
@@ -510,6 +511,17 @@ export const httpAdapter: NexusApi = {
     nodeCache.set(id, fallback);
 
     return fallback;
+  },
+
+  getAadhaarForensics: async (personId: string): Promise<AadhaarForensics | null> => {
+    try {
+      const res = await request<AadhaarForensics>(
+        `/analysis/aadhaar-forensics?person_id=${encodeURIComponent(personId)}`
+      );
+      return res;
+    } catch {
+      return null;
+    }
   },
 
   // ---------------------------------------------------------------------------

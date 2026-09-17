@@ -43,29 +43,106 @@ class SearchService:
                 )
             )
 
-        # 1. Search Persons
+        # 1. Search Persons (Name, Alias, Address, Aadhaar)
         if not entity_type_filter or entity_type_filter.lower() in ["person", "persons"]:
+            from app.services.aadhaar_service import aadhaar_service
+
+            # Check for direct 12-digit Aadhaar input or masked pattern
+            clean_digits = re.sub(r"\D", "", q)
+            if len(clean_digits) == 12:
+                a_hash = aadhaar_service.hash_aadhaar(clean_digits)
+                a_mask = aadhaar_service.mask_aadhaar(clean_digits)
+                verhoeff_ok = aadhaar_service.validate_verhoeff(clean_digits)
+
+                aadhaar_persons = db.query(Person).filter(
+                    or_(Person.aadhaar_hash == a_hash, Person.aadhaar_masked == a_mask)
+                ).all()
+
+                for ap in aadhaar_persons:
+                    add_res(
+                        ap.id,
+                        "Person",
+                        ap.name,
+                        "aadhaar",
+                        0.98 if verhoeff_ok else 0.70,
+                        {
+                            "canonical_name": ap.canonical_name,
+                            "state": ap.state,
+                            "aadhaar_masked": ap.aadhaar_masked,
+                            "aadhaar_status": ap.aadhaar_status,
+                            "verhoeff_valid": verhoeff_ok,
+                        },
+                    )
+
+            # Check for masked Aadhaar input like XXXX-XXXX-1234
+            if "X" in q.upper():
+                last4_match = re.search(r"\d{4}$", q.strip())
+                if last4_match:
+                    masked_query = f"%{last4_match.group(0)}"
+                    aadhaar_masked_persons = db.query(Person).filter(
+                        Person.aadhaar_masked.ilike(f"%{masked_query}%")
+                    ).all()
+                    for amp in aadhaar_masked_persons:
+                        add_res(
+                            amp.id,
+                            "Person",
+                            amp.name,
+                            "aadhaar_masked",
+                            0.90,
+                            {
+                                "canonical_name": amp.canonical_name,
+                                "state": amp.state,
+                                "aadhaar_masked": amp.aadhaar_masked,
+                                "aadhaar_status": amp.aadhaar_status,
+                            },
+                        )
+
             persons = db.query(Person).filter(
                 or_(
                     Person.id.ilike(f"%{q}%"),
                     Person.id.ilike(f"%{clean_q}%"),
                     Person.name.ilike(f"%{q}%"),
                     Person.canonical_name.ilike(f"%{q}%"),
-                    Person.address.ilike(f"%{q}%")
+                    Person.address.ilike(f"%{q}%"),
+                    Person.aadhaar_masked.ilike(f"%{q}%"),
                 )
             ).limit(limit).all()
 
             for p in persons:
                 mtype = "exact" if p.id.upper() == clean_q.upper() or p.name.lower() == q.lower() else "partial"
                 conf = 1.0 if mtype == "exact" else 0.85
-                add_res(p.id, "Person", p.name, mtype, conf, {"canonical_name": p.canonical_name, "state": p.state})
+                add_res(
+                    p.id,
+                    "Person",
+                    p.name,
+                    mtype,
+                    conf,
+                    {
+                        "canonical_name": p.canonical_name,
+                        "state": p.state,
+                        "aadhaar_masked": p.aadhaar_masked,
+                        "aadhaar_status": p.aadhaar_status,
+                    },
+                )
 
             # Search aliases in JSON
             all_persons = db.query(Person).all()
             for p in all_persons:
                 if p.id not in seen_ids:
                     if p.aliases and any(q.lower() in str(alias).lower() or clean_q.lower() in str(alias).lower() for alias in p.aliases):
-                        add_res(p.id, "Person", p.name, "alias", 0.90, {"matched_alias": q, "state": p.state})
+                        add_res(
+                            p.id,
+                            "Person",
+                            p.name,
+                            "alias",
+                            0.90,
+                            {
+                                "matched_alias": q,
+                                "state": p.state,
+                                "aadhaar_masked": p.aadhaar_masked,
+                                "aadhaar_status": p.aadhaar_status,
+                            },
+                        )
 
         # 2. Search Phones
         if not entity_type_filter or entity_type_filter.lower() in ["phone", "phones"]:

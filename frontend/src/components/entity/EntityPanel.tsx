@@ -12,6 +12,7 @@ import { WhyThisMatters } from "@/components/dashboard/WhyThisMatters";
 import { IdentityMatches } from "@/components/entity/IdentityMatches";
 import { JurisdictionAlert } from "@/components/jurisdiction/JurisdictionAlert";
 import { ContinuityAlert } from "@/components/continuity/ContinuityAlert";
+import { AadhaarForensicsCard } from "@/components/entity/AadhaarForensicsCard";
 
 export interface EntityPanelProps {
   isOpen?: boolean;
@@ -190,6 +191,9 @@ export function EntityPanel({ isOpen = true, onToggle }: EntityPanelProps) {
                   </div>
                 );
               })()}
+
+              {/* Dedicated Government Identity & Aadhaar Forensics Card */}
+              <AadhaarForensicsCard entity={entity} />
 
               {/* Dedicated Bank Account Record Card */}
               {entity.type === "account" && (

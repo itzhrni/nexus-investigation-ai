@@ -1,9 +1,12 @@
 import json
 import random
 import os
+import sys
 import csv
 from pathlib import Path
 from datetime import datetime, timedelta
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 # Set fixed random seed for deterministic reproducibility
 random.seed(42)
@@ -76,6 +79,27 @@ def generate_synthetic_dataset():
         if i % 4 == 0:
             variants.append(f"संभावित_{first}")
 
+        # Forensic Aadhaar Generation (Valid, Collision, Fabricated fixtures)
+        from app.services.aadhaar_service import aadhaar_service
+        if pid in ["P005", "P015"]:
+            # Intentional Forensic Collision Fixture: P005 and P015 share stolen Aadhaar
+            aadhaar_raw = "548912349015"
+            a_masked = "XXXX-XXXX-9015"
+            a_hash = aadhaar_service.hash_aadhaar(aadhaar_raw)
+            a_status = "COLLISION_FLAGGED"
+        elif pid == "P010":
+            # Intentional Fabricated Fixture: mathematically invalid Verhoeff checksum
+            a_masked = "XXXX-XXXX-9999"
+            a_hash = aadhaar_service.hash_aadhaar("999999999999")
+            a_status = "VERHOEFF_INVALID"
+        else:
+            base11 = f"5489{i:03d}{1000 + i}"
+            chk = aadhaar_service.generate_checksum_digit(base11)
+            full_12 = f"{base11}{chk}"
+            a_masked = aadhaar_service.mask_aadhaar(full_12)
+            a_hash = aadhaar_service.hash_aadhaar(full_12)
+            a_status = "VERHOEFF_VALID"
+
         persons.append({
             "id": pid,
             "name": canonical,
@@ -90,7 +114,10 @@ def generate_synthetic_dataset():
             "state": city_info["state"],
             "district": city_info["district"],
             "phonetic_key": generate_phonetic_key(canonical),
-            "notes": "Synthetic profile for investigation simulation"
+            "notes": "Synthetic profile for investigation simulation",
+            "aadhaar_masked": a_masked,
+            "aadhaar_hash": a_hash,
+            "aadhaar_status": a_status
         })
 
     # 2. Phones (50)

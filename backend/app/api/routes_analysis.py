@@ -3,10 +3,16 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.postgres import get_db
-from app.models.schemas import EntityResolutionResponse, PatternDetectionResponse, EvidenceResponse
+from app.models.schemas import (
+    EntityResolutionResponse,
+    PatternDetectionResponse,
+    EvidenceResponse,
+    AadhaarForensicsResponse,
+)
 from app.services.entity_resolution import entity_resolution_service
 from app.services.anomaly_service import anomaly_service
 from app.services.evidence_service import evidence_service
+from app.services.aadhaar_service import aadhaar_service
 from app.api.deps import get_current_user
 
 router = APIRouter(prefix="/analysis", tags=["Analytics & AI"])
@@ -43,4 +49,29 @@ def get_evidence(
     Get 6-W explainable evidence items for focal entity. Protected endpoint.
     """
     return evidence_service.get_explainable_evidence(db, focal_entity_id=focal_entity_id)
+
+@router.get("/aadhaar-forensics", response_model=AadhaarForensicsResponse)
+def get_aadhaar_forensics(
+    person_id: str = Query(..., description="Person entity ID, e.g. P001"),
+    db: Session = Depends(get_db)
+):
+    """
+    Forensic Aadhaar Intelligence: Verhoeff mathematical integrity, privacy masking,
+    and 1-to-many / many-to-1 fraud collision detection.
+    """
+    res = aadhaar_service.analyze_person_aadhaar(db, person_id=person_id)
+    return AadhaarForensicsResponse(
+        person_id=person_id,
+        has_aadhaar=res["has_aadhaar"],
+        aadhaar_masked=res["aadhaar_masked"],
+        status=res["status"],
+        verhoeff_valid=res["verhoeff_valid"],
+        collision_detected=res["collision_detected"],
+        collision_details=res["collision_details"],
+        colliding_person_ids=res.get("colliding_person_ids", []),
+        fanout_sim_count=res.get("fanout_sim_count", 0),
+        fanout_account_count=res.get("fanout_account_count", 0),
+        total_fanout=res.get("total_fanout", 0)
+    )
+
 

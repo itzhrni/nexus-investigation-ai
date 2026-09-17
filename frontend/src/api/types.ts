@@ -14,6 +14,7 @@ import type {
   SearchType,
   TimelineEvent,
   WhatChangedInsight,
+  AadhaarForensics,
 } from "@/types/nexus";
 import type { GraphPayload } from "@/types/nexus";
 
@@ -23,6 +24,7 @@ export interface NexusApi {
   getGraph: (query: GraphQuery) => Promise<GraphPayload>;
   getEntity: (id: string) => Promise<Entity>;
   getEdge: (id: string) => Promise<GraphPayload["edges"][number]>;
+  getAadhaarForensics?: (personId: string) => Promise<AadhaarForensics | null>;
   getEvidence: (params: {
     entityId?: string;
     edgeId?: string;
