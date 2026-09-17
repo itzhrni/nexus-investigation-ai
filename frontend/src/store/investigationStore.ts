@@ -34,7 +34,8 @@ export interface InvestigationState {
   activeCaseId: string;
   focalEntityId: string | null;
   graph: GraphPayload | null;
-  depth: 1 | 2 | 3;
+  depth: 1 | 2 | 3 | 4 | 5;
+  graphViewMode: "type" | "community";
   relFilters: RelFilterGroup[];
   timeFrom: string;
   timeTo: string;
@@ -54,7 +55,8 @@ export interface InvestigationState {
   setWorkspaceFocus: (focus: WorkspaceFocus) => void;
   setSearchQuery: (query: string) => void;
   setSearchType: (type: SearchType) => void;
-  setDepth: (depth: 1 | 2 | 3) => Promise<void>;
+  setDepth: (depth: 1 | 2 | 3 | 4 | 5) => Promise<void>;
+  toggleGraphViewMode: () => void;
   toggleRelFilter: (group: RelFilterGroup) => Promise<void>;
   setTimeRange: (from: string, to: string) => Promise<void>;
   runSearch: (query?: string) => Promise<void>;
@@ -121,6 +123,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   focalEntityId: null,
   graph: null,
   depth: 1,
+  graphViewMode: "type",
   relFilters: [],
   timeFrom: "2026-01-01",
   timeTo: "2026-06-30",
@@ -139,6 +142,8 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   systemStatus: "ONLINE",
 
   toggleOrbit: () => set((s) => ({ isOrbiting: !s.isOrbiting })),
+  toggleGraphViewMode: () =>
+    set((s) => ({ graphViewMode: s.graphViewMode === "type" ? "community" : "type" })),
   setWorkspaceFocus: (workspaceFocus) => set({ workspaceFocus }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   setSearchType: (searchType) => set({ searchType }),

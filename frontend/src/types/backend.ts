@@ -29,6 +29,9 @@ export interface BackendNodeSchema {
   type: string;
   label: string;
   properties: Record<string, any>;
+  community_id?: number;
+  is_bridge?: boolean;
+  betweenness_centrality?: number;
 }
 
 export interface BackendEdgeSchema {
@@ -55,6 +58,8 @@ export interface BackendGraphMetricsSchema {
   total_edges: number;
   relationship_distribution: Record<string, number>;
   central_entities: BackendCentralEntity[];
+  total_communities?: number;
+  bridge_nodes?: Array<Record<string, any>>;
 }
 
 export interface BackendFocalGraphResponse {

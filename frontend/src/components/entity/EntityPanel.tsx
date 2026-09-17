@@ -171,6 +171,26 @@ export function EntityPanel({ isOpen = true, onToggle }: EntityPanelProps) {
                 <span className="uppercase">{ENTITY_LABELS[entity.type] || entity.type}</span>
               </div>
 
+              {/* Louvain Community & Bridge Node Status Card */}
+              {(() => {
+                const node = graph?.nodes.find((n) => n.id === entity.id);
+                if (!node || (node.communityId == null && !node.isBridge)) return null;
+                return (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1 font-mono text-[10px]">
+                    {node.communityId != null && (
+                      <span className="rounded border border-purple-500/40 bg-purple-500/15 px-2 py-0.5 font-semibold text-purple-300">
+                        Community Cluster #{node.communityId}
+                      </span>
+                    )}
+                    {node.isBridge && (
+                      <span className="rounded border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 font-bold text-amber-300">
+                        Bridge Connector (Betweenness: {node.betweennessCentrality ?? 0})
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Dedicated Bank Account Record Card */}
               {entity.type === "account" && (
                 <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3.5 space-y-3">

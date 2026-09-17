@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronRight, Network } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { InsightStrip } from "@/components/dashboard/InsightStrip";
@@ -13,23 +13,31 @@ import { CasesWorkspace } from "@/components/cases/CasesWorkspace";
 import { TimelineWorkspace } from "@/components/timeline/TimelineWorkspace";
 import { MapWorkspace } from "@/components/map/MapWorkspace";
 import { EvidenceWorkspace } from "@/components/evidence/EvidenceWorkspace";
+import { IngestionWorkspace } from "@/components/ingestion/IngestionWorkspace";
+import { AnalyticsWorkspace } from "@/components/analytics/AnalyticsWorkspace";
+import { ReportCenterWorkspace } from "@/components/reports/ReportCenterWorkspace";
 import { SettingsWorkspace } from "@/components/settings/SettingsWorkspace";
+import { Login } from "@/components/auth/Login";
 import { useInvestigationStore } from "@/store/investigationStore";
+import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/cn";
 
 export function InvestigationShell() {
   const load = useInvestigationStore((s) => s.loadInvestigation);
   const focus = useInvestigationStore((s) => s.workspaceFocus);
-  const graph = useInvestigationStore((s) => s.graph);
-  const activeCaseId = useInvestigationStore((s) => s.activeCaseId);
   const [contextPanelOpen, setContextPanelOpen] = useState(true);
+
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const isGraphMode = focus === "investigation" || focus === "network";
-  const isDedicatedNetwork = focus === "network";
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  const isGraphMode = focus === "investigation";
 
   // Dispatch window resize events to guarantee 3D WebGL canvas dimensions are pixel-perfect
   useEffect(() => {
@@ -61,50 +69,10 @@ export function InvestigationShell() {
               !isGraphMode && "hidden",
             )}
           >
-            {/* Center Area: Graph + Toolbar + (optional KPIs & bottom Timeline in investigation mode) */}
+            {/* Center Area: Graph + Toolbar + KPIs & bottom Timeline */}
             <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-              {/* Quick KPI Strip (Investigation mode only) */}
-              {!isDedicatedNetwork && <InsightStrip />}
-
-              {/* Dedicated Network Header Bar (Network mode only) */}
-              {isDedicatedNetwork && (
-                <div className="flex shrink-0 items-center justify-between border-b border-nexus-line bg-nexus-raised/95 px-4 py-2.5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-7 w-7 items-center justify-center rounded border border-nexus-cyan/40 bg-nexus-cyan/10">
-                      <Network className="h-4 w-4 text-nexus-cyan" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-semibold tracking-wider text-nexus-text uppercase">
-                          NETWORK TOPOLOGY & LINK SURVEILLANCE
-                        </span>
-                        <span className="rounded bg-nexus-cyan/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-nexus-cyan uppercase">
-                          3D CLUSTER
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-nexus-muted">
-                        Full relational graph across communications, core banking transfers, and vehicle checkpoints.
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Network Topology Metrics */}
-                  <div className="flex items-center gap-3 font-mono text-[11px]">
-                    <div className="flex items-center gap-1.5 rounded border border-nexus-line bg-black/40 px-2.5 py-1">
-                      <span className="text-nexus-muted">NODES:</span>
-                      <span className="font-bold text-nexus-cyan">{graph?.nodes.length ?? 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 rounded border border-nexus-line bg-black/40 px-2.5 py-1">
-                      <span className="text-nexus-muted">EDGES:</span>
-                      <span className="font-bold text-emerald-400">{graph?.edges.length ?? 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 rounded border border-nexus-line bg-black/40 px-2.5 py-1">
-                      <span className="text-nexus-muted">FOCAL:</span>
-                      <span className="font-bold text-amber-300">{graph?.focalId ?? activeCaseId}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Quick KPI Strip */}
+              <InsightStrip />
 
               {/* Graph Workspace Container */}
               <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
@@ -127,8 +95,8 @@ export function InvestigationShell() {
                 )}
               </div>
 
-              {/* Horizontal Chronological Timeline (Investigation mode only) */}
-              {!isDedicatedNetwork && <InvestigationTimeline />}
+              {/* Horizontal Chronological Timeline */}
+              <InvestigationTimeline />
             </div>
 
             {/* Persistent Right Context / Evidence Rail (Collapsible in both modes) */}
@@ -170,6 +138,27 @@ export function InvestigationShell() {
           {focus === "evidence" && (
             <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
               <EvidenceWorkspace />
+            </div>
+          )}
+
+          {/* Dedicated Ingestion & Vision Workspace */}
+          {focus === "ingestion" && (
+            <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+              <IngestionWorkspace />
+            </div>
+          )}
+
+          {/* Dedicated Analytics & Pattern Intelligence Workspace */}
+          {focus === "analytics" && (
+            <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+              <AnalyticsWorkspace />
+            </div>
+          )}
+
+          {/* Dedicated Report Center Workspace */}
+          {focus === "reports" && (
+            <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+              <ReportCenterWorkspace />
             </div>
           )}
 

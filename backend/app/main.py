@@ -1,6 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
@@ -8,6 +8,8 @@ from app.db.postgres import check_postgres_connection
 from app.db.neo4j import neo4j_client
 from app.models.schemas import HealthResponse
 from app.api import (
+    routes_auth,
+    routes_admin,
     routes_search,
     routes_graph,
     routes_entities,
@@ -38,6 +40,16 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Security Response Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    return response
+
 # CORS Configuration
 app.add_middleware(
     CORSMiddleware,
@@ -48,6 +60,8 @@ app.add_middleware(
 )
 
 # Register API Routers
+app.include_router(routes_auth.router, prefix="/api")
+app.include_router(routes_admin.router, prefix="/api")
 app.include_router(routes_search.router, prefix="/api")
 app.include_router(routes_graph.router, prefix="/api")
 app.include_router(routes_entities.router, prefix="/api")
@@ -87,3 +101,4 @@ def health_check():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host=settings.HOST, port=settings.PORT, reload=settings.DEBUG)
+

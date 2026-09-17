@@ -50,7 +50,7 @@ function edgeInTimeRange(edge: GraphEdge, from?: string, to?: string): boolean {
 export function filterGraph(
   payload: GraphPayload,
   options: {
-    depth: 1 | 2 | 3;
+    depth: 1 | 2 | 3 | 4 | 5;
     relGroups?: RelFilterGroup[];
     from?: string;
     to?: string;

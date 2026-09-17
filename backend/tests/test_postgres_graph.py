@@ -105,3 +105,45 @@ def test_ground_truth_pattern_6_temporal_change(test_db):
     res_after = graph_service.get_focal_graph(test_db, identifier="P010", depth=2, start_time="2026-01-15T12:00:00")
     
     assert len(res_after.relationships) > len(res_before.relationships), "AFTER relationships must reflect communication/transaction burst"
+
+def test_depth_1_3_5_traversal_and_focal_preservation(test_db):
+    res_1 = graph_service.get_focal_graph(test_db, identifier="P001", depth=1)
+    res_3 = graph_service.get_focal_graph(test_db, identifier="P001", depth=3)
+    res_5 = graph_service.get_focal_graph(test_db, identifier="P001", depth=5)
+    
+    assert res_1.depth == 1
+    assert res_3.depth == 3
+    assert res_5.depth == 5
+    
+    # Focal node preserved across all depths
+    assert res_1.focal_entity_id == "P001"
+    assert res_3.focal_entity_id == "P001"
+    assert res_5.focal_entity_id == "P001"
+    
+    focal_node_1 = next((n for n in res_1.nodes if n.id == "P001"), None)
+    focal_node_5 = next((n for n in res_5.nodes if n.id == "P001"), None)
+    assert focal_node_1 is not None, "Focal node must be present in nodes array"
+    assert focal_node_5 is not None, "Focal node must be present in nodes array"
+    
+    # Monotonic node count expansion
+    assert len(res_5.nodes) >= len(res_3.nodes) >= len(res_1.nodes)
+
+def test_community_detection_and_bridge_node_metrics(test_db):
+    res = graph_service.get_focal_graph(test_db, identifier="P001", depth=3)
+    
+    assert res.metrics is not None
+    assert hasattr(res.metrics, "total_communities")
+    assert res.metrics.total_communities >= 1
+    
+    for n in res.nodes:
+        assert hasattr(n, "community_id")
+        assert isinstance(n.community_id, int)
+        assert hasattr(n, "is_bridge")
+        assert isinstance(n.is_bridge, bool)
+        assert hasattr(n, "betweenness_centrality")
+        assert isinstance(n.betweenness_centrality, float)
+        assert n.betweenness_centrality >= 0.0
+    
+    # Check that bridge nodes summary list is populated in metrics
+    assert isinstance(res.metrics.bridge_nodes, list)
+
