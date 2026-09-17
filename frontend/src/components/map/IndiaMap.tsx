@@ -94,7 +94,7 @@ export function IndiaMap({
 }: IndiaMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
-  const tileLayerRef = useRef<L.TileLayer | null>(null);
+  const tileLayerGroupRef = useRef<L.LayerGroup | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const corridorLayerRef = useRef<L.LayerGroup | null>(null);
 
@@ -119,13 +119,24 @@ export function IndiaMap({
     // Custom positioned zoom control
     L.control.zoom({ position: "bottomright" }).addTo(map);
 
-    // Initial tile layer (CartoDB Dark Matter)
-    const tileUrl = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-    const tileLayer = L.tileLayer(tileUrl, {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
-      subdomains: "abcd",
-      maxZoom: 19,
-    }).addTo(map);
+    // Initial tile layer group (Esri World Dark Gray Base + Labels - zero watermark, keyless)
+    const tileGroup = L.layerGroup().addTo(map);
+    const darkBase = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: '&copy; <a href="https://www.esri.com/">Esri</a>, DeLorme, NAVTEQ',
+        maxZoom: 19,
+      }
+    );
+    const darkRef = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: "",
+        maxZoom: 19,
+      }
+    );
+    tileGroup.addLayer(darkBase);
+    tileGroup.addLayer(darkRef);
 
     // Layers for markers and corridors
     const markersLayer = L.layerGroup().addTo(map);
@@ -136,7 +147,7 @@ export function IndiaMap({
     });
 
     mapInstanceRef.current = map;
-    tileLayerRef.current = tileLayer;
+    tileLayerGroupRef.current = tileGroup;
     markersLayerRef.current = markersLayer;
     corridorLayerRef.current = corridorLayer;
 
@@ -153,23 +164,46 @@ export function IndiaMap({
 
   // Handle Tile Layer Switching
   useEffect(() => {
-    if (!mapInstanceRef.current || !tileLayerRef.current) return;
+    if (!mapInstanceRef.current || !tileLayerGroupRef.current) return;
 
-    mapInstanceRef.current.removeLayer(tileLayerRef.current);
+    tileLayerGroupRef.current.clearLayers();
 
-    let newUrl = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-    let attribution = '&copy; <a href="https://carto.com/">CARTO</a>';
-
-    if (activeTileType === "satellite") {
-      newUrl = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-      attribution = "&copy; Esri, Maxar, Earthstar";
+    if (activeTileType === "dark") {
+      const darkBase = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        {
+          attribution: '&copy; <a href="https://www.esri.com/">Esri</a>, DeLorme, NAVTEQ',
+          maxZoom: 19,
+        }
+      );
+      const darkRef = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+        {
+          attribution: "",
+          maxZoom: 19,
+        }
+      );
+      tileLayerGroupRef.current.addLayer(darkBase);
+      tileLayerGroupRef.current.addLayer(darkRef);
+    } else if (activeTileType === "satellite") {
+      const satLayer = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          attribution: "&copy; Esri, Maxar, Earthstar",
+          maxZoom: 19,
+        }
+      );
+      tileLayerGroupRef.current.addLayer(satLayer);
     } else if (activeTileType === "street") {
-      newUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-      attribution = "&copy; OpenStreetMap contributors";
+      const streetLayer = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          attribution: "&copy; OpenStreetMap contributors",
+          maxZoom: 19,
+        }
+      );
+      tileLayerGroupRef.current.addLayer(streetLayer);
     }
-
-    const newLayer = L.tileLayer(newUrl, { attribution, maxZoom: 19 }).addTo(mapInstanceRef.current);
-    tileLayerRef.current = newLayer;
   }, [activeTileType]);
 
   // Render Markers and Corridors

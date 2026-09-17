@@ -15,4 +15,6 @@ __pycache__/
 venv/
 ENV/
 *.egg-info/
+scratch/
+
 
