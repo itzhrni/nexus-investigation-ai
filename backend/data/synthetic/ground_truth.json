@@ -1,6 +1,6 @@
 {
   "description": "Ground truth of planted hidden criminal network patterns for testing evaluation.",
-  "generated_at": "2026-09-17T14:12:46.411802",
+  "generated_at": "2026-09-17T14:46:03.414140",
   "hidden_patterns": [
     {
       "pattern_id": "PATTERN_001_SIM_SWITCH",

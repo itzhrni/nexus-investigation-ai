@@ -82,15 +82,37 @@ def generate_synthetic_dataset():
         # Forensic Aadhaar Generation (Valid, Collision, Fabricated fixtures)
         from app.services.aadhaar_service import aadhaar_service
         if pid in ["P005", "P015"]:
-            # Intentional Forensic Collision Fixture: P005 and P015 share stolen Aadhaar
+            # Intentional Forensic Collision Fixture 1: Karan Singh (P005) & Pooja Bhatnagar (P015)
             aadhaar_raw = "548912349015"
             a_masked = "XXXX-XXXX-9015"
             a_hash = aadhaar_service.hash_aadhaar(aadhaar_raw)
             a_status = "COLLISION_FLAGGED"
+        elif pid in ["P011", "P031"]:
+            # Intentional Forensic Collision Fixture 2: Meera Mehta (P011) & Simran Mehta (P031) share mule Aadhaar
+            aadhaar_raw = "548912340114"
+            a_masked = "XXXX-XXXX-0114"
+            a_hash = aadhaar_service.hash_aadhaar(aadhaar_raw)
+            a_status = "COLLISION_FLAGGED"
+        elif pid in ["P003", "P018"]:
+            # Intentional Forensic Collision Fixture 3: Rohan Gupta (P003) & Anita Saxena (P018) share mule Aadhaar
+            aadhaar_raw = "548912343018"
+            a_masked = "XXXX-XXXX-3018"
+            a_hash = aadhaar_service.hash_aadhaar(aadhaar_raw)
+            a_status = "COLLISION_FLAGGED"
         elif pid == "P010":
-            # Intentional Fabricated Fixture: mathematically invalid Verhoeff checksum
+            # Intentional Fabricated Fixture 1: mathematically invalid Verhoeff checksum (all 9s)
             a_masked = "XXXX-XXXX-9999"
             a_hash = aadhaar_service.hash_aadhaar("999999999999")
+            a_status = "VERHOEFF_INVALID"
+        elif pid == "P002":
+            # Intentional Fabricated Fixture 2: Aditya Verma forged adjacent transposition (fails D5 check)
+            a_masked = "XXXX-XXXX-2029"
+            a_hash = aadhaar_service.hash_aadhaar("548900210029")
+            a_status = "VERHOEFF_INVALID"
+        elif pid == "P004":
+            # Intentional Fabricated Fixture 3: Vikram Patel forged check digit error (fails D5 check)
+            a_masked = "XXXX-XXXX-4048"
+            a_hash = aadhaar_service.hash_aadhaar("548900410048")
             a_status = "VERHOEFF_INVALID"
         else:
             base11 = f"5489{i:03d}{1000 + i}"

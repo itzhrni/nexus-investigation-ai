@@ -198,22 +198,62 @@ export const mockAdapter: NexusApi = {
   },
 
   async getAadhaarForensics(personId: string): Promise<AadhaarForensics | null> {
-    const isCollision = personId === "P005" || personId === "P015";
-    const isInvalid = personId === "P010";
+    const isCollision =
+      personId === "P005" ||
+      personId === "P015" ||
+      personId === "P011" ||
+      personId === "P031" ||
+      personId === "P003" ||
+      personId === "P018" ||
+      personId === "P-SURESH" ||
+      personId === "P-VIKRAM";
+
+    const isInvalid =
+      personId === "P010" ||
+      personId === "P002" ||
+      personId === "P004" ||
+      personId === "P-RAVI";
+
+    const collidingMap: Record<string, string[]> = {
+      P005: ["P015 (Pooja Bhatnagar)"],
+      P015: ["P005 (Karan Singh)"],
+      P011: ["P031 (Simran Mehta)"],
+      P031: ["P011 (Meera Mehta)"],
+      P003: ["P018 (Anita Saxena)"],
+      P018: ["P003 (Rohan Gupta)"],
+      "P-SURESH": ["ACC-005 (Axis Mule Account)"],
+      "P-VIKRAM": ["P005 (Karan Singh)"],
+    };
+
+    const status = isCollision
+      ? "COLLISION_FLAGGED"
+      : isInvalid
+      ? "VERHOEFF_INVALID"
+      : "VERHOEFF_VALID";
+
+    let mask = `XXXX-XXXX-${personId.replace(/\D/g, "").padStart(4, "0") || "0016"}`;
+    if (personId === "P005" || personId === "P015") mask = "XXXX-XXXX-9015";
+    else if (personId === "P011" || personId === "P031") mask = "XXXX-XXXX-0114";
+    else if (personId === "P003" || personId === "P018") mask = "XXXX-XXXX-3018";
+    else if (personId === "P-SURESH") mask = "XXXX-XXXX-8448";
+    else if (personId === "P-RAVI" || personId === "P010") mask = "XXXX-XXXX-9999";
+    else if (personId === "P002") mask = "XXXX-XXXX-2029";
+    else if (personId === "P004" || personId === "P-VIKRAM") mask = "XXXX-XXXX-4048";
+
     return {
       person_id: personId,
       has_aadhaar: true,
-      aadhaar_masked: isCollision ? "XXXX-XXXX-9015" : isInvalid ? "XXXX-XXXX-9999" : "XXXX-XXXX-0016",
-      status: isCollision ? "COLLISION_FLAGGED" : isInvalid ? "VERHOEFF_INVALID" : "VERHOEFF_VALID",
+      aadhaar_masked: mask,
+      status,
       verhoeff_valid: !isInvalid,
       collision_detected: isCollision,
       collision_details: isCollision
-        ? "CRITICAL AADHAAR COLLISION: Identifier XXXX-XXXX-9015 is simultaneously claimed across 2 distinct profiles: Karan Singh (P005) and Pooja Bhatnagar (P015). High indicator of forged identity documentation or synthetic identity theft."
+        ? `CRITICAL AADHAAR COLLISION: Identifier ${mask} is simultaneously claimed across multiple profiles (${collidingMap[personId]?.join(", ") || "shared syndicate identity"}). High indicator of forged identity documentation or synthetic identity theft.`
         : null,
-      colliding_person_ids: isCollision ? ["P015"] : [],
-      fanout_sim_count: 1,
-      fanout_account_count: 1,
-      total_fanout: 2,
+      colliding_person_ids: collidingMap[personId] || [],
+      fanout_sim_count: isCollision ? 3 : 1,
+      fanout_account_count: isCollision ? 2 : 1,
+      total_fanout: isCollision ? 5 : 2,
     };
   },
 
