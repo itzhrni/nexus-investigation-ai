@@ -10,10 +10,11 @@ import type {
   TimelineEvent,
   WhatChangedInsight,
 } from "@/types/nexus";
+import { syntheticEntities, syntheticNodes, syntheticEdges } from "./syntheticDb";
 
 export const INVESTIGATION_ID = "INV-042";
 
-export const nodes: GraphNode[] = [
+const baseNodes: GraphNode[] = [
   { id: "V-TN38AB1234", type: "vehicle", label: "TN38AB1234", sublabel: "Vehicle", val: 18 },
   { id: "P-SURESH", type: "person", label: "Suresh", sublabel: "Person", val: 14 },
   { id: "ACC-001", type: "account", label: "HDFC •••• 8448", sublabel: "HDFC Current", val: 10 },
@@ -38,7 +39,9 @@ export const nodes: GraphNode[] = [
   { id: "LOC-BENGALURU", type: "location", label: "Bengaluru", sublabel: "Karnataka", val: 8 },
 ];
 
-export const edges: GraphEdge[] = [
+export const nodes: GraphNode[] = [...baseNodes, ...syntheticNodes];
+
+const baseEdges: GraphEdge[] = [
   {
     id: "E-SURESH-VEH",
     source: "P-SURESH",
@@ -381,7 +384,10 @@ export const edges: GraphEdge[] = [
   },
 ];
 
+export const edges: GraphEdge[] = [...baseEdges, ...syntheticEdges];
+
 export const entities: Record<string, Entity> = {
+  ...syntheticEntities,
   "V-TN38AB1234": {
     id: "V-TN38AB1234",
     type: "vehicle",

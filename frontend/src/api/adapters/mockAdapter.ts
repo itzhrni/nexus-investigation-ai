@@ -37,14 +37,19 @@ function detectType(
   raw: string,
 ): SearchMatch[] {
   const hits: SearchMatch[] = [];
+  const cleanRaw = raw.trim().toLowerCase();
 
   for (const entity of Object.values(entities)) {
     const hay = [
       entity.id,
       entity.label,
       entity.value,
+      entity.canonicalName ?? "",
+      entity.registeredName ?? "",
+      entity.carrier ?? "",
       entity.accountNumber ?? "",
       entity.bankName ?? "",
+      entity.aadhaarMasked ?? "",
       ...(entity.aliases ?? []),
       ...(entity.scripts?.map((s) => s.text) ?? []),
       ...(entity.identifiers?.map((i) => i.value) ?? []),
@@ -54,9 +59,14 @@ function detectType(
       .replace(/[\s-]/g, "");
 
     const rawHay = [
+      entity.id,
       entity.label,
       entity.value,
+      entity.canonicalName ?? "",
+      entity.registeredName ?? "",
+      entity.carrier ?? "",
       entity.bankName ?? "",
+      entity.aadhaarMasked ?? "",
       ...(entity.aliases ?? []),
       ...(entity.scripts?.map((s) => s.text) ?? []),
     ]
@@ -65,9 +75,7 @@ function detectType(
 
     if (
       hay.includes(normalized) ||
-      rawHay.includes(
-        raw.trim().toLowerCase(),
-      )
+      rawHay.includes(cleanRaw)
     ) {
       hits.push({
         entity,
@@ -75,7 +83,7 @@ function detectType(
           entity.id === "V-TN38AB1234" &&
           normalized.includes("TN38AB1234")
             ? 99
-            : 80,
+            : 85,
         reason:
           "Identifier, account or name match after normalization",
       });
@@ -198,6 +206,7 @@ export const mockAdapter: NexusApi = {
   },
 
   async getAadhaarForensics(personId: string): Promise<AadhaarForensics | null> {
+    const ent = entities[personId];
     const isCollision =
       personId === "P005" ||
       personId === "P015" ||
@@ -206,13 +215,15 @@ export const mockAdapter: NexusApi = {
       personId === "P003" ||
       personId === "P018" ||
       personId === "P-SURESH" ||
-      personId === "P-VIKRAM";
+      personId === "P-VIKRAM" ||
+      ent?.aadhaarStatus === "COLLISION_FLAGGED";
 
     const isInvalid =
       personId === "P010" ||
       personId === "P002" ||
       personId === "P004" ||
-      personId === "P-RAVI";
+      personId === "P-RAVI" ||
+      ent?.aadhaarStatus === "VERHOEFF_INVALID";
 
     const collidingMap: Record<string, string[]> = {
       P005: ["P015 (Pooja Bhatnagar)"],
@@ -231,7 +242,7 @@ export const mockAdapter: NexusApi = {
       ? "VERHOEFF_INVALID"
       : "VERHOEFF_VALID";
 
-    let mask = `XXXX-XXXX-${personId.replace(/\D/g, "").padStart(4, "0") || "0016"}`;
+    let mask = ent?.aadhaarMasked || `XXXX-XXXX-${personId.replace(/\D/g, "").padStart(4, "0") || "0016"}`;
     if (personId === "P005" || personId === "P015") mask = "XXXX-XXXX-9015";
     else if (personId === "P011" || personId === "P031") mask = "XXXX-XXXX-0114";
     else if (personId === "P003" || personId === "P018") mask = "XXXX-XXXX-3018";
