@@ -173,6 +173,7 @@ export function mapBackendGraphToPayload(raw: BackendFocalGraphResponse): GraphP
       label: n.label,
       sublabel: n.type,
       val: n.id === raw.focal_entity_id ? 15 : 8,
+      properties: n.properties || {},
     };
   });
 

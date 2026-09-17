@@ -102,6 +102,7 @@ export interface GraphNode {
   label: string;
   sublabel?: string;
   val?: number;
+  properties?: Record<string, any>;
 }
 
 export interface GraphEdge {
