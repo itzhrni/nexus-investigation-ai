@@ -17,4 +17,7 @@ ENV/
 *.egg-info/
 scratch/
 
-
+# Large media files (>100MB)
+*.mp4
+*.mkv
+*.mov
