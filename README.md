@@ -207,10 +207,10 @@ npm run build
 
 ## 👥 Team & Submission Details
 
-* **Hackathon:** Smart India Hackathon (SIH 2024 / 2026)
+* **Hackathon:** Smart India Hackathon (SIH 2026)
 * **Problem Statement:** SIH26189 — AI-Powered Criminal Network Analysis & Clue Resolution System
 * **Ministry / Organization:** Law Enforcement & Crime Intelligence (MHA)
-* **Team Name:** `Uptown Func()`
+* **Team Name:** `Uptown_func()`
 
 ---
 
