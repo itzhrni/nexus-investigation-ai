@@ -11,7 +11,7 @@
 **NEXUS** is an AI-powered tactical criminal network intelligence and clue resolution platform designed for Indian law enforcement agencies (State Police, Cyber Crime Units, CID, and Central Agencies). It ingests fragmented data across state police FIRs, telecom CDR dumps, core banking RTGS/NEFT transaction logs, and national highway FASTag sightings, instantly resolving disconnected clues into an interactive 3D knowledge graph, money trail visualizer, and court-ready evidence dossier.
 
 🔗 **Public Live Demo:** [https://itzhrni.github.io/nexus-investigation-ai/](https://itzhrni.github.io/nexus-investigation-ai/)  
-📁 **Presentation Deck:** [`NEXUS_SIH_Presentation.pptx`](NEXUS_SIH_Presentation.pptx)
+
 
 ---
 
